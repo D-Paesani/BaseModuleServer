@@ -1,0 +1,36 @@
+<html>
+   <body>
+      <form action = "{{ url_for('f_rescue') }}" method = "POST">
+         <br>
+         *******************************************************************************************************<br>
+         **************************************** BASEMODULE SERVER ****************************************<br>
+         ************************************************* <a href="{{ url_for('f_help') }}">HOME</a> ***********************************************
+         <br>
+         <br>
+         <br>
+         <br>
+         <p>&emsp; DU = <input type = "text" name = "du" value={{prefilldu}} />     (enter target DU)</p>
+         <p>&emsp; ST&nbsp; = <input type = "text" name = "state" value={{prefillstate}} />     (enter desired autoreset state to write)</p> 
+         <p>
+         <br>
+         <pre>
+         <input type = "submit" value = "WRITE" name = "submit" style="background-color:red;color:white"/><input type = "submit" value = "READ" name = "submit" style="background-color:blue;color:white"/>
+         </pre>
+         </p>
+         <br>
+         {{msg}}
+         <br>
+         <br>
+         <div>
+            {{ table | safe }}
+         </div>
+         <br>
+         <br>
+         *****************************************************************************************************<br>
+         *****************************************************************************************************
+      </form>
+   </body>
+</html>
+
+
+
