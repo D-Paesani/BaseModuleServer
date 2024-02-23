@@ -1,32 +1,27 @@
-
+from app import app
 from flask import Flask, Response, request, render_template, abort
 from flask_debugtoolbar import DebugToolbarExtension
 import jsc
 import utils as uu
 import pandas as pd
-import time
-import sys
+#from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
+
+@app.route('/', methods = ['GET'])
+def base():
+    return render_template('layouts/base.html')
+
+@app.route('/tables', methods = ['GET'])
+def tables():
+    return render_template('home/tables.html')
+
+
 
 def gettemplate(templ, msg=None):
     if msg != None: templ['msg'] = msg
     return render_template(templ['name'], **templ)
 
-app = Flask(__name__)
-
-app.debug = True
-app.config['SECRET_KEY'] = 'pyrosoma'
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
-app.config['DEBUG_TB_PROFILER_ENABLED'] = True
-app.config['DEBUG_TB_TEMPLATE_EDITOR_ENABLED'] = True
-
-toolbar = DebugToolbarExtension(app)
-
-if __name__ == '__main__':
-    #    app.run(host='0.0.0.0',port=5001)
-    app.run()
-    
 @app.route('/help', methods = ['GET'])
-@app.route('/', methods = ['GET'])
+#@register_breadcrumb(app, '.home', 'Home')
 def f_help(): 
     return render_template('help.html')
 
@@ -145,6 +140,3 @@ def f_rescue():
                     
     else:
         return gettemplate(templ, msg='Waiting for user input')
-
- 
- 

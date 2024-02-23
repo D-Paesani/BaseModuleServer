@@ -1,10 +1,22 @@
-FROM alpine:3.14
+FROM alpine:3.10
 
 RUN apk update && apk upgrade \
 && apk add --no-cache bash \
 && apk add --no-cache --virtual=bild-dependencies unzip \
 && apk add --no-cache curl \
-&& apk add --no-cache openjdk8-jre 
+&& apk add --no-cache openjdk8-jre \
+&& apk add --no-cache python3-dev \
+&& apk add --no-cache build-base \
+&& apk add --no-cache subversion \
+&& apk add --no-cache gfortran \
+&& apk add --no-cache libstdc++ \
+&& apk add --no-cache libffi-dev \
+&& apk add --no-cache openssl-dev \
+&& apk add --no-cache lapack-dev \
+&& apk add --no-cache libxml2-dev \
+&& apk add --no-cache libxslt-dev \
+&& apk add --no-cache libressl-dev
+
 
 RUN apk add --no-cache python3 \
 && python3 -m ensurepip \
@@ -17,11 +29,10 @@ rm -r /root/.cache
 RUN apk add --no-cache python2
 
 WORKDIR /app
-COPY ./requirements.txt ./
+COPY . /app
 RUN pip3 install -r requirements.txt
-COPY . .
 EXPOSE 5001
 
-CMD [ "flask", "run", "--host", "0.0.0.0", "--port", "5001" ]
+CMD [ "bash","run.sh" ]
 
 

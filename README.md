@@ -1,7 +1,8 @@
 
 
 
-docker build -t bmserver .
+-> docker build -t bmserver .
+-> docker run -it -p 5001:5001 -v /home/mirko/daniele_paesani/bms:/app bmserver
 
 
 ADD  /Users/dp/Documents/Software/Python/km3net/logs ./logs 
