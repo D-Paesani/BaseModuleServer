@@ -1,34 +1,78 @@
 {% extends "layouts/base.html" %}
 {% block content %}
-      <form action = "{{ url_for('f_swcontrol') }}" method = "POST">
-         <br>
-         *******************************************************************************************************<br>
-         **************************************** BASEMODULE SERVER ****************************************<br>
-         ************************************************* <a href="{{ url_for('f_help') }}">HOME</a> ***********************************************
-         <br>
-         <br>
-         <br>
-         <br>
-         <p>&emsp; DU = <input type = "text" name = "du" value={{prefilldu}} />     (enter target DU)</p>
-         <p>&emsp; SW = <input type = "text" name = "sws" value={{prefillsws}} />     (enter comma or single-space separated switches to operate)</p> 
-         <p>&emsp; ST &nbsp; = <input type = "text" name = "state" value={{prefillstate}} />     (enter desired switch state)</p> 
-         <p>
-         <br>
-         <pre>
-         <input type = "submit" value = "WRITE" name = "submit" style="background-color:red;color:white"/><input type = "submit" value = "READ" name = "submit" style="background-color:blue;color:white"/>
-         </pre>
-         </p>
-         <br>
-         {{msg}}
-         <br>
-         <br>
-         <div>
-            {{ table | safe }}
+
+      <div class="container">
+         <div class="card  p-2 my-5">
+               <div class="card card-header bg-primary text-center">
+                     <div class="card-title  ">
+                           <h1 class="text-white">BASEMODULE SERVER</h1>
+                     </div>
+               </div>
+               <div class="card-body">
+                  <form action = "{{ url_for('f_swcontrol') }}" method = "POST">
+                     <div class="row">
+      
+                        <div class="col-sm-4 text-right">
+                           <h3>DU =</h3>
+                        </div>
+                        <div class="col-sm-3">
+                           <input type = "text" name = "du" value={{prefilldu}} />     
+                        </div>
+                        <div class="col-sm-4 text-left">
+                           (enter target DU)
+                        </div>
+                        
+                     </div>
+      
+                     <div class="row">
+      
+                        <div class="col-sm-4 text-right">
+                           <h3>SW =</h3>
+                        </div>
+                        <div class="col-sm-3">
+                           <input type = "text" name = "sws" value={{prefillstate}} />     
+                        </div>
+                        <div class="col-sm-4 text-left">
+                           (enter comma or single-space separated switches to operate)
+                        </div>
+                  
+                     </div>
+
+                     <div class="row">
+      
+                        <div class="col-sm-4 text-right">
+                           <h3>ST =</h3>
+                        </div>
+                        <div class="col-sm-3">
+                           <input type = "text" name = "state" value={{prefillstate}} />     
+                        </div>
+                        <div class="col-sm-4 text-left">
+                           (enter desired switch state)
+                        </div>
+                  
+                     </div>
+      
+                     <div class="row d-flex justify-content-center mt-4">
+                        <input type = "submit" value = "WRITE" name = "submit" class="btn btn-danger mr-4">
+                        <input type = "submit" value = "READ" name = "submit" class="btn btn-primary">
+                     </div>
+      
+                     <div class="row d-flex justify-content-center mt-4">
+                        {{msg}}
+                     </div>
+      
+                     <div class="row d-flex justify-content-center mt-4">
+                           {{ table | safe }}
+                     </div>
+                  </form>
+      
+               </div>
+               <div class="card-footer text-center">
+                     Km3NeT - ARCA 2023<br>
+                     Istituto Nazionale di Fisica Nucleare - Laboratori Nazionali del Sud<br>
+                     <!-- Source at <a href=https://github.com/D-Paesani/km3net/>D-Paesani/km3net</a><br> -->
+               </div>
          </div>
-         <br>
-         <br>
-         *****************************************************************************************************<br>
-         *****************************************************************************************************
-      </form>
+      </div>
 
 {% endblock content %}

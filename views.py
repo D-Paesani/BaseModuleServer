@@ -10,10 +10,6 @@ import pandas as pd
 def base():
     return render_template('layouts/base.html')
 
-@app.route('/tables', methods = ['GET'])
-def tables():
-    return render_template('home/tables.html')
-
 
 
 def gettemplate(templ, msg=None):

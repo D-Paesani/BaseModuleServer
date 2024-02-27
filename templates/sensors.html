@@ -1,32 +1,49 @@
 {% extends "layouts/base.html" %}
 {% block content %}
-      <form action = "{{ url_for('f_sensors') }}" method = "POST">
-         <br>
-         *******************************************************************************************************<br>
-         **************************************** BASEMODULE SERVER ****************************************<br>
-         ************************************************* <a href="{{ url_for('f_help') }}">HOME</a> ***********************************************
-         <br>
-         <br>
-         <br>
-         <p>
-         &emsp; DU(s) = <input type = "text" name = "du" value= {{prefilldu}} /> (comma or single-space separated)
-         <br>
-         <br>
-         <pre>
-         <input type = "submit" value = "READ" name = "submit" style="background-color:blue;color:white"/>
-         </pre>
-         </p>
-         {{msg}}
-         <br>
-         <br>
-         <div>
-            {{ table | safe }}
+      <div class="container">
+         <div class="card  p-2 my-5">
+               <div class="card card-header bg-primary text-center">
+                     <div class="card-title  ">
+                           <h1 class="text-white">BASEMODULE SERVER</h1>
+                     </div>
+               </div>
+               <div class="card-body">
+                  <form action = "{{ url_for('f_sensors') }}" method = "POST">
+                     <div class="row">
+      
+                        <div class="col-sm-4 text-right">
+                           <h3>DU(s) =</h3>
+                        </div>
+                        <div class="col-sm-3">
+                           <input type = "text" name = "du" value={{prefilldu}} />     
+                        </div>
+                        <div class="col-sm-4 text-left">
+                           (comma or single-space separated)
+                        </div>
+                        
+                     </div>
+      
+      
+                     <div class="row d-flex justify-content-center mt-4">
+                        <input type = "submit" value = "READ" name = "submit" class="btn btn-primary">
+                     </div>
+      
+                     <div class="row d-flex justify-content-center mt-4">
+                        {{msg}}
+                     </div>
+      
+                     <div class="row d-flex justify-content-center mt-4">
+                           {{ table | safe }}
+                     </div>
+                  </form>
+      
+               </div>
+               <div class="card-footer text-center">
+                     Km3NeT - ARCA 2023<br>
+                     Istituto Nazionale di Fisica Nucleare - Laboratori Nazionali del Sud<br>
+                     <!-- Source at <a href=https://github.com/D-Paesani/km3net/>D-Paesani/km3net</a><br> -->
+               </div>
          </div>
-         <br>
-         <br>
-         *****************************************************************************************************<br>
-         *****************************************************************************************************
-      </form>
-
+      </div>
 {% endblock content %}
 
