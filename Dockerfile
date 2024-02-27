@@ -31,6 +31,7 @@ RUN apk add --no-cache python2
 WORKDIR /app
 COPY . /app
 RUN pip3 install -r requirements.txt
+RUN mkdir -p /logs && chmod 755 /logs && touch /logs/jsccmd.log
 EXPOSE 5001
 
 CMD [ "bash","run.sh" ]
