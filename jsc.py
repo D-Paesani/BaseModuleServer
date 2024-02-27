@@ -4,7 +4,7 @@ import re
 from datetime import datetime
 import json
 
-cmdlogfile =  '../mypath/logs/jsccmd.log'
+cmdlogfile =  './logs/jsccmd.log'
 commandformatdef = 'python2 jsendcommand_dummy.py {ip} {args}' 
 # commandformatdef = 'python3 jsendcommand_dummy_3.py {ip} {args}'
 
@@ -15,7 +15,7 @@ def cmdlogger(cmd, user='?', msg='-', logfile=cmdlogfile, enable=True):
             outfile.write('\n')
             for ii, iii in zip(['TIM','CMD','OPT','USR'],[datetime.utcnow().strftime('%Y/%m/%d %H:%M:%S'),cmd, msg, user]):
                 # outfile.write(F'{" "*4 if ii != "TIM" else "--> "}{ii} = {iii}\n')
-                outfile.write(F'{ii} = {iii}\n')
+                outfile.write(F'{ii} = {iii}|')
     except:
         print('Error logging')
             

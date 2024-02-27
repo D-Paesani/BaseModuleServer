@@ -1,0 +1,10 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+<div class="error-page d-flex align-items-center text-center">
+    <div class="container mx-auto">
+        <p><i class="fa fa-exclamation-triangle text-warning"></i></p>
+        <h1 class="error-code">404</h1>
+        <p class="error-message">{{error}}</p>
+    </div>
+    </div>
+{% endblock %}

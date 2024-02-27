@@ -1,0 +1,31 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+
+    <div class="content col-sm-8 mx-auto">
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table table-default table-hover">
+                    <tr class="text-center fw-bold text-primary">
+                        <th>TIM</th>
+                        <th>CMD</th>
+                        <th>OPT</th>
+                        <th>USR</th>
+                    </tr>
+                    <tbody class="text-center">
+                        {% for line in logs %}
+                            <tr>
+                            {% set log_split = line.split('|') %}
+                                <td> {{log_split[0]}} </td>
+                                <td> {{log_split[1]}} </td>
+                                <td> {{log_split[2]}} </td>
+                                <td> {{log_split[3]}} </td>
+                            </tr>
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

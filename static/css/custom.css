@@ -1,0 +1,48 @@
+table.dataframe, .dataframe th, .dataframe td {
+    border: none;
+    border-bottom: 1px solid #C8C8C8;
+    border-collapse: collapse;
+    text-align:center;
+    padding: 10px;
+    margin-bottom: 40px;
+    font-size: 1.1em;
+  }
+
+.dataframe th {
+    color: var(--primary);
+}
+
+.dataframe td {
+    color: black;
+}
+
+
+  table.dataframe>tbody>tr:hover td,
+  table.dataframe>tbody>tr:hover th {
+    background-color: #e2eaf9 !important;
+  }
+
+.fw-bold {
+    font-weight: 700 !important;
+}
+
+.error-page .fa-exclamation-triangle
+{
+  font-size: 64px;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+.error-message {
+    color: #fff;
+    background: var(--danger);
+    text-align: center;
+    padding: 15px;
+    margin-bottom: 24px;
+    font-weight: 600;
+    font-size: 16px;
+  }
+
+  .table-container {
+    max-height: 800px; 
+    overflow-y: auto; 
+}

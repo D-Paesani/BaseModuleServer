@@ -1,9 +1,10 @@
 from app import app
-from flask import Flask, Response, request, render_template, abort
+from flask import Flask, Response, request, render_template, abort, render_template_string
 from flask_debugtoolbar import DebugToolbarExtension
 import jsc
 import utils as uu
 import pandas as pd
+from collections import deque
 #from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 
 @app.route('/', methods = ['GET'])
@@ -21,14 +22,22 @@ def gettemplate(templ, msg=None):
 def f_help(): 
     return render_template('help.html')
 
+def read_log_file():
+    with open('./logs/jsccmd.log', 'r') as log:
+        return deque(log, 2000)
+
 @app.route('/cmdlog')
-def f_showcmdlog():
-    def generate():
-        with open(jsc.cmdlogfile) as f:
-            while True:
-                yield f.read()
-                # time.sleep(1)
-    return app.response_class(generate(), mimetype='text/plain')
+def render_log():
+    lines = read_log_file()
+    return render_template('cmdlog.html', logs=lines)
+
+# def f_showcmdlog():
+#     def generate():
+#         with open(jsc.cmdlogfile) as f:
+#             while True:
+#                 yield f.read()
+#                 # time.sleep(1)
+#     return app.response_class(generate(), mimetype='text/plain')
 
 @app.route('/dumpsensor/<duid>', methods = ['GET'])
 def f_dumpsensor(duid):
@@ -136,3 +145,7 @@ def f_rescue():
                     
     else:
         return gettemplate(templ, msg='Waiting for user input')
+    
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('404.html', error=error)
