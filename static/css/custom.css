@@ -46,3 +46,103 @@ table.dataframe, .dataframe th, .dataframe td {
     max-height: 800px; 
     overflow-y: auto; 
 }
+
+
+.alert-success-custom {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='hsl(160deg, 100%, 25%)' d='M17.1 7.9l.7.7-7.8 7.6-4.7-4.6.7-.7 4 3.9zM22 12A10 10 0 1 1 12 2a10 10 0 0 1 10 10zm-1 0a9 9 0 1 0-9 9 9 9 0 0 0 9-9z'%3E%3C/path%3E%3C/svg%3E");
+  position: relative;
+  padding: 1rem 1rem;
+    padding-left: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #5d7083;
+    border-left-width: 1px;
+    border-left-style: solid;
+    border-left-color: rgb(93, 112, 131);
+  padding-left: 4em;
+  background-color: #fff;
+  border-radius: 0;
+  color: #1a1a1a;
+  background-position: 20px 12px;
+  background-repeat: no-repeat;
+  background-size: 32px 32px;
+  --bs-alert-color: #004d33;
+  --bs-alert-bg: #cce6dd;
+  --bs-alert-border-color: #b3d9cc;
+  border-left: 8px solid hsl(160deg, 100%, 25%) !important;
+}
+
+.alert-danger-custom {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='hsl(350deg, 60%, 50%)' d='M11.5 14.2V5.7h1.2v8.5zm-.1 4.1h1.2v-1.8h-1.2zM22 7.9v8.3L16.1 22H7.9L2 16.2V7.9L7.9 2h8.2zm-1 .4L15.7 3H8.3L3 8.3v7.5L8.3 21h7.4l5.3-5.2z'%3E%3C/path%3E%3C/svg%3E");
+  border-left: 8px solid hsl(350deg, 60%, 50%) !important;
+  position: relative;
+  padding: 1rem 1rem;
+    padding-left: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #5d7083;
+    border-left-width: 1px;
+    border-left-style: solid;
+    border-left-color: rgb(93, 112, 131);
+  padding-left: 4em;
+  background-color: #fff;
+  border-radius: 0;
+  color: #1a1a1a;
+  background-position: 20px 12px;
+  background-repeat: no-repeat;
+  background-size: 32px 32px;
+  --bs-alert-color: #7a1f2e;
+  --bs-alert-bg: #f5d6db;
+  --bs-alert-border-color: #f0c2ca;
+
+}
+
+.btn-close {
+  box-sizing: content-box;
+  width: 1em;
+  height: 1em;
+  padding: .25em .25em;
+  color: #000;
+  background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
+  border: 0;
+  border-radius: .25rem;
+  opacity: .5;
+}
+.btn-close:hover {
+  color: #000;
+  text-decoration: none;
+  opacity: .75;
+}
+[type="button"]:not(:disabled), [type="reset"]:not(:disabled), [type="submit"]:not(:disabled), button:not(:disabled) {
+  cursor: pointer;
+}
+.alert-dismissible .btn-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  /*padding: 1.25rem 1rem;*/
+}
+
+
+.alert-message {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='hsl(210deg, 100%, 40%)' d='M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 19a9 9 0 1 1 9-9 9 9 0 0 1-9 9zm-.7-15h1.5v2h-1.5zm0 3h1.5v9h-1.5z'%3E%3C/path%3E%3C/svg%3E");
+  border-left: 8px solid hsl(210deg, 100%, 40%) !important;
+  --bs-alert-color: #003d7a;
+  --bs-alert-bg: #cce0f5;
+  --bs-alert-border-color: #b3d1f0;
+  position: relative;
+  padding: 1rem 1rem;
+    padding-left: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #5d7083;
+    border-left-width: 1px;
+    border-left-style: solid;
+    border-left-color: rgb(93, 112, 131);
+  padding-left: 4em;
+  background-color: #fff;
+  border-radius: 0;
+  color: #1a1a1a;
+  background-position: 20px 12px;
+  background-repeat: no-repeat;
+  background-size: 32px 32px;
+
+}

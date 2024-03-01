@@ -2543,7 +2543,7 @@ input[type="button"].btn-block {
 .dropdown-menu {
   position: absolute;
   top: 100%;
-  left: 0;
+  left: -70px;
   z-index: 1000;
   display: none;
   float: left;
@@ -3367,7 +3367,9 @@ input[type="button"].btn-block {
   display: block;
   padding: 0.5rem 1rem; }
   .nav-link:hover, .nav-link:focus {
-    text-decoration: none; }
+    text-decoration: none; 
+    background-color: var(--primary);
+    color: white;}
   .nav-link.disabled {
     color: #6c757d;
     pointer-events: none;

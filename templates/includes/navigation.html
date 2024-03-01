@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<!--<nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
 
     <button type="button" id="sidebarCollapse" class="btn btn-primary">
@@ -25,5 +25,37 @@
         </li>
       </ul>
     </div>
+  </div>
+</nav>-->
+
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <button type="button" id="sidebarCollapse" class="btn btn-primary" data-toggle="collapse">
+      <i class="fa fa-bars"></i>
+    </button>
+   
+
+      <div class="nav-item dropdown  float-end" id="dropdown-trigger">
+        <a class="nav-link dropdown-toggle dropstart fa fa-user-circle fa-2x" id="dropdown1" aria-expanded="false" href="#" data-toggle="dropdown"></a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown1">
+          {% if current_user.is_authenticated %}
+            <li class="dropdown-header text-center">
+              <h6>{{ current_user.username }}</h6>
+              
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active fw-bold" aria-current="page" href="/logout">Logout</a>
+            </li> 
+          {% else %}
+            <li class="nav-item active">
+              <a class="nav-link" href="/login">Login</a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
   </div>
 </nav>

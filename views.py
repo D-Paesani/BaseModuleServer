@@ -1,15 +1,18 @@
 from app import app
-from flask import Flask, Response, request, render_template, abort, render_template_string
+from flask import Flask, Response, request, render_template, abort
 from flask_debugtoolbar import DebugToolbarExtension
 import jsc
 import utils as uu
 import pandas as pd
 from collections import deque
+from flask_login import current_user, login_required
+
 #from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 
 @app.route('/', methods = ['GET'])
+@login_required
 def base():
-    return render_template('layouts/base.html')
+    return render_template('help.html')
 
 
 
@@ -18,6 +21,7 @@ def gettemplate(templ, msg=None):
     return render_template(templ['name'], **templ)
 
 @app.route('/help', methods = ['GET'])
+@login_required
 #@register_breadcrumb(app, '.home', 'Home')
 def f_help(): 
     return render_template('help.html')
@@ -27,6 +31,7 @@ def read_log_file():
         return deque(log, 2000)
 
 @app.route('/cmdlog')
+@login_required
 def render_log():
     lines = read_log_file()
     return render_template('cmdlog.html', logs=lines)
@@ -40,6 +45,7 @@ def render_log():
 #     return app.response_class(generate(), mimetype='text/plain')
 
 @app.route('/dumpsensor/<duid>', methods = ['GET'])
+@login_required
 def f_dumpsensor(duid):
     resp = {}
     try:
@@ -49,6 +55,7 @@ def f_dumpsensor(duid):
     return resp
     
 @app.route('/sensors', methods = ['GET', 'POST'])
+@login_required
 def f_sensors(): 
     templ = dict(name='sensors.html', prefilldu='1', table='') 
     dd, ddt = [], []
@@ -75,6 +82,7 @@ def f_sensors():
         return gettemplate(templ, msg=F'Waiting for user input')
     
 @app.route('/swcontrol', methods = ['GET', 'POST'])
+@login_required
 def f_swcontrol(): 
     templ = dict(name='swcontrol.html', table='', datajson='', prefilldu='1', prefillsws=1, prefillstate=1) 
     dd = pd.DataFrame()
@@ -114,6 +122,7 @@ def f_swcontrol():
 
 
 @app.route('/rescue', methods = ['GET', 'POST'])
+@login_required
 def f_rescue(): 
     templ = dict(name='rescue.html', table='', datajson='', prefilldu='1', prefillstate=1) 
     dd = pd.DataFrame()
@@ -145,7 +154,6 @@ def f_rescue():
                     
     else:
         return gettemplate(templ, msg='Waiting for user input')
-    
-@app.errorhandler(404)
-def page_not_found(error):
-    return render_template('404.html', error=error)
+
+
+
