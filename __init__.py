@@ -6,6 +6,7 @@ import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
+from authlib.integrations.flask_client import OAuth
 
 
 
@@ -30,6 +31,9 @@ app.config['DEBUG_TB_TEMPLATE_EDITOR_ENABLED'] = True
 #toolbar = DebugToolbarExtension(app)
 #Breadcrumbs(app=app)
 
+#export GOOGLE_DISCOVERY_URL=https://accounts.google.com/.well-known/openid-configuration
+
+oauth = OAuth(app)
 
 from app import views, routes
 from dbmanager import is_db_created
