@@ -1,14 +1,16 @@
-import utils as uu
+import bms.controller.utils as uu
 import subprocess
 import re
 from datetime import datetime
 import json
+from . import BASEDIR
+from flask_login import current_user
 
-cmdlogfile =  './logs/jsccmd.log'
-commandformatdef = 'python2 jsendcommand_dummy.py {ip} {args}' 
+cmdlogfile =  f'{BASEDIR}/logs/jsccmd.log'
+commandformatdef = 'python2 %s/jsendcommand_dummy.py {ip} {args}' % (BASEDIR)
 # commandformatdef = 'python3 jsendcommand_dummy_3.py {ip} {args}'
 
-def cmdlogger(cmd, user='?', msg='-', logfile=cmdlogfile, enable=True):
+def cmdlogger(cmd, user, msg='-', logfile=cmdlogfile, enable=True):
     if not enable: return
     try:
         with open(logfile, 'a') as outfile:
@@ -52,7 +54,7 @@ class jcmd:
 
     def exec(self, du, opts=None):
         pp, cc = execandparse(du, self)
-        cmdlogger(cmd=cc, user='?', msg=F'du{du}', enable=self.logen)
+        cmdlogger(cmd=cc, user=current_user, msg=F'du{du}', enable=self.logen)
         return pp
     
 commands = dict(

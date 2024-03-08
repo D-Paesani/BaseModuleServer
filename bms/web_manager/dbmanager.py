@@ -1,6 +1,6 @@
-from flask import Flask
+from flask import Flask, current_app
 from flask_sqlalchemy import SQLAlchemy
-from app import app, db, login_manager
+from bms.web_manager import db, login_manager
 import os, random, string
 from flask_bcrypt import generate_password_hash
 from flask_login import UserMixin
@@ -24,8 +24,8 @@ def load_user(email):
 
 
 def is_db_created():
-    with app.app_context():
-        db_file = app.config['SQLALCHEMY_DATABASE_URI'].replace('sqlite:///', '')
+    with current_app.app_context():
+        db_file = current_app.config['SQLALCHEMY_DATABASE_URI'].replace('sqlite:///', '')
         if not os.path.isfile(db_file):
             db.create_all()
             db_admin = Users(username='guest', 

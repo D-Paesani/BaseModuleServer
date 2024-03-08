@@ -1,0 +1,5 @@
+
+TIM = 2024/03/08 14:40:52|CMD = python2 /app/bms/controller/jsendcommand_dummy.py 10.1.1.100 SWITCH_CONTROL|OPT = du1|USR = ?|
+TIM = 2024/03/08 15:11:50|CMD = python2 /app/bms/controller/jsendcommand_dummy.py 10.1.1.100 SENSOR_VALUES_GETALL|OPT = du1|USR = guest|
+TIM = 2024/03/08 15:12:46|CMD = python2 /app/bms/controller/jsendcommand_dummy.py 10.1.1.100 SENSOR_VALUES_GETALL|OPT = du1|USR = ?|
+TIM = 2024/03/08 15:14:43|CMD = python2 /app/bms/controller/jsendcommand_dummy.py 10.1.1.100 SWITCH_CONTROL|OPT = du1|USR = guest|

@@ -1,4 +1,4 @@
-from app import oauth
+from bms.web_manager import oauth
 import os, requests
 
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")

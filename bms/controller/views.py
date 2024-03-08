@@ -1,36 +1,31 @@
-from app import app
-from flask import Flask, Response, request, render_template, abort
+from flask import Flask, request, render_template, abort, Blueprint
 from flask_debugtoolbar import DebugToolbarExtension
-import jsc
-import utils as uu
+import bms.controller.jsc as jsc
+import bms.controller.utils as uu
 import pandas as pd
 from collections import deque
-from flask_login import current_user, login_required
+from flask_login import login_required
+from . import BASEDIR
 
 #from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 
-@app.route('/', methods = ['GET'])
-@login_required
-def base():
-    return render_template('help.html')
-
-
+cmd_bluepint = Blueprint('cmd', __name__, template_folder="../../templates")
 
 def gettemplate(templ, msg=None):
     if msg != None: templ['msg'] = msg
     return render_template(templ['name'], **templ)
 
-@app.route('/help', methods = ['GET'])
+@cmd_bluepint.route('/help', methods = ['GET'])
 @login_required
 #@register_breadcrumb(app, '.home', 'Home')
 def f_help(): 
     return render_template('help.html')
 
 def read_log_file():
-    with open('./logs/jsccmd.log', 'r') as log:
+    with open(f'{BASEDIR}/logs/jsccmd.log', 'r') as log:
         return deque(log, 2000)
 
-@app.route('/cmdlog')
+@cmd_bluepint.route('/cmdlog')
 @login_required
 def render_log():
     lines = read_log_file()
@@ -44,7 +39,7 @@ def render_log():
 #                 # time.sleep(1)
 #     return app.response_class(generate(), mimetype='text/plain')
 
-@app.route('/dumpsensor/<duid>', methods = ['GET'])
+@cmd_bluepint.route('/dumpsensor/<duid>', methods = ['GET'])
 @login_required
 def f_dumpsensor(duid):
     resp = {}
@@ -54,7 +49,7 @@ def f_dumpsensor(duid):
         abort(404)
     return resp
     
-@app.route('/sensors', methods = ['GET', 'POST'])
+@cmd_bluepint.route('/sensors', methods = ['GET', 'POST'])
 @login_required
 def f_sensors(): 
     templ = dict(name='sensors.html', prefilldu='1', table='') 
@@ -81,7 +76,7 @@ def f_sensors():
     else:
         return gettemplate(templ, msg=F'Waiting for user input')
     
-@app.route('/swcontrol', methods = ['GET', 'POST'])
+@cmd_bluepint.route('/swcontrol', methods = ['GET', 'POST'])
 @login_required
 def f_swcontrol(): 
     templ = dict(name='swcontrol.html', table='', datajson='', prefilldu='1', prefillsws=1, prefillstate=1) 
@@ -121,7 +116,7 @@ def f_swcontrol():
         return gettemplate(templ, msg='Waiting for user input')
 
 
-@app.route('/rescue', methods = ['GET', 'POST'])
+@cmd_bluepint.route('/rescue', methods = ['GET', 'POST'])
 @login_required
 def f_rescue(): 
     templ = dict(name='rescue.html', table='', datajson='', prefilldu='1', prefillstate=1) 
