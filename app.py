@@ -7,5 +7,5 @@ def before_first_request():
     dbmanager.is_db_created()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5001)
     

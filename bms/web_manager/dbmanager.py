@@ -3,7 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from bms.web_manager import db, login_manager
 import os, random, string
 from flask_bcrypt import generate_password_hash
-from flask_login import UserMixin
+from flask_login import UserMixin, AnonymousUserMixin
+from .roles import Permission, Roles
 
 class Users(db.Model, UserMixin):
 
@@ -14,9 +15,24 @@ class Users(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     source = db.Column(db.String(16), nullable=False) #local, google
     is_active = db.Column(db.Boolean(), default=True)
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
 
     def __repr__(self):
         return f"{self.username}"
+    
+    def can(self, perm):
+        return self.role is not None and self.role.has_permission(perm)
+
+    def is_administrator(self):
+        return self.can(Permission.ADMIN)
+
+
+class AnonymousUser(AnonymousUserMixin):
+    def can(self, permissions):
+        return False
+
+    def is_administrator(self):
+        return False
 
 @login_manager.user_loader
 def load_user(email):
@@ -31,8 +47,21 @@ def is_db_created():
             db_admin = Users(username='guest', 
                              password=generate_password_hash('guess').decode('utf-8'), 
                              email='admin@email.com',
-                             source='local')
+                             source='local',
+                             role_id=2)
             db.session.add(db_admin)
+            db.session.commit()
+
+            db_roles = Roles(id=3, name='Reader', default=True, permissions=1)
+            db.session.add(db_roles)
+            db.session.commit()
+
+            db_roles = Roles(id=2, name='Edit', default=True, permissions=3)
+            db.session.add(db_roles)
+            db.session.commit()
+
+            db_roles = Roles(id=1, name='Admin', default=True, permissions=7)
+            db.session.add(db_roles)
             db.session.commit()
             
 

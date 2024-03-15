@@ -20,6 +20,11 @@
       <div id="content" class="p-4 p-md-5">
 
         {% include 'includes/navigation.html' %}
+        {% if current_user.is_authenticated %}
+          {% if current_user.can(Permission.READ) %}
+            test permission admin             
+          {% endif %}
+          {% endif %}
 
         <!--<h2 class="mb-4">Sidebar #07</h2>-->
         <div class="row mt-3">

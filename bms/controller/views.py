@@ -1,15 +1,16 @@
-from flask import Flask, request, render_template, abort, Blueprint
+from flask import Flask, request, render_template, abort, Blueprint, abort
 from flask_debugtoolbar import DebugToolbarExtension
 import bms.controller.jsc as jsc
 import bms.controller.utils as uu
 import pandas as pd
 from collections import deque
-from flask_login import login_required
+from flask_login import login_required, current_user
 from . import BASEDIR
+from bms.web_manager.roles import Permission
 
 #from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 
-cmd_bluepint = Blueprint('cmd', __name__, template_folder="../../templates")
+cmd_bluepint = Blueprint('cmd', __name__, template_folder="./templates")
 
 def gettemplate(templ, msg=None):
     if msg != None: templ['msg'] = msg
@@ -28,8 +29,12 @@ def read_log_file():
 @cmd_bluepint.route('/cmdlog')
 @login_required
 def render_log():
-    lines = read_log_file()
-    return render_template('cmdlog.html', logs=lines)
+    if current_user.can(Permission.ADMIN):
+        lines = read_log_file()
+        lines.reverse()
+        return render_template('cmdlog.html', logs=lines)
+    else:
+        abort(403)
 
 # def f_showcmdlog():
 #     def generate():
@@ -149,6 +154,3 @@ def f_rescue():
                     
     else:
         return gettemplate(templ, msg='Waiting for user input')
-
-
-

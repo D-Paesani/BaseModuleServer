@@ -1,11 +1,15 @@
-from bms.web_manager.forms import LoginForm
-from bms.web_manager.dbmanager import Users, gen_random_psw
-from bms.web_manager import bcrypt, db
+from .forms import LoginForm
+from .dbmanager import Users, gen_random_psw
+from . import bcrypt, db
 from flask import Flask, request, render_template, redirect, url_for, flash, Blueprint
-from bms.web_manager.forms import LoginForm
 from flask_login import login_user, current_user, logout_user, login_required
+from .roles import Permission
 
 routes_blueprint = Blueprint('user', __name__, template_folder="../../templates")#, static_folder="../static")
+
+@routes_blueprint.app_context_processor
+def inject_permissions():
+    return dict(Permission=Permission)
 
 @routes_blueprint.route('/', methods = ['GET'])
 @login_required
@@ -45,6 +49,10 @@ def logout():
     logout_user()
     return redirect(url_for('user.login'))
 
-@routes_blueprint.errorhandler(404)
+@routes_blueprint.app_errorhandler(404)
 def page_not_found(error):
     return render_template('404.html', error=error)
+
+@routes_blueprint.app_errorhandler(403)
+def page_not_found(error):
+    return render_template('403.html', error=error)
