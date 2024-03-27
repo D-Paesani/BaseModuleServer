@@ -42,16 +42,18 @@
           {% if current_user.is_authenticated %}
             <li class="dropdown-header text-center">
               <h6>{{ current_user.username }}</h6>
-              
             </li>
             <li>
               <hr class="dropdown-divider">
             </li>
-            <li class="nav-item">
+            <li class="nav-item text-center">
+              <span class="dropdown-header">Role: {{ current_user.get_role() }}</span>
+            </li>
+            <li class="nav-item text-center">
               <a class="nav-link active fw-bold" aria-current="page" href="/logout">Logout</a>
             </li> 
           {% else %}
-            <li class="nav-item active">
+            <li class="nav-item active text-center">
               <a class="nav-link" href="/login">Login</a>
             </li>
           {% endif %}

@@ -1,6 +1,12 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Bootstrap CSS -->
+
+
+<!-- Bootstrap Bundle con Popper.js -->
+
+
   	<!--<title>Sidebar 07</title>-->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -20,11 +26,7 @@
       <div id="content" class="p-4 p-md-5">
 
         {% include 'includes/navigation.html' %}
-        {% if current_user.is_authenticated %}
-          {% if current_user.can(Permission.READ) %}
-            test permission admin             
-          {% endif %}
-          {% endif %}
+        
 
         <!--<h2 class="mb-4">Sidebar #07</h2>-->
         <div class="row mt-3">
@@ -44,10 +46,12 @@
         
       </div>
 		</div>
-    
+   
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/popper.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
     <script src="/static/js/main.js"></script>
+
   </body>
+
 </html>

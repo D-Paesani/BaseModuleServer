@@ -28,3 +28,6 @@ Flask-Bcrypt
 SQLAlchemy
 bcrypt
 Flask-WTF
+Flask-JWT-Extended
+authlib
+requests

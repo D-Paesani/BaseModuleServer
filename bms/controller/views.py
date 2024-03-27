@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, abort, Blueprint, abort
+from flask import Flask, request, render_template, abort, Blueprint, abort, flash, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 import bms.controller.jsc as jsc
 import bms.controller.utils as uu
@@ -6,7 +6,7 @@ import pandas as pd
 from collections import deque
 from flask_login import login_required, current_user
 from . import BASEDIR
-from bms.web_manager.roles import Permission
+from ..web_manager.decorators import admin_required
 
 #from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 
@@ -28,13 +28,14 @@ def read_log_file():
 
 @cmd_bluepint.route('/cmdlog')
 @login_required
+@admin_required
 def render_log():
-    if current_user.can(Permission.ADMIN):
-        lines = read_log_file()
-        lines.reverse()
-        return render_template('cmdlog.html', logs=lines)
-    else:
-        abort(403)
+    #if current_user.can(Permission.ADMIN):
+    lines = read_log_file()
+    lines.reverse()
+    return render_template('cmdlog.html', logs=lines)
+    #else:
+    #    abort(403)
 
 # def f_showcmdlog():
 #     def generate():
@@ -98,9 +99,12 @@ def f_swcontrol():
             sws, templ['prefillsws'] = uu.parsestrlist(request.form.get('sws'), typ=int)
         except:
             return gettemplate(templ, msg='Error retrieving SW') 
-        if request.form['submit'] == 'WRITE':
+        #if request.form['submit'] == 'WRITE':
+        data = request.json
+        if data.get('submit') == 'WRITE':
             try:
                 state =  templ['prefillstate'] = int(request.form.get('state'))
+                
             except:
                 return gettemplate(templ, msg='Error retrieving STATE value')
             
@@ -110,6 +114,8 @@ def f_swcontrol():
                 resp.pop('du')
                 resp['switch'] = ii
                 dd = pd.concat([dd, pd.DataFrame(resp, index=[''])])
+                #dd['SWITCHSTATE_4DUMMIES'] = dd['SWITCHSTATE']
+                for torep, repl in zip(['OPEN', 'CLOSED'], ['OPEN (OFF)', 'CLOSED (ON)']): dd['SWITCHSTATE'].replace(torep, repl, inplace=True)
                 templ['table'] = dd.to_html(index=False)
             except:
                 return gettemplate(templ, msg=F'Error {("writing to" if state<2 else "reading").lower()} SW {ii} ')  

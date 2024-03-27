@@ -25,6 +25,17 @@ class Users(db.Model, UserMixin):
 
     def is_administrator(self):
         return self.can(Permission.ADMIN)
+    
+    def get_role(self):
+        return self.role.name if self.role else None
+    
+    def to_dict(self):
+        return {'id': self.id,
+                'username' : self.username,
+                'password0' : self.password,
+                'email' : self.email,
+                'source' : self.source,
+                'role_id' : self.role_id}
 
 
 class AnonymousUser(AnonymousUserMixin):
@@ -48,19 +59,19 @@ def is_db_created():
                              password=generate_password_hash('guess').decode('utf-8'), 
                              email='admin@email.com',
                              source='local',
-                             role_id=2)
+                             role_id=1)
             db.session.add(db_admin)
             db.session.commit()
 
-            db_roles = Roles(id=3, name='Reader', default=True, permissions=1)
+            db_roles = Roles(id=3, name='reader', default=True, permissions=1)
             db.session.add(db_roles)
             db.session.commit()
 
-            db_roles = Roles(id=2, name='Edit', default=True, permissions=3)
+            db_roles = Roles(id=2, name='edit', default=True, permissions=3)
             db.session.add(db_roles)
             db.session.commit()
 
-            db_roles = Roles(id=1, name='Admin', default=True, permissions=7)
+            db_roles = Roles(id=1, name='admin', default=True, permissions=7)
             db.session.add(db_roles)
             db.session.commit()
             

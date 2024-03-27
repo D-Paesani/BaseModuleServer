@@ -9,7 +9,7 @@
                      </div>
                </div>
                <div class="card-body">
-                  <form action = "{{ url_for('cmd.f_swcontrol') }}" method = "POST">
+                  <form action = "{{ url_for('cmd.f_swcontrol') }}" method = "POST" id="confirmForm">
                      <div class="row">
       
                         <div class="col-sm-4 text-right">
@@ -30,7 +30,7 @@
                            <h3>SW =</h3>
                         </div>
                         <div class="col-sm-3">
-                           <input type="text" name="sws" class="form-control" value={{prefilldu}} />
+                           <input type="text" name="sws" class="form-control" value={{prefillsws}} />
                         </div>
                         <div class="col-sm-4 text-left">
                            (enter comma or single-space separated switches to operate)
@@ -44,17 +44,21 @@
                            <h3>ST =</h3>
                         </div>
                         <div class="col-sm-3">
-                           <input type="text" name="state" class="form-control" value={{prefilldu}} />
+                           <input type="text" name="state" class="form-control" value={{prefillstate}} />
                         </div>
                         <div class="col-sm-4 text-left">
                            (enter desired switch state)
                         </div>
                   
                      </div>
-      
+                     
                      <div class="row d-flex justify-content-center mt-4">
-                        <input type = "submit" value = "WRITE" name = "submit" class="btn btn-danger mr-4">
-                        <input type = "submit" value = "READ" name = "submit" class="btn btn-primary">
+
+                        <button type="button" class="btn btn-primary" onclick="confirmSubmit('WRITE')">WRITE</button>
+                           <button type="button" class="btn btn-primary" onclick="confirmSubmit('READ')">READ</button>
+                        
+                        
+                        
                      </div>
       
                      <div class="row d-flex justify-content-center mt-4">
@@ -74,5 +78,55 @@
                </div>
          </div>
       </div>
+      
+<!-- Modal di conferma -->
+<div class="modal fade" id="modal-confirmation" tabindex="-1" style="display: none;" aria-hidden="true">
+   <div class="modal-dialog">
+     <div class="modal-content bg-light">
+       <div class="modal-header">
+         <h5 class="modal-title text-primary fw-bold"></h5>
+         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+       </div>
+       <div class="modal-body fw-bold">
+       </div>
+       <div class="modal-footer">
+         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+         <button id="confirmAction" type="button" class="btn btn-primary">Confirm</button>
+       </div>
+     </div>
+   </div>
+ </div>
 
+<script>
+   function confirmSubmit(action) {
+      const modalTitle = document.querySelector("#modal-confirmation .modal-title");
+      modalTitle.textContent = `Alert SWM Operations`;
+      const modalBody = document.querySelector("#modal-confirmation .modal-body");
+      modalBody.innerHTML = `Are you sure want to  all SWM selected?<br><br>`;
+      
+      
+      var confirmationModal = new bootstrap.Modal(document.getElementById('modal-confirmation'), { backdrop: 'static' });
+      confirmationModal.show();
+      document.getElementById("confirmAction").addEventListener("click", () => {
+      
+        confirmationModal.hide();
+        const formData = new FormData();
+        formData.append('submit', 'WRITE');
+
+        fetch('/swcontrol', {
+         method: 'POST',
+         body: formData
+      })
+   })
+       
+       // Invia il modulo
+       //
+   }
+</script>
+
+<!-- if (confirm('Sicuro?')) { 
+   document.querySelector('form').submit(); 
+ } -->
 {% endblock content %}
+<input type="submit" value="WRITE" name="submit" class="btn btn-primary">
+                           <input type="submit" value="READ" name="submit" class="btn btn-primary">

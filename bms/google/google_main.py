@@ -1,6 +1,7 @@
 from bms.web_manager.dbmanager import Users, gen_random_psw
 from bms.web_manager import db
 from bms.google.google_api import google
+from bms.keycloak.manager import Manager
 from flask import Flask, request, redirect, url_for, flash, Blueprint
 from flask_login import login_user, current_user
 
@@ -16,22 +17,34 @@ def google_authorize():
     # Gestisci il callback dell'autenticazione Google
     token = google.authorize_access_token()
     user_info = google.parse_id_token(token, None)
-    
-    # Controlla se l'utente esiste nel database
-    user = Users.query.filter_by(email=user_info['email']).first()
-    if not user:
-        # Crea un nuovo utente nel database
-        user = Users(email=user_info['email'], username=user_info['name'], password=gen_random_psw(), source='google')
-        db.session.add(user)
-        db.session.commit()
+
+    if user_info['email_verified']:
+        resp, user = Manager.check_google(user_info['email'], 'google')
+        if resp:
+        # Esegui il login dell'utente
+            login_user(user)
+            flash(f'WELCOME {current_user}', 'success-custom')
+            return redirect(url_for('user.base'))
+        else:
+            flash(f'{user}', 'danger-custom')
     else:
-        up = Users.query.filter_by(id=user.id).first()
-        up.password = gen_random_psw()
-        db.session.add(up)
-        db.session.commit()
+        flash('Google returned Email Verified False', 'danger-custom')
+    
+    # # Controlla se l'utente esiste nel database
+    # user = Users.query.filter_by(email=user_info['email']).first()
+    # if not user:
+    #     # Crea un nuovo utente nel database
+    #     user = Users(email=user_info['email'], username=user_info['name'], password=gen_random_psw(), source='google')
+    #     db.session.add(user)
+    #     db.session.commit()
+    # else:
+    #     up = Users.query.filter_by(id=user.id).first()
+    #     up.password = gen_random_psw()
+    #     db.session.add(up)
+    #     db.session.commit()
 
-    # Esegui il login dell'utente
-    login_user(user)
+    # # Esegui il login dell'utente
+    # login_user(user)
 
-    flash(f'WELCOME {current_user}', 'success-custom')
-    return redirect(url_for('base'))
+    # flash(f'WELCOME {current_user}', 'success-custom')
+    # return redirect(url_for('base'))

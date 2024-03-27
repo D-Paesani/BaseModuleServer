@@ -13,9 +13,14 @@
     <li>
       <a href="/swcontrol"><span class="fa fa-cogs"></span> SWcontrol</a>
     </li>
-    <li>
-      <a href="/cmdlog"><span class="fa fa-list-alt"></span> CMDlog</a>
-    </li>
+    {% if current_user.is_authenticated %}
+      {% if current_user.can(Permission.ADMIN) %}
+        <li>
+          <a href="/cmdlog"><span class="fa fa-list-alt"></span> CMDlog</a>
+        </li>        
+      {% endif %}
+    {% endif %}
+    
     
   </ul>
 
