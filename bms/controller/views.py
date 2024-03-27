@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, abort, Blueprint, abort, flash, jsonify
+from flask import Flask, request, render_template, abort, Blueprint, abort, flash, redirect, url_for, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 import bms.controller.jsc as jsc
 import bms.controller.utils as uu
@@ -7,6 +7,7 @@ from collections import deque
 from flask_login import login_required, current_user
 from . import BASEDIR
 from ..web_manager.decorators import admin_required
+from .forms import Swcontrol
 
 #from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 
@@ -91,6 +92,7 @@ def f_swcontrol():
     
     if request.method == 'POST':
         
+        
         try:
             du = templ['prefilldu'] = int(request.form.get('du'))
         except:
@@ -98,10 +100,13 @@ def f_swcontrol():
         try:
             sws, templ['prefillsws'] = uu.parsestrlist(request.form.get('sws'), typ=int)
         except:
-            return gettemplate(templ, msg='Error retrieving SW') 
-        #if request.form['submit'] == 'WRITE':
-        data = request.json
-        if data.get('submit') == 'WRITE':
+            return gettemplate(templ, msg='Error retrieving SW')
+        submit =  request.form.get('submit')
+        
+        if submit == 'WRITE':
+
+        # data = request.json
+        # if data.get('submit') == 'WRITE':
             try:
                 state =  templ['prefillstate'] = int(request.form.get('state'))
                 
@@ -114,17 +119,22 @@ def f_swcontrol():
                 resp.pop('du')
                 resp['switch'] = ii
                 dd = pd.concat([dd, pd.DataFrame(resp, index=[''])])
+                mapping = {'OPEN': 'OPEN (OFF)', 'CLOSED': 'CLOSED (ON)'}
+                dd['SWITCHSTATE'] = dd['SWITCHSTATE'].replace(mapping)
                 #dd['SWITCHSTATE_4DUMMIES'] = dd['SWITCHSTATE']
-                for torep, repl in zip(['OPEN', 'CLOSED'], ['OPEN (OFF)', 'CLOSED (ON)']): dd['SWITCHSTATE'].replace(torep, repl, inplace=True)
+                #for torep, repl in zip(['OPEN', 'CLOSED'], ['OPEN (OFF)', 'CLOSED (ON)']): dd['SWITCHSTATE'].replace(torep, repl, inplace=True)
                 templ['table'] = dd.to_html(index=False)
-            except:
+                
+            except Exception as e:
                 return gettemplate(templ, msg=F'Error {("writing to" if state<2 else "reading").lower()} SW {ii} ')  
                          
         msg = F'{"Writing to" if state<2 else "Reading"} DU{du:04d} switch{"es" if len(sws) > 1 else ""} {sws} {F"to STATE={state}" if state<2 else ""} with response:'
+        return jsonify ({'msg' : msg,
+                         'table' : templ['table']})
         return gettemplate(templ, msg)
                     
     else:
-        return gettemplate(templ, msg='Waiting for user input')
+         return gettemplate(templ, msg='Waiting for user input')
 
 
 @cmd_bluepint.route('/rescue', methods = ['GET', 'POST'])
@@ -160,3 +170,4 @@ def f_rescue():
                     
     else:
         return gettemplate(templ, msg='Waiting for user input')
+
