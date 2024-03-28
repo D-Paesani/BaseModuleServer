@@ -7,17 +7,18 @@ from collections import deque
 from flask_login import login_required, current_user
 from . import BASEDIR
 from ..web_manager.decorators import admin_required
-from .forms import Swcontrol
+from .export_to_xlsx import *
+from time import sleep
 
 #from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 
-cmd_bluepint = Blueprint('cmd', __name__, template_folder="./templates")
+cmd_blueprint = Blueprint('cmd', __name__, template_folder="./templates")
 
 def gettemplate(templ, msg=None):
     if msg != None: templ['msg'] = msg
     return render_template(templ['name'], **templ)
 
-@cmd_bluepint.route('/help', methods = ['GET'])
+@cmd_blueprint.route('/help', methods = ['GET'])
 @login_required
 #@register_breadcrumb(app, '.home', 'Home')
 def f_help(): 
@@ -27,7 +28,7 @@ def read_log_file():
     with open(f'{BASEDIR}/logs/jsccmd.log', 'r') as log:
         return deque(log, 2000)
 
-@cmd_bluepint.route('/cmdlog')
+@cmd_blueprint.route('/cmdlog')
 @login_required
 @admin_required
 def render_log():
@@ -46,7 +47,7 @@ def render_log():
 #                 # time.sleep(1)
 #     return app.response_class(generate(), mimetype='text/plain')
 
-@cmd_bluepint.route('/dumpsensor/<duid>', methods = ['GET'])
+@cmd_blueprint.route('/dumpsensor/<duid>', methods = ['GET'])
 @login_required
 def f_dumpsensor(duid):
     resp = {}
@@ -56,7 +57,7 @@ def f_dumpsensor(duid):
         abort(404)
     return resp
     
-@cmd_bluepint.route('/sensors', methods = ['GET', 'POST'])
+@cmd_blueprint.route('/sensors', methods = ['GET', 'POST'])
 @login_required
 def f_sensors(): 
     templ = dict(name='sensors.html', prefilldu='1', table='') 
@@ -75,15 +76,17 @@ def f_sensors():
                 ddt.append(int(resp['du']))
                 resp.pop("du")
                 dd.append(pd.DataFrame(resp, columns=[ii for ii in resp], index=jsc.commands['sensors'].index))
+
             except:
-                return gettemplate(templ, msg=F'Error reading DU {ii}') 
+                return gettemplate(templ, msg=F'Error reading DU {ii}')
+        templ['table_toex'] = dd
         templ['table'] = '\n\n\n'.join(['<br>' + '-'*50 + F'   DU{ddt[iii]:04d}   ' + '-'*50 + dd[iii].to_html(index=True) for iii in range(len(dd))])
         return gettemplate(templ, msg=F'Reading sensors on DU={du} with response:')    
        
     else:
         return gettemplate(templ, msg=F'Waiting for user input')
     
-@cmd_bluepint.route('/swcontrol', methods = ['GET', 'POST'])
+@cmd_blueprint.route('/swcontrol', methods = ['GET', 'POST'])
 @login_required
 def f_swcontrol(): 
     templ = dict(name='swcontrol.html', table='', datajson='', prefilldu='1', prefillsws=1, prefillstate=1) 
@@ -137,7 +140,7 @@ def f_swcontrol():
          return gettemplate(templ, msg='Waiting for user input')
 
 
-@cmd_bluepint.route('/rescue', methods = ['GET', 'POST'])
+@cmd_blueprint.route('/rescue', methods = ['GET', 'POST'])
 @login_required
 def f_rescue(): 
     templ = dict(name='rescue.html', table='', datajson='', prefilldu='1', prefillstate=1) 
@@ -171,3 +174,88 @@ def f_rescue():
     else:
         return gettemplate(templ, msg='Waiting for user input')
 
+
+@cmd_blueprint.route('/export_to_xlsx', methods=['POST'])
+@login_required
+def generate_xlsx():
+    import itertools, base64
+    
+
+    table = request.json.get('table').replace('[', '').replace(']', '')
+    du = request.json.get('du').split('[')[1]
+    du = du.split(']')[0]
+    du = 'DU'+du
+
+    table = table.split()
+
+    t1 = table[7][:6]
+    t2 = table[7][6:]
+    table[7] = t1
+    table.insert(8, t2)
+
+    t1 = table[16][:5]
+    t2 = table[16][5:]
+    table[16] = t1
+    table.insert(17, t2)
+
+    t1 = table[25][:4]
+    t2 = table[25][4:]
+    table[25] = t1
+    table.insert(26, t2)
+    
+
+    header = ['']
+    rows = []
+    
+    for r in itertools.islice(table, 8):
+        header.append(r)
+    
+    t = []
+    for r in itertools.islice(table, 8, 17):
+        t.append(r)
+    rows.append(t)
+
+    t = []
+    for r in itertools.islice(table, 17, 26):
+        t.append(r)
+    rows.append(t)
+
+    t = []
+    for r in itertools.islice(table, 26, 35):
+        t.append(r)
+    rows.append(t)
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = 'TITOLO'
+    for col in ('A','B','C','D','E','F','G','H','I'):
+        ws.column_dimensions[col].width = 22
+    for row in (1,2,3,4):
+        ws.row_dimensions[row].height = 25
+    #ws.row_dimensions[2].height = 50
+    
+    ws.append([])
+    for i,cell_value in enumerate(header):
+        ws.cell(row=1, column=i+1, value=cell_value).font = txt_pry
+        ws.cell(row=1, column=i+1).alignment = alin_centr
+    
+    ws.append([])
+    for row,data in enumerate(rows):
+        for i,cell_value in enumerate(data):
+            if i+1 == 1:
+                ws.cell(row=row+2, column=i+1).alignment = alin_centr
+                ws.cell(row=row+2, column=i+1, value=cell_value).font = txt_sw
+            else:
+                ws.cell(row=row+2, column=i+1).alignment = alin_centr
+                ws.cell(row=row+2, column=i+1, value=cell_value).font = txt_cont
+    
+    ws.cell(row=row+5, column=1, value=du).font = txt_data
+
+    filename = '/app/bms/controller/temp.xlsx'
+    wb.save(filename=filename)
+    with open(filename, 'rb') as f:
+        data = f.read()
+        data_base64 = base64.b64encode(data).decode('utf-8')
+    remove(filename)
+    return jsonify({'file_data': data_base64,
+                    'du' : du})
