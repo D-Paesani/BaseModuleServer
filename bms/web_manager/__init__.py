@@ -39,8 +39,8 @@ def create_app():
     from bms.google.google_main import google_blueprint
     app.register_blueprint(google_blueprint)
 
-    from bms.controller.views import cmd_bluepint
-    app.register_blueprint(cmd_bluepint)
+    from bms.controller.views import cmd_blueprint
+    app.register_blueprint(cmd_blueprint)
 
     #toolbar = DebugToolbarExtension(app)
     #Breadcrumbs(app=app)
