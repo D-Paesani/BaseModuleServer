@@ -19,7 +19,7 @@
                            <input type="text" name="du" class="form-control" value={{prefilldu}} />
                         </div>
                         <div class="col-sm-4 text-left">
-                           (enter target DU)
+                           (Insert target DU)
                         </div>
                         
                      </div>
@@ -27,35 +27,22 @@
                      <div class="row">
       
                         <div class="col-sm-4 text-right">
-                           <h3>SW =</h3>
+                           <h3>CMD =</h3>
                         </div>
                         <div class="col-sm-3">
-                           <input type="text" name="sws" class="form-control" value={{prefillsws}} />
+                           <input type="text" name="cmd" class="form-control" value={{prefillcmd}} />
                         </div>
                         <div class="col-sm-4 text-left">
-                           (enter comma or single-space separated switches to operate)
+                           (enter the command)
                         </div>
                   
                      </div>
 
-                     <div class="row">
-      
-                        <div class="col-sm-4 text-right">
-                           <h3>ST =</h3>
-                        </div>
-                        <div class="col-sm-3">
-                           <input type="text" name="state" class="form-control" value={{prefillstate}} />
-                        </div>
-                        <div class="col-sm-4 text-left">
-                           (enter desired switch state)
-                        </div>
-                  
-                     </div>
                      
                      <div class="row d-flex justify-content-center mt-4">
 
-                        <button type="button" class="btn btn-danger mr-4" data-toggle="modal" data-target="#confirmModal">WRITE</button>
-                        <button type="button" class="btn btn-primary" onclick="confirmSubmit('READ')">READ</button>
+                        <button type="button" class="btn btn-danger mr-4" data-toggle="modal" data-target="#confirmModal">SEND</button>
+                        <button type="button" class="btn btn-primary" onclick="confirmSubmit('PING')">PING</button>
                         
                         
                         
@@ -64,8 +51,8 @@
                         <span class="fw-bold" id="msg">{{msg}}</span>
                      </div>
       
-                     <div class="row d-flex justify-content-center mt-4" id="table">
-                           {{ table | safe }}
+                     <div class="row d-flex justify-content-center mt-4" id="answ">
+                           {{ answ | safe }}
                      </div>
                      
                   </form>
@@ -95,7 +82,7 @@
                </div>
                <div class="modal-footer">
                    <button class="btn btn-outline-primary btn-sm" type="button" data-dismiss="modal">Ritorna</button>
-                   <a class="btn btn-primary btn-sm text-white" onclick="confirmSubmit('WRITE')" role="button">Conferma</a>
+                   <a class="btn btn-primary btn-sm text-white" onclick="confirmSubmit('SEND')" role="button">Conferma</a>
                </div>
            </div>
        </div>
@@ -106,28 +93,30 @@
    function confirmSubmit(action) {
 
       const duValue = document.querySelector('input[name="du"]').value;
-      const swsValue = document.querySelector('input[name="sws"]').value;
-      const stateValue = document.querySelector('input[name="state"]').value;
+      const cmdValue = document.querySelector('input[name="cmd"]').value;
       
       const msg = document.getElementById("msg");
-      const table = document.getElementById("table");
+      const answ = document.getElementById("answ");
+
+      console.log("Invio comando:", duValue, cmdValue);
       
-      if (action == 'WRITE') {
+    if (action == 'SEND') {
             $('#confirmModal').modal('hide');
 
             var formData = new FormData();
             formData.append('submit', action);
             formData.append('du', duValue);
-            formData.append('sws', swsValue);
-            formData.append('state', stateValue);
+            formData.append('cmd', cmdValue);
 
             fetch(window.location.href, {
                method: 'POST',
                body: formData,
             }).then(response => response.json())
             .then(data => {
+                console.log("Server Risposta:", data);
                msg.innerHTML = data.msg;
-               table.innerHTML = data.table;
+               answ.innerHTML = data.answ;
+               
             })
 
       }
@@ -135,23 +124,24 @@
       var formData = new FormData();
       formData.append('submit', action);
       formData.append('du', duValue);
-      formData.append('sws', swsValue);
-      formData.append('state', stateValue);
 
       fetch(window.location.href, {
          method: 'POST',
          body: formData,
       }).then(response => response.json())
       .then(data => {
+        console.log("Server Risposta:", data);
          msg.innerHTML = data.msg;
-         table.innerHTML = data.table;
+         answ.innerHTML = data.answ;
+         
       })
+      .catch(error => {
+        console.error("Errore durante il parsing della risposta:", error);
+        // Handle the error here, for example, display an error message to the user
+      });
+      
         
    }
 }
 </script>
-
-<!-- if (confirm('Sicuro?')) { 
-   document.querySelector('form').submit(); 
- } -->
 {% endblock content %}

@@ -31,37 +31,42 @@ def parse_sensors(sss, param):
 def parse_generic(sss, param):
     return re.search(F'{param} = (.*)', sss).group(1)
 
-def execandparse(du, jc):
-    cc = jc.command.format(ip=uu.getbaseip(int(du)), args=jc.cmd)
+def execandparse(du, jc, args=''):
+    cc = jc.command.format(ip=uu.getbaseip(int(du)), args=jc.cmd + ' ' + args)
     print('--> JSC --> command --> ' +  cc)
     resp = subprocess.check_output(cc, shell=True).decode('utf-8')
     pp = {}
     pp['du'] = du
-    for ii in jc.params:
-        pp[ii] = jc.parser(resp, ii)
+    pp['answ'] = resp
+    if jc.parser is not None:
+        for ii in jc.params:
+            pp[ii] = jc.parser(resp, ii)
     return pp, cc
 
 class jcmd:
     
     command = commandformatdef
     
-    def __init__(self, cmd, parser, params, index=None, loggeron=True):
+    def __init__(self, cmd, parser=None, params=None, args=None, index=None, loggeron=True):
         self.cmd = cmd
         self.parser = parser
         self.params = params
         self.index = index
         self.logen = loggeron
+        self.args = args
 
-    def exec(self, du, opts=None):
-        pp, cc = execandparse(du, self)
-        cmdlogger(cmd=cc, user=current_user, msg=F'du{du}', enable=self.logen)
-        return pp
+    def exec(self, du, args=None):        
+        try: 
+            aa = '' if (self.args is None) or (args is None) else ' '.join([str(args[ii]) for ii in self.args])
+            pp, cc = execandparse(du, self, aa)
+            cmdlogger(cmd=cc, user=current_user, msg=F'du:{du}, arg{aa}', enable=self.logen)
+            return pp
+        except:
+            return None
     
 commands = dict(
-    sensors    = jcmd(cmd='SENSOR_VALUES_GETALL', parser=parse_sensors,   params=['5V_I', 'LBL_I', 'DU_I', 'DU_IRTN', 'BPS_V', 'HYDRO_I', 'THEATSINK', 'TBOARD'], index=['ADC', 'VALUE', 'UNIT']),
-    switch     = jcmd(cmd='SWITCH_CONTROL',       parser=parse_generic,   params=['SWITCHNUM', 'SWITCHSTATE']),
-    rescue     = jcmd(cmd='RESCUE_ENABLE',        parser=parse_generic,   params=['ENABLESTATE']),
+    sensors    = jcmd(cmd='SENSOR_VALUES_GETALL', args=None,              parser=parse_sensors,   params=['5V_I', 'LBL_I', 'DU_I', 'DU_IRTN', 'BPS_V', 'HYDRO_I', 'THEATSINK', 'TBOARD'], index=['ADC', 'VALUE', 'UNIT']),
+    switch     = jcmd(cmd='SWITCH_CONTROL',       args=['sw', 'state'],   parser=parse_generic,   params=['SWITCHNUM', 'SWITCHSTATE']),
+    rescue     = jcmd(cmd='RESCUE_ENABLE',        args=['state'],         parser=parse_generic,   params=['ENABLESTATE']),
+    raw        = jcmd(cmd='RESCUE_ENABLE',                   args=['cmd'],           parser=parse_generic,   params=['ENABLESTATE']),
 )
-
-#Stato allarmi / rescue enable / alarm flag / alarm reset
-

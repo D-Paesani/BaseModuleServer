@@ -7,7 +7,7 @@ from ..web_manager.roles import Roles
 class Manager():
 
     @staticmethod    
-    def check_google(user_info, source):
+    def check_login_type(user_info, source):
         if source == 'google':
             resp, user = user_auth_google({'email' : user_info}, source)
         elif source == 'keycloak':
