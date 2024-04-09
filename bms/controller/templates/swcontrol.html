@@ -54,7 +54,7 @@
                      
                      <div class="row d-flex justify-content-center mt-4">
 
-                        <button type="button" class="btn btn-danger mr-4" onclick="confirmSubmit('WRITE')">WRITE</button>
+                        <button type="button" class="btn btn-danger mr-4" data-toggle="modal" data-target="#confirmModal">WRITE</button>
                         <button type="button" class="btn btn-primary" onclick="confirmSubmit('READ')">READ</button>
                         
                         
@@ -81,31 +81,29 @@
          </div>
       </div>
       
-<!-- Modal di conferma -->
-<div class="modal fade" id="modal-confirmation" tabindex="-1" style="display: none;" aria-hidden="true">
-   <div class="modal-dialog">
-     <div class="modal-content bg-light">
-       <div class="modal-header">
-         <h5 class="modal-title text-primary fw-bold"></h5>
-         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+
+ <div class="it-example-modal">
+   <div class="modal" tabindex="-1" role="dialog" id="confirmModal">
+       <div class="modal-dialog" role="document">
+           <div class="modal-content">
+               <div class="modal-header">
+                   <h5 class="modal-title">Conferma operazione</h5>
+               </div>
+               <div class="modal-body">
+                   <p>Vuoi procedere con la modifica ?</p>
+               </div>
+               <div class="modal-footer">
+                   <button class="btn btn-outline-primary btn-sm" type="button" data-dismiss="modal">Ritorna</button>
+                   <a class="btn btn-primary btn-sm text-white" onclick="confirmSubmit('WRITE')" role="button">Conferma</a>
+               </div>
+           </div>
        </div>
-       <div class="modal-body fw-bold">
-       </div>
-       <div class="modal-footer">
-         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-         <button id="confirmAction" type="button" class="btn btn-primary">Confirm</button>
-       </div>
-     </div>
    </div>
- </div>
+</div>
 
 <script>
    function confirmSubmit(action) {
-      
-      const modalTitle = document.querySelector("#modal-confirmation .modal-title");
-      modalTitle.textContent = `Alert Base Module Operation`;
-      const modalBody = document.querySelector("#modal-confirmation .modal-body");
-      modalBody.innerHTML = `Are you sure want to WRITE Changes?<br><br>`;
 
       const duValue = document.querySelector('input[name="du"]').value;
       const swsValue = document.querySelector('input[name="sws"]').value;
@@ -115,11 +113,8 @@
       const table = document.getElementById("table");
       
       if (action == 'WRITE') {
-         var confirmationModal = new bootstrap.Modal(document.getElementById('modal-confirmation'), { backdrop: 'static' });
-         confirmationModal.show();
-         document.getElementById("confirmAction").addEventListener("click", () => {
-      
-            confirmationModal.hide(); 
+            $('#confirmModal').modal('hide');
+
             var formData = new FormData();
             formData.append('submit', action);
             formData.append('du', duValue);
@@ -134,15 +129,6 @@
                msg.innerHTML = data.msg;
                table.innerHTML = data.table;
             })
-
-         });
-         document.querySelector("#modal-confirmation .btn-close").addEventListener("click", () => {
-            confirmationModal.hide(); // Chiudi il modal da x
-         });
-
-         document.querySelector("#modal-confirmation .modal-footer .btn-secondary").addEventListener("click", () => {
-            confirmationModal.hide(); // Chiudi il modal da close
-         });
 
       }
    else {

@@ -25,8 +25,7 @@ def login():
     if request.method == "POST":
         ulogin = False
         if form.validate_on_submit():
-            resp, user = Manager.check_google({'email' : form.username.data, 'password' : form.password.data}, 'keycloak')
-            flash (f'#1 {resp} {form.username.data}')
+            resp, user = Manager.check_login_type({'email' : form.username.data, 'password' : form.password.data}, 'keycloak')
             if resp:
             # Esegui il login dell'utente
                 login_user(user)
