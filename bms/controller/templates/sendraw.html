@@ -1,0 +1,147 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+
+      <div class="container">
+         <div class="card  p-2 my-5">
+               <div class="card card-header bg-primary text-center">
+                     <div class="card-title  ">
+                           <h1 class="text-white">BASEMODULE SERVER</h1>
+                     </div>
+               </div>
+               <div class="card-body">
+                  <form  id="confirmForm">
+                     <div class="row">
+      
+                        <div class="col-sm-4 text-right">
+                           <h3>DU =</h3>
+                        </div>
+                        <div class="col-sm-3">
+                           <input type="text" name="du" class="form-control" value={{prefilldu}} />
+                        </div>
+                        <div class="col-sm-4 text-left">
+                           (Insert target DU)
+                        </div>
+                        
+                     </div>
+      
+                     <div class="row">
+      
+                        <div class="col-sm-4 text-right">
+                           <h3>CMD =</h3>
+                        </div>
+                        <div class="col-sm-3">
+                           <input type="text" name="cmd" class="form-control" value={{prefillcmd}} />
+                        </div>
+                        <div class="col-sm-4 text-left">
+                           (enter the command)
+                        </div>
+                  
+                     </div>
+
+                     
+                     <div class="row d-flex justify-content-center mt-4">
+
+                        <button type="button" class="btn btn-danger mr-4" data-toggle="modal" data-target="#confirmModal">SEND</button>
+                        <button type="button" class="btn btn-primary" onclick="confirmSubmit('PING')">PING</button>
+                        
+                        
+                        
+                     </div>
+                     <div class="row d-flex justify-content-center mt-4">
+                        <span class="fw-bold" id="msg">{{msg}}</span>
+                     </div>
+      
+                     <div class="row d-flex justify-content-center mt-4" id="answ">
+                           {{ answ | safe }}
+                     </div>
+                     
+                  </form>
+
+                  
+      
+               </div>
+               <div class="card-footer text-center">
+                     Km3NeT - ARCA 2023<br>
+                     Istituto Nazionale di Fisica Nucleare - Laboratori Nazionali del Sud<br>
+                     <!-- Source at <a href=https://github.com/D-Paesani/km3net/>D-Paesani/km3net</a><br> -->
+               </div>
+         </div>
+      </div>
+      
+
+
+ <div class="it-example-modal">
+   <div class="modal" tabindex="-1" role="dialog" id="confirmModal">
+       <div class="modal-dialog" role="document">
+           <div class="modal-content">
+               <div class="modal-header">
+                   <h5 class="modal-title">Conferma operazione</h5>
+               </div>
+               <div class="modal-body">
+                   <p>Vuoi procedere con la modifica ?</p>
+               </div>
+               <div class="modal-footer">
+                   <button class="btn btn-outline-primary btn-sm" type="button" data-dismiss="modal">Ritorna</button>
+                   <a class="btn btn-primary btn-sm text-white" onclick="confirmSubmit('SEND')" role="button">Conferma</a>
+               </div>
+           </div>
+       </div>
+   </div>
+</div>
+
+<script>
+   function confirmSubmit(action) {
+
+      const duValue = document.querySelector('input[name="du"]').value;
+      const cmdValue = document.querySelector('input[name="cmd"]').value;
+      
+      const msg = document.getElementById("msg");
+      const answ = document.getElementById("answ");
+
+      console.log("Invio comando:", duValue, cmdValue);
+      
+    if (action == 'SEND') {
+            $('#confirmModal').modal('hide');
+
+            var formData = new FormData();
+            formData.append('submit', action);
+            formData.append('du', duValue);
+            formData.append('cmd', cmdValue);
+
+            fetch(window.location.href, {
+               method: 'POST',
+               body: formData,
+            }).then(response => response.json())
+            .then(data => {
+                console.log("Server Risposta:", data);
+               msg.innerHTML = data.msg;
+               answ.innerHTML = data.answ;
+               
+            })
+
+      }
+   else {
+      var formData = new FormData();
+      formData.append('submit', action);
+      formData.append('du', duValue);
+
+      fetch(window.location.href, {
+         method: 'POST',
+         body: formData,
+      }).then(response => response.json())
+      .then(data => {
+        console.log("Server Risposta:", data);
+         msg.innerHTML = data.msg;
+         answ.innerHTML = data.answ;
+         
+      })
+      .catch(error => {
+        console.error("Errore durante il parsing della risposta:", error);
+        // Handle the error here, for example, display an error message to the user
+      });
+      
+        
+   }
+}
+</script>
+{% endblock content %}

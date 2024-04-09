@@ -9,6 +9,7 @@ from . import BASEDIR
 from ..web_manager.decorators import admin_required
 from .export_to_xlsx import *
 from time import sleep
+from .utils import isDuAlive
 
 #from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 
@@ -171,6 +172,59 @@ def f_rescue():
         msg = F'{"Writing" if state<2 else "Reading"} DU{du:04d} rescue enable {F"to STATE={state}" if state<2 else ""} with response:'
         return gettemplate(templ, msg)
                     
+    else:
+        return gettemplate(templ, msg='Waiting for user input')
+    
+# @mirko: 
+# questo è per mandare i comandi raw tramite un bottone SEND
+# poi se aggiungiamo questa pagina, ricordiamoci il link sulla pagina "help"
+# qui ho messo anche un bottone PING per pingare la DU e avere il risultato a schermo
+@cmd_blueprint.route('/sendraw', methods = ['GET', 'POST']) 
+@login_required
+def f_sendraw(): 
+    templ = dict(name='sendraw.html', prefilldu='', prefillcmd='', answ='') 
+     
+    if request.method == 'POST':
+         
+        submit =  request.form.get('submit')
+        templ['answ'] = ''
+        
+        try:
+            du = templ['prefilldu'] = int(request.form.get('du'))  # qui la pagina html dice "Insert target DU"
+        except:
+            return jsonify ({'msg' : 'Error retrieving DU',
+                         'answ' : templ['answ']})
+            return gettemplate(templ, msg='Error retrieving DU') 
+            
+        if submit == 'SEND':
+           
+            try:
+                cmd =  templ['prefillcmd'] = request.form.get('cmd') # string per il comando
+            except:
+                return jsonify ({'msg' : 'Error retrieving CMD value',
+                         'answ' : templ['answ']})
+                return gettemplate(templ, msg='Error retrieving CMD value')
+                
+            try: 
+                templ['answ'] = jsc.commands['raw'].exec(du, args=dict(cmd=cmd))['answ'] #answ contiene la risposta raw di jsend command da mostrare a schermo
+            except:
+                return jsonify ({'msg' : 'Error sending command',
+                         'answ' : templ['answ']})
+                return gettemplate(templ, msg=F'Error sending command') 
+                                
+            msg = F'Sending command [{cmd}] to DU{du:04d} with response:'
+        
+        
+        elif submit == 'PING':
+        
+            pingd = uu.isDuAlive(du)
+            msg = f'Pinging DU{du:04d} at [{uu.getbaseip(du)}] : {"ALIVE" if pingd else "UNREACHABLE"}'
+            
+        
+        
+        return jsonify ({'msg' : msg,
+                         'answ' : templ['answ']})
+                
     else:
         return gettemplate(templ, msg='Waiting for user input')
 
