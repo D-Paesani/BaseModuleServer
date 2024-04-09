@@ -68,5 +68,5 @@ commands = dict(
     sensors    = jcmd(cmd='SENSOR_VALUES_GETALL', args=None,              parser=parse_sensors,   params=['5V_I', 'LBL_I', 'DU_I', 'DU_IRTN', 'BPS_V', 'HYDRO_I', 'THEATSINK', 'TBOARD'], index=['ADC', 'VALUE', 'UNIT']),
     switch     = jcmd(cmd='SWITCH_CONTROL',       args=['sw', 'state'],   parser=parse_generic,   params=['SWITCHNUM', 'SWITCHSTATE']),
     rescue     = jcmd(cmd='RESCUE_ENABLE',        args=['state'],         parser=parse_generic,   params=['ENABLESTATE']),
-    raw        = jcmd(cmd=None,                   args=['cmd'],           parser=parse_generic,   params=['answ']),
+    raw        = jcmd(cmd='RESCUE_ENABLE',                   args=['cmd'],           parser=parse_generic,   params=['ENABLESTATE']),
 )

@@ -632,3 +632,4 @@ TIM = 2024/04/09 09:59:03|CMD = python2 /app/bms/controller/jsendcommand_dummy.p
 TIM = 2024/04/09 09:59:06|CMD = python2 /app/bms/controller/jsendcommand_dummy.py 10.4.99.100 SWITCH_CONTROL|OPT = du99|USR = guest|
 TIM = 2024/04/09 09:59:10|CMD = python2 /app/bms/controller/jsendcommand_dummy.py 10.4.99.100 SWITCH_CONTROL|OPT = du99|USR = guest|
 TIM = 2024/04/09 09:59:10|CMD = python2 /app/bms/controller/jsendcommand_dummy.py 10.4.99.100 SWITCH_CONTROL|OPT = du99|USR = guest|
+TIM = 2024/04/09 12:35:36|CMD = python2 /app/bms/controller/jsendcommand_dummy.py 10.4.55.100 RESCUE_ENABLE |OPT = du:55, arg|USR = guest|
