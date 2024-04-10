@@ -110,7 +110,10 @@ def user_auth(username, password, source):
     data_psw = DATA_PSW.copy()
     data_psw['username'] = username
     data_psw['password'] = password
-    response = requests.post(URL_TOKEN, data=data_psw, headers=HEADERS_POST, verify=True) #verifico che l'utente esista e che venga rilasciato il token
+    try:
+        response = requests.post(URL_TOKEN, data=data_psw, headers=HEADERS_POST, verify=True) #verifico che l'utente esista e che venga rilasciato il token
+    except Exception as e:
+        return f'{e}', f'{e}'
     if response.status_code == 200:
         access_token_admin = admin_token()
         query = {
@@ -143,7 +146,7 @@ def user_auth(username, password, source):
             logout_admin(access_token_admin)
             return response.status_code, 'Error In Retrieving Data'
     else:
-        return response.status_code, 'User Not Found'
+        return response.status_code, f'User Not Found {response.status_code}'
 
 
 def generate_token(user):
