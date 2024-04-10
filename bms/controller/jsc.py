@@ -17,7 +17,8 @@ def cmdlogger(cmd, user, msg='-', logfile=cmdlogfile, enable=True):
             outfile.write('\n')
             for ii, iii in zip(['TIM','CMD','OPT','USR'],[datetime.utcnow().strftime('%Y/%m/%d %H:%M:%S'),cmd, msg, user]):
                 # outfile.write(F'{" "*4 if ii != "TIM" else "--> "}{ii} = {iii}\n')
-                outfile.write(F'{ii} = {iii}|')
+                # outfile.write(F'{ii} = {iii}|')
+                outfile.write(F'{iii}|')
     except:
         print('Error logging')
             
@@ -30,18 +31,6 @@ def parse_sensors(sss, param):
 
 def parse_generic(sss, param):
     return re.search(F'{param} = (.*)', sss).group(1)
-
-def execandparse(du, jc, args=''):
-    cc = jc.command.format(ip=uu.getbaseip(int(du)), args=jc.cmd + ' ' + args)
-    print('--> JSC --> command --> ' +  cc)
-    resp = subprocess.check_output(cc, shell=True).decode('utf-8')
-    pp = {}
-    pp['du'] = du
-    pp['answ'] = resp
-    if jc.parser is not None:
-        for ii in jc.params:
-            pp[ii] = jc.parser(resp, ii)
-    return pp, cc
 
 class jcmd:
     
@@ -57,16 +46,37 @@ class jcmd:
 
     def exec(self, du, args=None):        
         try: 
+            
             aa = '' if (self.args is None) or (args is None) else ' '.join([str(args[ii]) for ii in self.args])
-            pp, cc = execandparse(du, self, aa)
-            cmdlogger(cmd=cc, user=current_user, msg=F'du:{du}, arg{aa}', enable=self.logen)
+            cmd = '' if self.cmd is None else self.cmd
+                        
+            if not (ip := uu.getbaseip(int(du))): 
+                raise Exception(F'problem in retrieving DU IP: got {ip}') 
+            
+            cc = self.command.format(ip=ip, args=' '.join([cmd, aa]))
+            print('--> JSC --> EXEC:',  cc)
+            resp = subprocess.check_output(cc, shell=True).decode('utf-8')
+            
+            pp = {}
+            pp['du'] = du
+            pp['answ'] = resp
+            
+            if self.parser is not None:
+                for ii in self.params:
+                    pp[ii] = self.parser(resp, ii)
+            
+            # cmdlogger(cmd=cc, user=current_user, msg=F'du<{du}> args<{aa}>', enable=self.logen)
+            cmdlogger(cmd=cc, user=current_user, msg=F'du<{du}>', enable=self.logen)
+            
             return pp
-        except:
+        
+        except Exception as ee:
+            print('--> JSC --> ERROR:', ee)
             return None
     
 commands = dict(
     sensors    = jcmd(cmd='SENSOR_VALUES_GETALL', args=None,              parser=parse_sensors,   params=['5V_I', 'LBL_I', 'DU_I', 'DU_IRTN', 'BPS_V', 'HYDRO_I', 'THEATSINK', 'TBOARD'], index=['ADC', 'VALUE', 'UNIT']),
     switch     = jcmd(cmd='SWITCH_CONTROL',       args=['sw', 'state'],   parser=parse_generic,   params=['SWITCHNUM', 'SWITCHSTATE']),
     rescue     = jcmd(cmd='RESCUE_ENABLE',        args=['state'],         parser=parse_generic,   params=['ENABLESTATE']),
-    raw        = jcmd(cmd='RESCUE_ENABLE',                   args=['cmd'],           parser=parse_generic,   params=['ENABLESTATE']),
+    raw        = jcmd(cmd=None,                   args=['cmdstr'],        parser=None,            params=['answ']),
 )

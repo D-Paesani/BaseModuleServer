@@ -9,7 +9,6 @@ from . import BASEDIR
 from ..web_manager.decorators import admin_required
 from .export_to_xlsx import *
 from time import sleep
-from .utils import isDuAlive
 
 #from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 
@@ -25,9 +24,10 @@ def gettemplate(templ, msg=None):
 def f_help(): 
     return render_template('help.html')
 
-def read_log_file():
+def read_log_file(nlines=2000):
     with open(f'{BASEDIR}/logs/jsccmd.log', 'r') as log:
-        return deque(log, 2000)
+        return deque(log, nlines)
+
 
 @cmd_blueprint.route('/cmdlog')
 @login_required
@@ -48,6 +48,7 @@ def render_log():
 #                 # time.sleep(1)
 #     return app.response_class(generate(), mimetype='text/plain')
 
+
 @cmd_blueprint.route('/dumpsensor/<duid>', methods = ['GET'])
 @login_required
 def f_dumpsensor(duid):
@@ -57,6 +58,7 @@ def f_dumpsensor(duid):
     except:
         abort(404)
     return resp
+    
     
 @cmd_blueprint.route('/sensors', methods = ['GET', 'POST'])
 @login_required
@@ -73,19 +75,21 @@ def f_sensors():
         
         for ii in du:
             try: 
-                resp = jsc.commands['sensors'].exec(ii)
+                resp = jsc.commands['sensors'].exec(ii, args=None)
                 ddt.append(int(resp['du']))
-                resp.pop("du")
-                dd.append(pd.DataFrame(resp, columns=[ii for ii in resp], index=jsc.commands['sensors'].index))
+                # resp.pop('du')
+                dd.append(pd.DataFrame(resp, columns=[ii for ii in jsc.commands['sensors'].params], index=jsc.commands['sensors'].index))
 
             except:
                 return gettemplate(templ, msg=F'Error reading DU {ii}')
+            
         templ['table_toex'] = dd
         templ['table'] = '\n\n\n'.join(['<br>' + '-'*50 + F'   DU{ddt[iii]:04d}   ' + '-'*50 + dd[iii].to_html(index=True) for iii in range(len(dd))])
         return gettemplate(templ, msg=F'Reading sensors on DU={du} with response:')    
        
     else:
         return gettemplate(templ, msg=F'Waiting for user input')
+    
     
 @cmd_blueprint.route('/swcontrol', methods = ['GET', 'POST'])
 @login_required
@@ -96,7 +100,6 @@ def f_swcontrol():
     
     if request.method == 'POST':
         
-        
         try:
             du = templ['prefilldu'] = int(request.form.get('du'))
         except:
@@ -105,7 +108,8 @@ def f_swcontrol():
             sws, templ['prefillsws'] = uu.parsestrlist(request.form.get('sws'), typ=int)
         except:
             return gettemplate(templ, msg='Error retrieving SW')
-        submit =  request.form.get('submit')
+        
+        submit = request.form.get('submit')
         
         if submit == 'WRITE':
 
@@ -119,14 +123,15 @@ def f_swcontrol():
             
         for ii in sws:
             try: 
-                resp = jsc.commands['switch'].exec(du)
-                resp.pop('du')
+                resp = jsc.commands['switch'].exec(du, args=dict(sw=ii, state=state))
+                # resp.pop('du')
                 resp['switch'] = ii
                 dd = pd.concat([dd, pd.DataFrame(resp, index=[''])])
                 mapping = {'OPEN': 'OPEN (OFF)', 'CLOSED': 'CLOSED (ON)'}
                 dd['SWITCHSTATE'] = dd['SWITCHSTATE'].replace(mapping)
                 #dd['SWITCHSTATE_4DUMMIES'] = dd['SWITCHSTATE']
                 #for torep, repl in zip(['OPEN', 'CLOSED'], ['OPEN (OFF)', 'CLOSED (ON)']): dd['SWITCHSTATE'].replace(torep, repl, inplace=True)
+                dd = dd[jsc.commands['switch'].params]
                 templ['table'] = dd.to_html(index=False)
                 
             except Exception as e:
@@ -162,19 +167,21 @@ def f_rescue():
                 return gettemplate(templ, msg='Error retrieving STATE value')
             
         try: 
-            resp = jsc.commands['rescue'].exec(du)
-            resp.pop('du')
+            resp = jsc.commands['rescue'].exec(du, args=dict(state=state))
+            # resp.pop('du')
             dd = pd.concat([dd, pd.DataFrame(resp, index=[''])])
+            dd = dd[jsc.commands['rescue'].params]
             templ['table'] = dd.to_html(index=False)
         except:
             return gettemplate(templ, msg=F'Error {("writing" if state<2 else "reading").lower()}') 
-                         
+                               
         msg = F'{"Writing" if state<2 else "Reading"} DU{du:04d} rescue enable {F"to STATE={state}" if state<2 else ""} with response:'
         return gettemplate(templ, msg)
                     
     else:
         return gettemplate(templ, msg='Waiting for user input')
     
+
 # @mirko: 
 # questo è per mandare i comandi raw tramite un bottone SEND
 # poi se aggiungiamo questa pagina, ricordiamoci il link sulla pagina "help"
@@ -190,7 +197,7 @@ def f_sendraw():
         templ['answ'] = ''
         
         try:
-            du = templ['prefilldu'] = int(request.form.get('du'))  # qui la pagina html dice "Insert target DU"
+            du = templ['prefilldu'] = int(request.form.get('du'))  # qui la pagina html dice "insert target DU"
         except:
             return jsonify ({'msg' : 'Error retrieving DU',
                          'answ' : templ['answ']})
@@ -206,7 +213,7 @@ def f_sendraw():
                 return gettemplate(templ, msg='Error retrieving CMD value')
                 
             try: 
-                templ['answ'] = jsc.commands['raw'].exec(du, args=dict(cmd=cmd))['answ'] #answ contiene la risposta raw di jsend command da mostrare a schermo
+                templ['answ'] = jsc.commands['raw'].exec(du, args=dict(cmdstr=cmd))['answ'] #answ contiene la risposta raw di jsend command da mostrare a schermo
             except:
                 return jsonify ({'msg' : 'Error sending command',
                          'answ' : templ['answ']})
@@ -219,17 +226,15 @@ def f_sendraw():
         
             pingd = uu.isDuAlive(du)
             msg = f'Pinging DU{du:04d} at [{uu.getbaseip(du)}] : {"ALIVE" if pingd else "UNREACHABLE"}'
-            
-        
         
         return jsonify ({'msg' : msg,
                          'answ' : templ['answ']})
                 
     else:
         return gettemplate(templ, msg='Waiting for user input')
-
-
-@cmd_blueprint.route('/export_to_xlsx', methods=['POST'])
+    
+    
+@cmd_blueprint.route('/export_to_xlsx', methods=['POST'])   # @mirko, non mi sembra funzioni con più DU. Se facessimo un foglio per ogni DU di cui si fa il dump?
 @login_required
 def generate_xlsx():
     import itertools, base64
