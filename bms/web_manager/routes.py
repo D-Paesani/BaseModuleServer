@@ -32,7 +32,7 @@ def login():
                 flash(f'#2 WELCOME {current_user}', 'success-custom')
                 return redirect(url_for('user.base'))
             else:
-                flash(f'#3 {user} {resp}', 'danger-custom')
+                flash(f'#3 {user} IS KEYCLOAK ON LINE?', 'danger-custom')
 
 
             if Users.query.filter_by(username=form.username.data).first():
@@ -43,7 +43,7 @@ def login():
                 flash('Username or Password not Found', 'danger-custom')
             elif ulogin and bcrypt.check_password_hash(ulogin.password, form.password.data):
                 login_user(ulogin)
-                flash(f'Login Successfully {current_user}', 'success-custom')
+                flash(f'Login Successfully Throught Local DB - {current_user}', 'success-custom')
                 return redirect(url_for('user.base'))
             else:
                 flash("Wrong Password", 'danger-custom')
