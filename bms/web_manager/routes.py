@@ -25,14 +25,15 @@ def login():
     if request.method == "POST":
         ulogin = False
         if form.validate_on_submit():
-            resp, user = Manager.check_login_type({'email' : form.username.data, 'password' : form.password.data}, 'keycloak')
-            if resp:
-            # Esegui il login dell'utente
-                login_user(user)
-                flash(f'#2 WELCOME {current_user}', 'success-custom')
-                return redirect(url_for('user.base'))
-            else:
-                flash(f'#3 {user} IS KEYCLOAK ON LINE?', 'danger-custom')
+            if form.username.data.lower() != 'guest':
+                resp, user = Manager.check_login_type({'email' : form.username.data, 'password' : form.password.data}, 'keycloak')
+                if resp:
+                # Esegui il login dell'utente
+                    login_user(user)
+                    flash(f'#2 WELCOME {current_user}', 'success-custom')
+                    return redirect(url_for('user.base'))
+                else:
+                    flash(f'#3 {user} ', 'danger-custom')
 
 
             if Users.query.filter_by(username=form.username.data).first():

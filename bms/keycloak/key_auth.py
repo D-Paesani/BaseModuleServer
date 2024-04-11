@@ -117,7 +117,7 @@ def user_auth(username, password, source):
     if response.status_code == 200:
         access_token_admin = admin_token()
         query = {
-                    "username": username  
+                    "email": username  
                 }
         headers = HEADERS_GET.copy()
         headers['Authorization'] = headers['Authorization'].format(access_token_admin)

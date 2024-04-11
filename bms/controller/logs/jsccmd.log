@@ -1,4 +1,0 @@
-
-2024/04/10 10:45:42|python2 /app/bms/controller/jsendcommand_dummy.py 10.0.909.100  SWITCH_CONTROL 3 2 1|du<909>|guest|
-2024/04/10 10:46:24|python2 /app/bms/controller/jsendcommand_dummy.py 10.3.9.100 SWITCH_CONTROL 99 1|du<9>|guest|
-2024/04/10 10:46:52|python2 /app/bms/controller/jsendcommand_dummy.py 10.4.123.100  SWITCH_CONTROL 99 1|du<123>|guest|

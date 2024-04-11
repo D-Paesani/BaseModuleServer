@@ -29,6 +29,9 @@ rm -r /root/.cache
 RUN apk add --no-cache python2
 
 WORKDIR /app
+
+RUN mkdir -p ../logs && chmod 755 ../logs && touch ../logs/jsccmd.log
+
 COPY . /app
 RUN pip3 install -r requirements.txt --verbose | tee pip_install_log.txt 
 

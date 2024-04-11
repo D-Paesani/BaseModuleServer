@@ -265,10 +265,13 @@ def generate_xlsx():
 
     header = ['']
     rows = []
-    
+
+
+    t = []
     for r in itertools.islice(table, 8):
-        header.append(r)
-    
+        t.append(r)
+    rows.append(t)
+
     t = []
     for r in itertools.islice(table, 8, 17):
         t.append(r)
@@ -284,29 +287,35 @@ def generate_xlsx():
         t.append(r)
     rows.append(t)
 
+
     wb = Workbook()
     ws = wb.active
-    ws.title = 'TITOLO'
+    ws.title = f'DU{du}'
     for col in ('A','B','C','D','E','F','G','H','I'):
         ws.column_dimensions[col].width = 22
     for row in (1,2,3,4):
         ws.row_dimensions[row].height = 25
     #ws.row_dimensions[2].height = 50
     
-    ws.append([])
-    for i,cell_value in enumerate(header):
-        ws.cell(row=1, column=i+1, value=cell_value).font = txt_pry
-        ws.cell(row=1, column=i+1).alignment = alin_centr
+    # ws.append([])
+    # for i,cell_value in enumerate(header):
+    #     ws.cell(row=1, column=i+1, value=cell_value).font = txt_pry
+    #     ws.cell(row=1, column=i+1).alignment = alin_centr
     
     ws.append([])
     for row,data in enumerate(rows):
+        row += 1
         for i,cell_value in enumerate(data):
-            if i+1 == 1:
-                ws.cell(row=row+2, column=i+1).alignment = alin_centr
-                ws.cell(row=row+2, column=i+1, value=cell_value).font = txt_sw
+            i += 1
+            if row == 1:
+                ws.cell(row=row, column=i+1).alignment = alin_centr
+                ws.cell(row=row, column=i+1, value=cell_value).font = txt_pry
             else:
-                ws.cell(row=row+2, column=i+1).alignment = alin_centr
-                ws.cell(row=row+2, column=i+1, value=cell_value).font = txt_cont
+                ws.cell(row=row, column=i).alignment = alin_centr
+                ws.cell(row=row, column=i, value=cell_value).font = txt_cont
+            if i == 1:
+                ws.cell(row=row, column=i).font = txt_pry
+            
     
     ws.cell(row=row+5, column=1, value=du).font = txt_data
 
