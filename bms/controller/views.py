@@ -262,10 +262,7 @@ def generate_xlsx():
     table[25] = t1
     table.insert(26, t2)
     
-
-    header = ['']
     rows = []
-
 
     t = []
     for r in itertools.islice(table, 8):
@@ -295,12 +292,6 @@ def generate_xlsx():
         ws.column_dimensions[col].width = 22
     for row in (1,2,3,4):
         ws.row_dimensions[row].height = 25
-    #ws.row_dimensions[2].height = 50
-    
-    # ws.append([])
-    # for i,cell_value in enumerate(header):
-    #     ws.cell(row=1, column=i+1, value=cell_value).font = txt_pry
-    #     ws.cell(row=1, column=i+1).alignment = alin_centr
     
     ws.append([])
     for row,data in enumerate(rows):
