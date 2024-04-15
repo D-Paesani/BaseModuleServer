@@ -232,8 +232,8 @@ def f_sendraw():
                 
     else:
         return gettemplate(templ, msg='Waiting for user input')
-    
-    
+
+
 @cmd_blueprint.route('/export_to_xlsx', methods=['POST'])   # @mirko, non mi sembra funzioni con più DU. Se facessimo un foglio per ogni DU di cui si fa il dump?
 @login_required
 def generate_xlsx():
@@ -242,73 +242,77 @@ def generate_xlsx():
 
     table = request.json.get('table').replace('[', '').replace(']', '')
     du = request.json.get('du').split('[')[1]
-    du = du.split(']')[0]
-    du = 'DU'+du
-
-    table = table.split()
-
-    t1 = table[7][:6]
-    t2 = table[7][6:]
-    table[7] = t1
-    table.insert(8, t2)
-
-    t1 = table[16][:5]
-    t2 = table[16][5:]
-    table[16] = t1
-    table.insert(17, t2)
-
-    t1 = table[25][:4]
-    t2 = table[25][4:]
-    table[25] = t1
-    table.insert(26, t2)
-    
-    rows = []
-
-    t = []
-    for r in itertools.islice(table, 8):
-        t.append(r)
-    rows.append(t)
-
-    t = []
-    for r in itertools.islice(table, 8, 17):
-        t.append(r)
-    rows.append(t)
-
-    t = []
-    for r in itertools.islice(table, 17, 26):
-        t.append(r)
-    rows.append(t)
-
-    t = []
-    for r in itertools.islice(table, 26, 35):
-        t.append(r)
-    rows.append(t)
-
+    du = du.split(']')[0].split(',')
+    n_du = [x.replace(' ', '') for x in du] 
+    du = 'DU'
 
     wb = Workbook()
-    ws = wb.active
-    ws.title = f'DU{du}'
-    for col in ('A','B','C','D','E','F','G','H','I'):
-        ws.column_dimensions[col].width = 22
-    for row in (1,2,3,4):
-        ws.row_dimensions[row].height = 25
-    
-    ws.append([])
-    for row,data in enumerate(rows):
-        row += 1
-        for i,cell_value in enumerate(data):
-            i += 1
-            if row == 1:
-                ws.cell(row=row, column=i+1).alignment = alin_centr
-                ws.cell(row=row, column=i+1, value=cell_value).font = txt_pry
-            else:
-                ws.cell(row=row, column=i).alignment = alin_centr
-                ws.cell(row=row, column=i, value=cell_value).font = txt_cont
-            if i == 1:
-                ws.cell(row=row, column=i).font = txt_pry
-            
-    
-    ws.cell(row=row+5, column=1, value=du).font = txt_data
+
+    tables = table.split(',')
+    for j, table in enumerate(tables):
+        table = table.split()
+
+        t1 = table[7][:6]
+        t2 = table[7][6:]
+        table[7] = t1
+        table.insert(8, t2)
+
+        t1 = table[16][:5]
+        t2 = table[16][5:]
+        table[16] = t1
+        table.insert(17, t2)
+
+        t1 = table[25][:4]
+        t2 = table[25][4:]
+        table[25] = t1
+        table.insert(26, t2)
+        
+        rows = []
+
+        t = []
+        for r in itertools.islice(table, 8):
+            t.append(r)
+        rows.append(t)
+
+        t = []
+        for r in itertools.islice(table, 8, 17):
+            t.append(r)
+        rows.append(t)
+
+        t = []
+        for r in itertools.islice(table, 17, 26):
+            t.append(r)
+        rows.append(t)
+
+        t = []
+        for r in itertools.islice(table, 26, 35):
+            t.append(r)
+        rows.append(t)
+
+        ws = wb.create_sheet(title=f'DU{n_du[j]}')
+
+        for col in ('A','B','C','D','E','F','G','H','I'):
+            ws.column_dimensions[col].width = 22
+        for row in (1,2,3,4):
+            ws.row_dimensions[row].height = 25
+        
+        ws.append([])
+        for row,data in enumerate(rows):
+            row += 1
+            for i,cell_value in enumerate(data):
+                i += 1
+                if row == 1:
+                    ws.cell(row=row, column=i+1).alignment = alin_centr
+                    ws.cell(row=row, column=i+1, value=cell_value).font = txt_pry
+                else:
+                    ws.cell(row=row, column=i).alignment = alin_centr
+                    ws.cell(row=row, column=i, value=cell_value).font = txt_cont
+                if i == 1:
+                    ws.cell(row=row, column=i).font = txt_pry
+                
+        
+        #ws.cell(row=row+5, column=1, value=du).font = txt_data
+    wb.remove(wb.active)
 
     filename = '/app/bms/controller/temp.xlsx'
     wb.save(filename=filename)
@@ -317,4 +321,4 @@ def generate_xlsx():
         data_base64 = base64.b64encode(data).decode('utf-8')
     remove(filename)
     return jsonify({'file_data': data_base64,
-                    'du' : du})
+                    'du' : 'bmsexport'})

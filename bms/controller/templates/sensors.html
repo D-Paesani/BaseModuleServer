@@ -69,28 +69,29 @@
                                        du : msg})
             })
             .then(response => response.json())
-    .then(data => {
-        // Decodifica il file base64
-        const byteCharacters = atob(data.file_data);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        // Crea un oggetto Blob dal file
-        const blob = new Blob([byteArray], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-        // Crea un URL oggetto per il Blob
-        const url = window.URL.createObjectURL(blob);
-        // Crea un link per il download del file
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', data.du+'.xlsx');
-        // Aggiunge il link al DOM e simula il clic
-        document.body.appendChild(link);
-        link.click();
-        // Pulisce l'URL oggetto
-        window.URL.revokeObjectURL(url);
-    })
+            .then(data => {
+               console.log(data);
+               // Decodifica il file base64
+               const byteCharacters = atob(data.file_data);
+               const byteNumbers = new Array(byteCharacters.length);
+               for (let i = 0; i < byteCharacters.length; i++) {
+                     byteNumbers[i] = byteCharacters.charCodeAt(i);
+               }
+               const byteArray = new Uint8Array(byteNumbers);
+               // Crea un oggetto Blob dal file
+               const blob = new Blob([byteArray], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+               // Crea un URL oggetto per il Blob
+               const url = window.URL.createObjectURL(blob);
+               // Crea un link per il download del file
+               const link = document.createElement('a');
+               link.href = url;
+               link.setAttribute('download', data.du+'.xlsx');
+               // Aggiunge il link al DOM e simula il clic
+               document.body.appendChild(link);
+               link.click();
+               // Pulisce l'URL oggetto
+               window.URL.revokeObjectURL(url);
+            })
             
          }
       </script>

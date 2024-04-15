@@ -25,6 +25,9 @@ def login():
     if request.method == "POST":
         ulogin = False
         if form.validate_on_submit():
+            if form.username.data.lower() == 'admin':
+                flash('User Disabled', 'danger-custom')
+                return redirect(url_for('user.base'))
             if form.username.data.lower() != 'guest':
                 resp, user = Manager.check_login_type({'email' : form.username.data, 'password' : form.password.data}, 'keycloak')
                 if resp:
