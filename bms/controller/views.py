@@ -9,6 +9,7 @@ from . import BASEDIR
 from ..web_manager.decorators import admin_required
 from .export_to_xlsx import *
 from time import sleep
+import datetime
 
 #from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 
@@ -320,5 +321,6 @@ def generate_xlsx():
         data = f.read()
         data_base64 = base64.b64encode(data).decode('utf-8')
     remove(filename)
+    fnam = 'bmsexport_' +  datetime.datetime.utcnow().strftime('%Y-%m-%d_%H-%M-%S')
     return jsonify({'file_data': data_base64,
-                    'du' : 'bmsexport'})
+                    'du' : fnam})

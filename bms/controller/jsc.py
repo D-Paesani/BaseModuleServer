@@ -6,6 +6,8 @@ import json
 from . import BASEDIR
 from flask_login import current_user
 
+# home/km3net/applications/bps-test
+
 cmdlogfile =  f'{BASEDIR}/logs/jsccmd.log'
 commandformatdef = 'python2 %s/jsendcommand_dummy.py {ip} {args}' % (BASEDIR)
 # commandformatdef = 'python3 jsendcommand_dummy_3.py {ip} {args}'
