@@ -1,5 +1,6 @@
-import bms.controller.utils as uu
+import bms.controller.bms_utils  as uu
 import subprocess
+import os
 import re
 from datetime import datetime
 import json
@@ -8,8 +9,12 @@ from flask_login import current_user
 
 # home/km3net/applications/bps-test
 
+logerrors = False
+
 cmdlogfile =  f'{BASEDIR}/logs/jsccmd.log'
-commandformatdef = 'python2 %s/jsendcommand_dummy.py {ip} {args}' % (BASEDIR)
+
+commandformatdef = 'python2 %s/jsend/jsendcommand_dummy_host.py {ip} {args}'  % (BASEDIR)
+# commandformatdef = 'python2 %s/jsendcommand_dummy.py {ip} {args}' % (BASEDIR)
 # commandformatdef = 'python3 jsendcommand_dummy_3.py {ip} {args}'
 
 def cmdlogger(cmd, user, msg='-', logfile=cmdlogfile, enable=True):
@@ -74,6 +79,7 @@ class jcmd:
         
         except Exception as ee:
             print('--> JSC --> ERROR:', ee)
+            if logerrors: cmdlogger(cmd=cc, user=current_user, msg=F'ERROR: {ee}', enable=self.logen)
             return None
     
 commands = dict(
