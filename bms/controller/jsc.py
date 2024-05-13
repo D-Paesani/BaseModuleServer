@@ -80,10 +80,28 @@ class jcmd:
             print('--> JSC --> ERROR:', ee)
             if logerrors: cmdlogger(cmd=cc, user=current_user, msg=F'ERROR: {ee}', enable=self.logen)
             return None
-    
+     
+sensor_pars_BPS = ['5V_I', 'LBL_I', 'DU_I', 'DU_IRTN', 'BPS_V', 'HYDRO_I', 'THEATSINK', 'TBOARD']
+sensor_pars_BPD = [
+    'DUL_BOARDTEMP',
+    'TEMP2',
+    'TEMP1',
+    'VEOC_RTN_I',
+    'VEOC_FWR_I',
+    'HYDRO_I',
+    'INPUT_V',
+    'LBL_I',
+    'GLRA_I',
+    'GLRB_I',
+    'PWB_I',
+]
+
 commands = dict(
-    sensors    = jcmd(cmd='SENSOR_VALUES_GETALL', args=None,              parser=parse_sensors,   params=['5V_I', 'LBL_I', 'DU_I', 'DU_IRTN', 'BPS_V', 'HYDRO_I', 'THEATSINK', 'TBOARD'], index=['ADC', 'VALUE', 'UNIT']),
-    switch     = jcmd(cmd='SWITCH_CONTROL',       args=['sw', 'state'],   parser=parse_generic,   params=['SWITCHNUM', 'SWITCHSTATE']),
-    rescue     = jcmd(cmd='RESCUE_ENABLE',        args=['state'],         parser=parse_generic,   params=['ENABLESTATE']),
-    raw        = jcmd(cmd=None,                   args=['cmdstr'],        parser=None,            params=['answ']),
+    sensors_bps = jcmd(cmd='SENSOR_VALUES_GETALL', args=None,              parser=parse_sensors,   params=sensor_pars_BPS, index=['ADC', 'VALUE', 'UNIT']),
+    sensors     = jcmd(cmd='SENSOR_VALUES_GETALL', args=None,              parser=parse_sensors,   params=sensor_pars_BPD, index=['ADC', 'VALUE', 'UNIT']),
+    switch      = jcmd(cmd='SWITCH_CONTROL',       args=['sw', 'state'],   parser=parse_generic,   params=['SWITCHNUM', 'SWITCHSTATE']),
+    rescue      = jcmd(cmd='RESCUE_ENABLE',        args=['state'],         parser=parse_generic,   params=['ENABLESTATE']),
+    raw         = jcmd(cmd=None,                   args=['cmdstr'],        parser=None,            params=['answ']),
 )
+
+
