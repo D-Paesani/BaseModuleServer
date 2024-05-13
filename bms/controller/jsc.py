@@ -7,15 +7,13 @@ import json
 from . import BASEDIR
 from flask_login import current_user
 
-# home/km3net/applications/bps-test
-
 logerrors = False
-
 cmdlogfile =  f'{BASEDIR}/logs/jsccmd.log'
 
-commandformatdef = 'python2 %s/jsend/jsendcommand_dummy_host.py {ip} {args}'  % (BASEDIR)
-# commandformatdef = 'python2 %s/jsendcommand_dummy.py {ip} {args}' % (BASEDIR)
-# commandformatdef = 'python3 jsendcommand_dummy_3.py {ip} {args}'
+# cmdformat = 'python2 /bpd-software/host/python/console/jsendcommand2.py  {ip} {args}'
+cmdformat = 'cd /bpd-software/host/python/console/ && python2 jsendcommand2.py  {ip} {args}'
+# cmdformat = 'python2 %s/jsendcommand_dummy.py {ip} {args}' % (BASEDIR)
+# cmdformat = 'python3 jsendcommand_dummy_3.py {ip} {args}'
 
 def cmdlogger(cmd, user, msg='-', logfile=cmdlogfile, enable=True):
     if not enable: return
@@ -41,7 +39,7 @@ def parse_generic(sss, param):
 
 class jcmd:
     
-    command = commandformatdef
+    command = cmdformat
     
     def __init__(self, cmd, parser=None, params=None, args=None, index=None, loggeron=True):
         self.cmd = cmd
@@ -62,8 +60,9 @@ class jcmd:
             
             cc = self.command.format(ip=ip, args=' '.join([cmd, aa]))
             print('--> JSC --> EXEC:',  cc)
+            # os.system('cd ')
             resp = subprocess.check_output(cc, shell=True).decode('utf-8')
-            
+
             pp = {}
             pp['du'] = du
             pp['answ'] = resp
