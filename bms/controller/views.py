@@ -10,6 +10,7 @@ from ..web_manager.decorators import admin_required
 from .export_to_xlsx import *
 from time import sleep
 import datetime
+from itertools import chain
 
 #from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 
@@ -49,23 +50,23 @@ def render_log():
 #                 # time.sleep(1)
 #     return app.response_class(generate(), mimetype='text/plain')
 
-
 @cmd_blueprint.route('/dumpsensor/<duid>', methods = ['GET'])
 @login_required
 def f_dumpsensor(duid):
     resp = {}
     try:
-        resp = jsc.commands['sensors'].exec(int(duid))
+        for icmd in ['sensors_avg', 'sensors_max']: resp.update(jsc.commands[icmd].exec(duid, args=None))
+        resp.pop('answ')
     except:
         abort(404)
     return resp
-    
     
 @cmd_blueprint.route('/sensors', methods = ['GET', 'POST'])
 @login_required
 def f_sensors(): 
     templ = dict(name='sensors.html', prefilldu='1', table='') 
     dd, ddt = [], []
+    dudict = {}
     
     if request.method == 'POST':
         
@@ -76,21 +77,28 @@ def f_sensors():
         
         for ii in du:
             try: 
-                resp = jsc.commands['sensors'].exec(ii, args=None)
+                resp = {} 
+                for icmd in ['sensors_avg', 'sensors_max']: resp.update(jsc.commands[icmd].exec(ii, args=None))
                 ddt.append(int(resp['du']))
                 # resp.pop('du')
-                dd.append(pd.DataFrame(resp, columns=[ii for ii in jsc.commands['sensors'].params], index=jsc.commands['sensors'].index))
-
+                ddtemp = pd.DataFrame(resp, columns=[ii for ii in sum([jsc.commands[jj].params for jj in ['sensors_avg', 'sensors_max']],[])], index=jsc.commands['sensors_avg'].index)
+                dd.append(ddtemp.transpose())
+                dudict[F'{ii:03d}'] = ddtemp.to_dict()
             except:
                 return gettemplate(templ, msg=F'Error reading DU {ii}')
-            
-        templ['table_toex'] = dd
-        templ['table'] = '\n\n\n'.join(['<br>' + '-'*50 + F'   DU{ddt[iii]:04d}   ' + '-'*50 + dd[iii].to_html(index=True) for iii in range(len(dd))])
+        
+        templ['table_toex'] = dudict
+        spacer, nspacer = '-', 35
+        templ['table'] = '\n\n\n'.join(['<br>' + spacer*nspacer + F'DU{ddt[iii]:04d}' + spacer*nspacer + dd[iii].to_html(index=True) for iii in range(len(dd))])
+        
+        ######################################################## NOTA da cancellare (pd.Excelwriter) ######################################################## ########################################################
+        for key, val in dudict.items():
+            pd.DataFrame(val).transpose().to_excel(key+'.xlsx')
+        ######################################################## ######################################################## ########################################################
+        
         return gettemplate(templ, msg=F'Reading sensors on DU={du} with response:')    
-       
     else:
         return gettemplate(templ, msg=F'Waiting for user input')
-    
     
 @cmd_blueprint.route('/swcontrol', methods = ['GET', 'POST'])
 @login_required
@@ -135,7 +143,7 @@ def f_swcontrol():
                 dd = dd[jsc.commands['switch'].params]
                 templ['table'] = dd.to_html(index=False)
                 
-            except Exception as e:
+            except Exception:
                 return gettemplate(templ, msg=F'Error {("writing to" if state<2 else "reading").lower()} SW {ii} ')  
                          
         msg = F'{"Writing to" if state<2 else "Reading"} DU{du:04d} switch{"es" if len(sws) > 1 else ""} {sws} {F"to STATE={state}" if state<2 else ""} with response:'
@@ -235,12 +243,15 @@ def f_sendraw():
         return gettemplate(templ, msg='Waiting for user input')
 
 
-@cmd_blueprint.route('/export_to_xlsx', methods=['POST'])   # @mirko, non mi sembra funzioni con più DU. Se facessimo un foglio per ogni DU di cui si fa il dump?
+@cmd_blueprint.route('/export_to_xlsx', methods=['POST'])   # @mirko, dobbiamo rifarla per tabelle di lunghezza variabile, magari usiamo pandas + lista globale di dfs...
 @login_required
 def generate_xlsx():
+    
+    # for key, value in toexdict.items():
+    # key = DU... --> ogni entry del for è uno sheet
+        
     import itertools, base64
     
-
     table = request.json.get('table').replace('[', '').replace(']', '')
     du = request.json.get('du').split('[')[1]
     du = du.split(']')[0].split(',')
