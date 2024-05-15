@@ -90,12 +90,7 @@ def f_sensors():
         templ['table_toex'] = dudict
         spacer, nspacer = '-', 35
         templ['table'] = '\n\n\n'.join(['<br>' + spacer*nspacer + F'DU{ddt[iii]:04d}' + spacer*nspacer + dd[iii].to_html(index=True) for iii in range(len(dd))])
-        
-        ######################################################## NOTA da cancellare (pd.Excelwriter) ######################################################## ########################################################
-        for key, val in dudict.items():
-            pd.DataFrame(val).transpose().to_excel(key+'.xlsx')
-        ######################################################## ######################################################## ########################################################
-        
+
         return gettemplate(templ, msg=F'Reading sensors on DU={du} with response:')    
     else:
         return gettemplate(templ, msg=F'Waiting for user input')
@@ -112,10 +107,14 @@ def f_swcontrol():
         try:
             du = templ['prefilldu'] = int(request.form.get('du'))
         except:
+            return jsonify({'msg' : 'Error retrieving DU',
+                            'table' : ''})
             return gettemplate(templ, msg='Error retrieving DU') 
         try:
             sws, templ['prefillsws'] = uu.parsestrlist(request.form.get('sws'), typ=int)
         except:
+            return jsonify({'msg' : 'Error retrieving SW',
+                            'table' : ''})
             return gettemplate(templ, msg='Error retrieving SW')
         
         submit = request.form.get('submit')
@@ -126,8 +125,9 @@ def f_swcontrol():
         # if data.get('submit') == 'WRITE':
             try:
                 state =  templ['prefillstate'] = int(request.form.get('state'))
-                
             except:
+                return jsonify({'msg' : 'Error retrieving STATE value',
+                            'table' : ''})
                 return gettemplate(templ, msg='Error retrieving STATE value')
             
         for ii in sws:
@@ -143,7 +143,9 @@ def f_swcontrol():
                 dd = dd[jsc.commands['switch'].params]
                 templ['table'] = dd.to_html(index=False)
                 
-            except Exception:
+            except Exception as e:
+                return ({'msg' : F'Error {("writing to" if state<2 else "reading").lower()} SW {ii} ',
+                         'table' : ''})
                 return gettemplate(templ, msg=F'Error {("writing to" if state<2 else "reading").lower()} SW {ii} ')  
                          
         msg = F'{"Writing to" if state<2 else "Reading"} DU{du:04d} switch{"es" if len(sws) > 1 else ""} {sws} {F"to STATE={state}" if state<2 else ""} with response:'
@@ -246,84 +248,29 @@ def f_sendraw():
 @cmd_blueprint.route('/export_to_xlsx', methods=['POST'])   # @mirko, dobbiamo rifarla per tabelle di lunghezza variabile, magari usiamo pandas + lista globale di dfs...
 @login_required
 def generate_xlsx():
+    import base64
     
-    # for key, value in toexdict.items():
-    # key = DU... --> ogni entry del for è uno sheet
-        
-    import itertools, base64
-    
-    table = request.json.get('table').replace('[', '').replace(']', '')
-    du = request.json.get('du').split('[')[1]
-    du = du.split(']')[0].split(',')
-    n_du = [x.replace(' ', '') for x in du] 
-    du = 'DU'
-
+    table = request.json.get('table')
     wb = Workbook()
 
-    tables = table.split(',')
-    for j, table in enumerate(tables):
-        table = table.split()
-
-        t1 = table[7][:6]
-        t2 = table[7][6:]
-        table[7] = t1
-        table.insert(8, t2)
-
-        t1 = table[16][:5]
-        t2 = table[16][5:]
-        table[16] = t1
-        table.insert(17, t2)
-
-        t1 = table[25][:4]
-        t2 = table[25][4:]
-        table[25] = t1
-        table.insert(26, t2)
-        
-        rows = []
-
-        t = []
-        for r in itertools.islice(table, 8):
-            t.append(r)
-        rows.append(t)
-
-        t = []
-        for r in itertools.islice(table, 8, 17):
-            t.append(r)
-        rows.append(t)
-
-        t = []
-        for r in itertools.islice(table, 17, 26):
-            t.append(r)
-        rows.append(t)
-
-        t = []
-        for r in itertools.islice(table, 26, 35):
-            t.append(r)
-        rows.append(t)
-
-        ws = wb.create_sheet(title=f'DU{n_du[j]}')
-
-        for col in ('A','B','C','D','E','F','G','H','I'):
-            ws.column_dimensions[col].width = 22
-        for row in (1,2,3,4):
-            ws.row_dimensions[row].height = 25
-        
-        ws.append([])
-        for row,data in enumerate(rows):
-            row += 1
-            for i,cell_value in enumerate(data):
-                i += 1
-                if row == 1:
-                    ws.cell(row=row, column=i+1).alignment = alin_centr
-                    ws.cell(row=row, column=i+1, value=cell_value).font = txt_pry
+    for key, val in table.items():
+        ws = wb.create_sheet(title=f'DU{key}')
+        #pd.DataFrame(val).transpose().to_excel('test'+key+'.xlsx', sheet_name=f'DU{key}')
+        df = pd.DataFrame(val).transpose()
+    
+        for r_idx, row in enumerate(df.itertuples(), 1):
+            ws.row_dimensions[r_idx].height = 25
+            for c_idx, value in enumerate(row, 1):
+                if r_idx == 1 and c_idx < 4:
+                    ws.cell(row=r_idx, column=c_idx+1, value=df.columns[c_idx-1]).font = txt_pry
+                    ws.cell(row=r_idx, column=c_idx+1).alignment = alin_centr
+                if c_idx == 1:
+                    ws.cell(row=r_idx+1, column=c_idx, value=value).font = txt_pry
                 else:
-                    ws.cell(row=row, column=i).alignment = alin_centr
-                    ws.cell(row=row, column=i, value=cell_value).font = txt_cont
-                if i == 1:
-                    ws.cell(row=row, column=i).font = txt_pry
-                
-        
-        #ws.cell(row=row+5, column=1, value=du).font = txt_data
+                    ws.cell(row=r_idx+1, column=c_idx, value=value).font = txt_cont
+                ws.cell(row=r_idx+1, column=c_idx).alignment = alin_centr
+        ws.column_dimensions['A'].width = 38
+
     wb.remove(wb.active)
 
     filename = '/app/bms/controller/temp.xlsx'

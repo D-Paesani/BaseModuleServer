@@ -1,5 +1,6 @@
 {% extends "layouts/base.html" %}
 {% block content %}
+
       <div class="container">
          <div class="card  p-2 my-5">
                <div class="card card-header bg-primary text-center">
@@ -41,7 +42,7 @@
                                        <h6 class="text-primary">Export in</h6>
                                     </li>
                                     <li>
-                                    <a class="dropdown-item" onclick="exportxlsx('{{ table_toex | replace('\n', '') | safe }}', '{{msg}}' )"> XLSX</a>
+                                    <a class="dropdown-item" onclick='exportxlsx({{ table_toex | tojson }} )'> XLSX</a>
                                     </li>
                                  </ul>
                                  {% endif %}
@@ -59,14 +60,13 @@
          </div>
       </div>
       <script>
-         function exportxlsx(table, msg) {
+         function exportxlsx(table) {
             fetch('/export_to_xlsx', {
                method: 'POST',
                headers: {
                   'Content-Type': 'application/json'
                },
-               body: JSON.stringify({ table: table ,
-                                       du : msg})
+               body: JSON.stringify({ table: table })
             })
             .then(response => response.json())
             .then(data => {
