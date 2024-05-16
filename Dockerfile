@@ -40,9 +40,10 @@ ARG clbclient=clb-client-v1.4.2-7f0365b9
 RUN git clone https://git.km3net.de/daq/shore-station/cu_tools.git /cu_tools
 # RUN git clone https://git.km3net.de/cnicolau/bpd-software.git      /bpd-software 
 RUN git clone --branch fix_jsendcommand2 https://git.km3net.de/cnicolau/bpd-software.git /bpd-software 
-RUN curl -L https://sftp.km3net.de/CLB_Builds/${clbclient}.tar.gz
-RUN tar xfz ${clbclient}.tar.gz
+RUN curl -o ${clbclient}.tar.gz https://sftp.km3net.de/CLB_Builds/${clbclient}.tar.gz
+RUN tar xzf ${clbclient}.tar.gz
 RUN mv ${clbclient}/lib/remote.jar /cu_tools/NG-DUBase_java
+
 
 RUN rm /cu_tools/NG-DUBase_java/java_setenv.sh 
 RUN echo myjava=/usr/bin/java           >> /cu_tools/NG-DUBase_java/java_setenv.sh 
