@@ -16,6 +16,9 @@
     <li>
       <a href="/sendraw"><span class="fa fa-terminal"></span> Sendraw</a>
     </li>
+    <li>
+      <a href="/peripherals"><span class="fa fa-sliders"></span> Peripherals</a>
+    </li>
     {% if current_user.is_authenticated %}
       {% if current_user.can(Permission.ADMIN) %}
         <li>

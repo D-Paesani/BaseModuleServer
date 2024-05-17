@@ -138,9 +138,11 @@ def f_swcontrol():
                 dd = pd.concat([dd, pd.DataFrame(resp, index=[''])])
                 mapping = {'OPEN': 'OPEN (OFF)', 'CLOSED': 'CLOSED (ON)'}
                 dd['SWITCHSTATE'] = dd['SWITCHSTATE'].replace(mapping)
+                
                 #dd['SWITCHSTATE_4DUMMIES'] = dd['SWITCHSTATE']
                 #for torep, repl in zip(['OPEN', 'CLOSED'], ['OPEN (OFF)', 'CLOSED (ON)']): dd['SWITCHSTATE'].replace(torep, repl, inplace=True)
                 dd = dd[jsc.commands['switch'].params]
+                print(dd)
                 templ['table'] = dd.to_html(index=False)
                 
             except Exception as e:
@@ -224,7 +226,7 @@ def f_sendraw():
                 return gettemplate(templ, msg='Error retrieving CMD value')
                 
             try: 
-                templ['answ'] = jsc.commands['raw'].exec(du, args=dict(cmdstr=cmd))['answ'] #answ contiene la risposta raw di jsend command da mostrare a schermo
+                templ['answ'] = jsc.commands['raw'].exec(du, args=dict(cmdstr=cmd))['answ'].replace("\n",'<br>').replace('  ','&nbsp;&nbsp;&nbsp;&nbsp;') #answ contiene la risposta raw di jsend command da mostrare a schermo
             except:
                 return jsonify ({'msg' : 'Error sending command',
                          'answ' : templ['answ']})
@@ -282,3 +284,64 @@ def generate_xlsx():
     fnam = 'bmsexport_' +  datetime.datetime.utcnow().strftime('%Y-%m-%d_%H-%M-%S')
     return jsonify({'file_data': data_base64,
                     'du' : fnam})
+
+
+@cmd_blueprint.route('/peripherals', methods=['GET', 'POST'])
+@login_required
+def f_peripherals():
+    templ = dict(name='peripherals.html', prefilldu='', du='', answ='')
+    try:
+    #    request.args['submit']:
+    #if request.method == 'GET':
+        du = request.args['du']
+        templ = dict(name='peripherals.html', prefilldu=du, du=du, answ='')
+
+        to_send = {}
+        
+        for BPD in jsc.peripheral_dict_BPD.items():
+            operatedsws = {}
+            l_couple = []    
+            for ii in BPD[1]:
+                try: #gestione errori si può copiare da swcontrol
+                    resp = jsc.commands['switch'].exec(du, args=dict(sw=ii, state=2))
+                    operatedsws[F'SW_{ii}'] = resp      
+                except:
+                    pass
+            for key in operatedsws.values():
+                if key.get('SWITCHSTATE'):
+                    if key.get('SWITCHSTATE') == 'CLOSED':
+                        l_couple.append('1')
+                    else:
+                        l_couple.append('0')
+            to_send[BPD[0]] = l_couple    
+            to_send[BPD[0]].append('ON' if l_couple[0]=='1' and l_couple[1]=='1' else 'OFF')
+
+        templ['du'] = to_send
+
+        return gettemplate(templ, msg='Waiting for user input')
+    except:
+        pass
+        
+    if request.method == 'POST':
+        periph = request.json
+        du = periph['du']
+
+        periph2operate = list(periph.keys())[0]#nome periferica
+
+        status2write = int(periph[periph2operate][1])
+        status2write = 0 if status2write == '1' else 1
+
+        operatedsws = {}
+        for ii in jsc.peripheral_dict_BPD[periph2operate]: 
+            try: #gestione errori si può copiare da swcontrol
+                resp = jsc.commands['switch'].exec(du, args=dict(sw=ii, state=status2write))
+                operatedsws[F'SW_{ii}'] = resp      
+            except:
+                pass  
+
+        status = 1 if operatedsws['SW_1']['SWITCHSTATE'] == 'CLOSED' and operatedsws['SW_2']['SWITCHSTATE'] == 'CLOSED' else 0
+        print('status => ', status)
+        return jsonify({'status' : status,
+                        'response' : True})
+    return gettemplate(templ, msg='Waiting for user input')
+

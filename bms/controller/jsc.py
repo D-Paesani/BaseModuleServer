@@ -34,6 +34,7 @@ def parse_sensors(sss, param):
     return adc, val, unit
 
 def parse_generic(sss, param):
+    sss = sss.split('Received')[1]
     return re.search(F'{param} = (.*)', sss).group(1)
     
 class jcmd:
@@ -78,7 +79,10 @@ class jcmd:
             print('--> JSC --> ERROR:', ee)
             if logerrors: cmdlogger(cmd=cc, user=current_user, msg=F'ERROR: {ee}', enable=self.logen)
             return None
-     
+        
+#{'SWITCH_VEOC_RETURN' : '1', 'SWITCH_VEOC_DIRECT' : '2' }
+peripheral_dict_BPD = {'veoc' : ['1', '2'],
+                       'hydrophone' : ['3', '4']}     
 sens_pars_BPS =   ['5V_I', 'LBL_I', 'DU_I', 'DU_IRTN', 'BPS_V', 'HYDRO_I', 'THEATSINK', 'TBOARD',]
 sens_pars_BPD =   ['DUL_BOARDTEMP','TEMP2','TEMP1','VEOC_RTN_I','VEOC_FWR_I','HYDRO_I','INPUT_V','LBL_I','GLRA_I','GLRB_I','PWB_I',]
 sensor_index =    ['ADC', 'VALUE', 'UNIT']
