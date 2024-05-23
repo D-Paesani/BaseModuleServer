@@ -303,10 +303,15 @@ def generate_xlsx():
 @cmd_blueprint.route('/peripherals', methods=['GET', 'POST'])
 @login_required
 def f_peripherals():
-    templ = dict(name='peripherals.html', prefilldu='', du='', answ='')
+    templ = dict(name='peripherals.html', prefilldu='0', du='', answ='')
 
     if request.method == 'GET':
-        du = request.args['du']
+        
+        try:
+            du = request.args['du']
+        except:
+            return gettemplate(templ, msg='Waiting for user input')
+        
         templ = dict(name='peripherals.html', prefilldu=du, du=du, answ='')
 
         to_send = {}
@@ -368,6 +373,7 @@ def f_peripherals():
         #print('status => ', status)
         return jsonify({'status' : 'status',
                         'response' : True})
+        
     return gettemplate(templ, msg='Waiting for user input')
 
 
