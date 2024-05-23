@@ -63,10 +63,15 @@ if "SENSOR_MAXVALUES_GETALL" in aaa:
     
 elif "SWITCH_CONTROL" in aaa:
     
+    print "Sending packet:"
+    print "    Command code: SWITCH_CONTROL (raw data: 64)"
+    print "    Request payload:"
+    print "        SWITCHNUM = 1"
+    print "        SWITCHSTATE_NC = 2"
     print "Received packet:"
     print "    Response payload:"
     print "        SWITCHNUM = SWITCH_VEOC_DIRECT"
-    print "        SWITCHSTATE = CLOSED"
+    print "        SWITCHSTATE = OPEN"
     
 
 elif "RESCUE" in aaa:

@@ -13,6 +13,13 @@ login_manager = LoginManager()
 login_manager.login_view = 'user.login'
 oauth = OAuth()
 
+def split_comma(value):
+    v = value.split(',')
+    if len(v) > 1:
+        return v[0], v[1]
+    else:
+        return v[0], ''
+
 def create_app():
     BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -32,6 +39,7 @@ def create_app():
     bcrypt.init_app(app)
     oauth.init_app(app)
 
+    app.jinja_env.filters['split_comma'] = split_comma
 
     from bms.web_manager.routes import routes_blueprint
     app.register_blueprint(routes_blueprint)

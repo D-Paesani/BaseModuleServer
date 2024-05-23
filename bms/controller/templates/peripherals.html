@@ -1,0 +1,157 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+<div class="container">
+   <div class="card  p-2 my-5">
+         <div class="card card-header bg-primary text-center">
+               <div class="card-title  ">
+                     <h1 class="text-white">PERIPHERALS MANAGER</h1>
+               </div>
+         </div>
+         <div class="card-body">
+            <form action = "{{ url_for('cmd.f_peripherals') }}" method = "GET">
+               <div class="row">
+                  <div class="col-sm-4 text-right">
+                     <h3>DU =</h3>
+                  </div>
+                  <div class="col-sm-3">
+                     <input type="text" name="du" class="form-control" value={{prefilldu}} />     
+                  </div>
+                  <div class="col-sm-4 text-left">
+                     
+                  </div>      
+               </div>
+               <div class="row d-flex justify-content-center mt-4">
+                  <input type = "submit" value = "READ" name = "submit" class="btn btn-primary">
+               </div>
+            </form>
+            {% if du %}
+               <!--{{ du }}-->
+               <div class="row">
+                  
+                  <div class="card-body table-full-width table-responsive ">
+                     <table class="table table-default table-hover">
+                        <tr class="text-left fw-bold text-primary h5">
+                           <th></th>
+                           <th class="text-center">ON</th>
+                           <th>OFF</th>
+                           <th>STATUS</th>
+                        </tr>
+                        <tbody class="text-left">
+                           {% for ph in du %}
+                           <tr>
+                              <td class="fw-bold text-primary h5 text-right align-middle">{{ ph }}</td>
+                              <td class="text-center align-middle"><i id="{{ph}}" name="{{ph}}" class="fa fa-power-off fa-2x text-success toggles" value='1'></i></td>
+                              <td class="align-middle"><i id="{{ph}}" name="{{ph}}" class="fa fa-power-off fa-2x text-danger toggles" value='0'></i></td>
+                              {% for sw in du[ph][0:1] %}
+                                 
+                                 {% set sw, swname = sw | split_comma %}
+
+                                 <td class="align-middle">
+                                 {% if sw == '1' %}
+                                    <i class="fa fa-circle fa-2x text-success"></i> {{ swname}}
+                                 {% else %}
+                                    <i class="fa fa-circle-o fa-2x text-danger"></i> {{ swname}}
+                                 {% endif %}
+
+                                 {% set sw, swname = du[ph][1:2][0] | split_comma %}
+                                 {% if sw == '1' %}
+                                    <br><i class="fa fa-circle fa-2x text-success"></i> {{ swname}}
+                                 {% elif sw == '0' %}
+                                    <br><i class="fa fa-circle-o fa-2x text-danger"></i> {{ swname}}
+                                 {% endif %}
+                                 </td>
+                              
+                              {% endfor %}
+                           </tr>
+                           {% endfor %}
+                        </tbody>
+                     </table>
+                  </div>
+                  <div class="card-body table-responsive ">
+                     <table class="table table-default table-hover">
+                        <tbody>
+                        <tr class="text-left fw-bold text-primary h5">
+                           <td>
+                              <i class="fa fa-power-off text-success"> = SWITCH ON</i> 
+                           </td>
+                           <td>
+                              <i class="fa fa-power-off text-danger"> = SWITCH OFF</i> 
+                           </td>
+                           <td>
+                              <i class="fa fa-circle text-success"> = PHERIPERAL IS ON</i> 
+                           </td>
+                           <td>
+                              <i class="fa fa-circle-o text-danger"> = PHERIPERAL IS OFF</i> 
+                           </td>
+                        </tr>
+                     </tbody>
+                     </table>
+                  </div> 
+               </div>
+            {% endif %}
+         </div>
+
+         <div class="card-footer text-center">
+                Km3NeT - ARCA 2023<br>
+                Istituto Nazionale di Fisica Nucleare - Laboratori Nazionali del Sud<br>
+                <!-- Source at <a href=https://github.com/D-Paesani/km3net/>D-Paesani/km3net</a><br> -->
+         </div>
+   </div>
+</div>
+
+<script>
+   //0 spento
+   //1 acceso
+   const toggleVeoc = document.querySelectorAll(".toggles");
+   toggleVeoc.forEach((toggleButton) => {
+      toggleButton.addEventListener("click", () => {
+         const value = toggleButton.getAttribute("value");
+         const idp = toggleButton.getAttribute("id");
+         const name = toggleButton.getAttribute("name");
+
+         const requestBody = {};
+         requestBody[name] = value;
+         requestBody['du'] = '{{prefilldu}}'
+
+         fetch('/peripherals', {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+         })
+         .then(response => response.json())
+         .then(data => {
+            console.log(data);
+            const resp = data.response;
+            const newstat = data.status;
+
+            /*if (resp == False) 
+            { 
+               alert(newstat);
+            }*/
+            /*
+            if (resp) {
+               //alert('status di ritorno '+newstat);
+               if (newstat == 1) {
+                  //toggleButton.value = '1';
+                  toggleButton.classList.remove("fa-toggle-off");
+                  toggleButton.classList.add("fa-toggle-on");
+
+               }
+               else {
+                  //toggleButton.value = '0';
+                  toggleButton.classList.remove("fa-toggle-on");
+                  toggleButton.classList.add("fa-toggle-off");
+               }
+            }
+            else {
+               alert('error');
+            }*/
+            location.reload();
+      })
+   })
+})
+</script>
+
+{% endblock content %}
