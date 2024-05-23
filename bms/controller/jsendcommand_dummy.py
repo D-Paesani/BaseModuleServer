@@ -71,7 +71,7 @@ elif "SWITCH_CONTROL" in aaa:
     print "Received packet:"
     print "    Response payload:"
     print "        SWITCHNUM = SWITCH_VEOC_DIRECT"
-    print "        SWITCHSTATE = CLOSED"
+    print "        SWITCHSTATE = OPEN"
     
 
 elif "RESCUE" in aaa:

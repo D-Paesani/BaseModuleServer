@@ -9,9 +9,10 @@
             </div>
             <div class="card-body text-start">
                   <h3>&#x2022; <a href="{{ url_for('cmd.f_sensors') }}">  Sensor monitor</a></h3>
-                  <h3>&#x2022; <a href="{{ url_for('cmd.f_swcontrol') }}">  Switch control</a> (authentication needed)</h3>
-                  <h3>&#x2022; <a href="{{ url_for('cmd.f_rescue') }}">  Rescue control</a> (authentication needed)</h3>
-                  <h3>&#x2022; <a href="{{ url_for('cmd.f_sendraw') }}">  Send raw command</a> (authentication needed)</h3>
+                  <h3>&#x2022; <a href="{{ url_for('cmd.f_peripherals') }}">  Peripheral control panel</a></h3>
+                  <h3>&#x2022; <a href="{{ url_for('cmd.f_swcontrol') }}">  Switch control</a></h3>
+                  <h3>&#x2022; <a href="{{ url_for('cmd.f_rescue') }}">  Rescue control</a></h3>
+                  <h3>&#x2022; <a href="{{ url_for('cmd.f_sendraw') }}">  Send raw command</a></h3>
                   <h3>&#x2022; <a href="{{ url_for('cmd.render_log') }}"> Show command logfile</a></h3>
                   <h3>&#x2022; To dump JSON sensor readings for DU XX use /dumpsensor/XX</h3>
                   <h3>&#x2022; Setting DU=0 is reserved for Process-3 BM operation at 10.0.1.100</h3>

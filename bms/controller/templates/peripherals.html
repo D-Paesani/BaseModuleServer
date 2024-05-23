@@ -11,13 +11,13 @@
             <form action = "{{ url_for('cmd.f_peripherals') }}" method = "GET">
                <div class="row">
                   <div class="col-sm-4 text-right">
-                     <h3>DU(s) =</h3>
+                     <h3>DU =</h3>
                   </div>
                   <div class="col-sm-3">
                      <input type="text" name="du" class="form-control" value={{prefilldu}} />     
                   </div>
                   <div class="col-sm-4 text-left">
-                     (comma or single-space separated)
+                     
                   </div>      
                </div>
                <div class="row d-flex justify-content-center mt-4">
@@ -25,32 +25,69 @@
                </div>
             </form>
             {% if du %}
-               {{ du }}
-               {% for ph in du %}
-                  <div class="row">
-                     <div class="col-sm-4 text-right">
-                        <h3>{{ ph }} =</h3>
-                     </div>
+               <!--{{ du }}-->
+               <div class="row">
+                  
+                  <div class="card-body table-full-width table-responsive ">
+                     <table class="table table-default table-hover">
+                        <tr class="text-left fw-bold text-primary h5">
+                           <th></th>
+                           <th class="text-center">ON</th>
+                           <th>OFF</th>
+                           <th>STATUS</th>
+                        </tr>
+                        <tbody class="text-left">
+                           {% for ph in du %}
+                           <tr>
+                              <td class="fw-bold text-primary h5 text-right align-middle">{{ ph }}</td>
+                              <td class="text-center align-middle"><i id="{{ph}}" name="{{ph}}" class="fa fa-power-off fa-2x text-success toggles" value='1'></i></td>
+                              <td class="align-middle"><i id="{{ph}}" name="{{ph}}" class="fa fa-power-off fa-2x text-danger toggles" value='0'></i></td>
+                              {% for sw in du[ph][0:1] %}
+                                 
+                                 {% set sw, swname = sw | split_comma %}
 
-                     <div class="col-sm-2">
-                        {% if du[ph][-1] == 'ON' %}
-                           <p><i id="{{ph}}" name="{{ph}}" class="fa fa-solid fa-2x fa-toggle-on fa-beat-fade text-success {{ph}}-toggles" value='1'></i> IS ON</p>
-                        {% elif du[ph][-1] == 'OFF' %}
-                           <p><i id="{{ph}}" name="{{ph}}" class="fa fa-solid fa-2x fa-toggle-off text-danger {{ph}}-toggles" value='0'></i> IS OFF </p>
-                        {% endif %}
+                                 <td class="align-middle">
+                                 {% if sw == '1' %}
+                                    <i class="fa fa-circle fa-2x text-success"></i> {{ swname}}
+                                 {% else %}
+                                    <i class="fa fa-circle-o fa-2x text-danger"></i> {{ swname}}
+                                 {% endif %}
 
-                     </div>
-                     {% for sw in du[ph][:-1] %}
-                        <div class="col-sm-2">
-                           {% if sw == '1' %}
-                              <p><i class="fa fa-power-off fa-2x fa-beat-fade text-success"></i> {{sw}}</p>
-                           {% else %}
-                              <p><i class="fa fa-power-off fa-2x fa-beat-fade text-danger"></i> {{sw}}</p>
-                           {% endif %}
-                        </div>  
-                     {% endfor %}      
+                                 {% set sw, swname = du[ph][1:2][0] | split_comma %}
+                                 {% if sw == '1' %}
+                                    <br><i class="fa fa-circle fa-2x text-success"></i> {{ swname}}
+                                 {% elif sw == '0' %}
+                                    <br><i class="fa fa-circle-o fa-2x text-danger"></i> {{ swname}}
+                                 {% endif %}
+                                 </td>
+                              
+                              {% endfor %}
+                           </tr>
+                           {% endfor %}
+                        </tbody>
+                     </table>
                   </div>
-               {% endfor %}
+                  <div class="card-body table-responsive ">
+                     <table class="table table-default table-hover">
+                        <tbody>
+                        <tr class="text-left fw-bold text-primary h5">
+                           <td>
+                              <i class="fa fa-power-off text-success"> = SWITCH ON</i> 
+                           </td>
+                           <td>
+                              <i class="fa fa-power-off text-danger"> = SWITCH OFF</i> 
+                           </td>
+                           <td>
+                              <i class="fa fa-circle text-success"> = PHERIPERAL IS ON</i> 
+                           </td>
+                           <td>
+                              <i class="fa fa-circle-o text-danger"> = PHERIPERAL IS OFF</i> 
+                           </td>
+                        </tr>
+                     </tbody>
+                     </table>
+                  </div> 
+               </div>
             {% endif %}
          </div>
 
@@ -65,16 +102,17 @@
 <script>
    //0 spento
    //1 acceso
-   const toggleVeoc = document.querySelectorAll(".veoc-toggles");
+   const toggleVeoc = document.querySelectorAll(".toggles");
    toggleVeoc.forEach((toggleButton) => {
       toggleButton.addEventListener("click", () => {
-         const status = toggleButton.getAttribute("value");
+         const value = toggleButton.getAttribute("value");
          const idp = toggleButton.getAttribute("id");
          const name = toggleButton.getAttribute("name");
-         //alert('status attuale '+status);
+
          const requestBody = {};
-         requestBody[name] = [idp, status];
+         requestBody[name] = value;
          requestBody['du'] = '{{prefilldu}}'
+
          fetch('/peripherals', {
             method: 'POST',
             headers: {
@@ -85,39 +123,34 @@
          .then(response => response.json())
          .then(data => {
             console.log(data);
-            const resp = JSON.parse(data.response);
-            const newstat = JSON.parse(data.status);
+            const resp = data.response;
+            const newstat = data.status;
+
+            /*if (resp == False) 
+            { 
+               alert(newstat);
+            }*/
+            /*
             if (resp) {
                //alert('status di ritorno '+newstat);
                if (newstat == 1) {
                   //toggleButton.value = '1';
                   toggleButton.classList.remove("fa-toggle-off");
-
                   toggleButton.classList.add("fa-toggle-on");
-                  
-                  
+
                }
                else {
                   //toggleButton.value = '0';
                   toggleButton.classList.remove("fa-toggle-on");
-
                   toggleButton.classList.add("fa-toggle-off");
-                  
-
                }
-               
-
             }
             else {
                alert('error');
-            }
-
+            }*/
             location.reload();
-
-
       })
    })
-   
 })
 </script>
 
