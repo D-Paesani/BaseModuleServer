@@ -37,7 +37,10 @@
           {% endwith %}
         </div>
 
-        {% block content %}{% endblock content %}
+        {% block content %}
+          {% block peripherals_du %}
+          {% endblock peripherals_du %}
+        {% endblock content %}
         
       </div>
 		</div>

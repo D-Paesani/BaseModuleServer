@@ -44,7 +44,6 @@ RUN curl -o ${clbclient}.tar.gz https://sftp.km3net.de/CLB_Builds/${clbclient}.t
 RUN tar xzf ${clbclient}.tar.gz
 RUN mv ${clbclient}/lib/remote.jar /cu_tools/NG-DUBase_java
 
-
 RUN rm /cu_tools/NG-DUBase_java/java_setenv.sh 
 RUN echo myjava=/usr/bin/java           >> /cu_tools/NG-DUBase_java/java_setenv.sh 
 RUN echo myjavac=/usr/bin/javac         >> /cu_tools/NG-DUBase_java/java_setenv.sh 
@@ -67,5 +66,4 @@ EXPOSE 5001
 WORKDIR /app
 
 CMD [ "bash","run.sh" ]
-
 
