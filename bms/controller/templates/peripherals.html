@@ -11,13 +11,13 @@
             <form action = "{{ url_for('cmd.f_peripherals') }}" method = "GET">
                <div class="row">
                   <div class="col-sm-4 text-right">
-                     <h3>DU(s) =</h3>
+                     <h3>DU =</h3>
                   </div>
                   <div class="col-sm-3">
                      <input type="text" name="du" class="form-control" value={{prefilldu}} />     
                   </div>
                   <div class="col-sm-4 text-left">
-                     (comma or single-space separated)
+                     
                   </div>      
                </div>
                <div class="row d-flex justify-content-center mt-4">
@@ -27,35 +27,66 @@
             {% if du %}
                <!--{{ du }}-->
                <div class="row">
-                  <div class="card-body table-full-width table-responsive">
+                  
+                  <div class="card-body table-full-width table-responsive ">
                      <table class="table table-default table-hover">
-                        <tr class="text-center fw-bold text-primary h5">
+                        <tr class="text-left fw-bold text-primary h5">
                            <th></th>
-                           <th>Turn ON</th>
-                           <th>Turn OFF</th>
-                           <th>SW 1 STATE</th>
-                           <th>SW 2 STATE</th>
+                           <th class="text-center">ON</th>
+                           <th>OFF</th>
+                           <th>STATUS</th>
                         </tr>
-                        <tbody class="text-center">
+                        <tbody class="text-left">
                            {% for ph in du %}
                            <tr>
-                              <td class="fw-bold text-primary h5">{{ ph }}</td>
-                              <td><i id="{{ph}}" name="{{ph}}" class="fa fa-power-off fa-2x text-success toggles" value='1'></i>ON</td>
-                              <td><i id="{{ph}}" name="{{ph}}" class="fa fa-power-off fa-2x text-danger toggles" value='0'></i>OFF</td>
-                              {% for sw in du[ph][:-1] %}
+                              <td class="fw-bold text-primary h5 text-right align-middle">{{ ph }}</td>
+                              <td class="text-center align-middle"><i id="{{ph}}" name="{{ph}}" class="fa fa-power-off fa-2x text-success toggles" value='1'></i></td>
+                              <td class="align-middle"><i id="{{ph}}" name="{{ph}}" class="fa fa-power-off fa-2x text-danger toggles" value='0'></i></td>
+                              {% for sw in du[ph][0:1] %}
+                                 
                                  {% set sw, swname = sw | split_comma %}
+
+                                 <td class="align-middle">
                                  {% if sw == '1' %}
-                                    <td><i class="fa fa-circle fa-2x text-success"></i> {{ swname}}</td>
+                                    <i class="fa fa-circle fa-2x text-success"></i> {{ swname}}
                                  {% else %}
-                                    <td><i class="fa fa-circle-o fa-2x text-danger"></i> {{ swname}}</td>
+                                    <i class="fa fa-circle-o fa-2x text-danger"></i> {{ swname}}
                                  {% endif %}
-                              {% if du[ph]|length <= 2 %} <td></td> {% endif %}
+
+                                 {% set sw, swname = du[ph][1:2][0] | split_comma %}
+                                 {% if sw == '1' %}
+                                    <br><i class="fa fa-circle fa-2x text-success"></i> {{ swname}}
+                                 {% elif sw == '0' %}
+                                    <br><i class="fa fa-circle-o fa-2x text-danger"></i> {{ swname}}
+                                 {% endif %}
+                                 </td>
+                              
                               {% endfor %}
                            </tr>
                            {% endfor %}
                         </tbody>
                      </table>
                   </div>
+                  <div class="card-body table-responsive ">
+                     <table class="table table-default table-hover">
+                        <tbody>
+                        <tr class="text-left fw-bold text-primary h5">
+                           <td>
+                              <i class="fa fa-power-off text-success"> = SWITCH ON</i> 
+                           </td>
+                           <td>
+                              <i class="fa fa-power-off text-danger"> = SWITCH OFF</i> 
+                           </td>
+                           <td>
+                              <i class="fa fa-circle text-success"> = PHERIPERAL IS ON</i> 
+                           </td>
+                           <td>
+                              <i class="fa fa-circle-o text-danger"> = PHERIPERAL IS OFF</i> 
+                           </td>
+                        </tr>
+                     </tbody>
+                     </table>
+                  </div> 
                </div>
             {% endif %}
          </div>

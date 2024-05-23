@@ -301,28 +301,29 @@ def f_peripherals():
         for periph, BPD in jsc.peripheral_dict_BPD.items():
             operatedsws = {}
             l_couple = []
-            if len(BPD) > 0:    
-                for ii in BPD:
-                    try: #gestione errori si può copiare da swcontrol
-                        if periph in ph_list:
-                            resp = jsc.commands['switch'].exec(du, args=dict(sw=ii, state=2))
-                        else:
-                            resp = jsc.commands['rescue'].exec(du, args=dict(state=2))
-                        operatedsws[F'SW_{ii}'] = resp      
-                    except:
-                        pass 
-                for key in operatedsws.values():
-                    if key.get('SWITCHSTATE'):
-                        if key.get('SWITCHSTATE') == 'CLOSED':
-                            l_couple.append(f"1, {key.get('SWITCHNUM').replace('SWITCH_','')}")
-                        else:
-                            l_couple.append(f"0, {key.get('SWITCHNUM').replace('SWITCH_','')}")
-                to_send[periph] = l_couple
-                to_send[periph].append('ON' if l_couple[0]=='1' and l_couple[1 if len(l_couple)>1 else 0]=='1' else 'OFF')
-            else:
-                resp = jsc.commands['rescue'].exec(du, args=dict(state=2))
-                to_send[periph] = ['1' if resp['ENABLESTATE'] == 'ENABLED' else '0']
-                to_send[periph].append('ON')
+
+            for ii in BPD:
+                try: #gestione errori si può copiare da swcontrol
+                    if periph in ph_list:
+                        resp = jsc.commands['switch'].exec(du, args=dict(sw=ii, state=2))
+                    else:
+                        resp = jsc.commands['rescue'].exec(du, args=dict(state=2))
+                    operatedsws[F'SW_{ii}'] = resp      
+                except:
+                    pass 
+            for key in operatedsws.values():
+                if key.get('SWITCHSTATE'):
+                    if key.get('SWITCHSTATE') == 'CLOSED':
+                        l_couple.append(f"1, {key.get('SWITCHNUM').replace('SWITCH_','')}")
+                    else:
+                        l_couple.append(f"0, {key.get('SWITCHNUM').replace('SWITCH_','')}")
+            to_send[periph] = l_couple
+            to_send[periph].append('ON' if l_couple[0]=='1' and l_couple[1 if len(l_couple)>1 else 0]=='1' else 'OFF')
+        
+        thiscommand = 'rescue'
+        resp = jsc.commands[thiscommand].exec(du, args=dict(state=2))
+        to_send[thiscommand] = ['1' if resp['ENABLESTATE'] == 'ENABLED' else '0']
+        to_send[thiscommand].append('ON')
 
         templ['du'] = to_send
 
@@ -343,16 +344,18 @@ def f_peripherals():
             for ii in jsc.peripheral_dict_BPD[periph2operate[0]]: 
                 try: #gestione errori si può copiare da swcontrol
                     resp = jsc.commands['switch'].exec(du[1], args=dict(sw=ii, state=status2write))
-                    #operatedsws[F'SW_{ii}'] = resp      
+                    #operatedsws[F'SW_{ii}'] = resp      OPERATE
                 except Exception as e:
-                    return jsonify({'status' : f'ERROR IN OPERATE SWITCH {e}',
+                    return jsonify({'status' : f'ERROR IN OPERATING SWITCH {e}',
                                     'response' : False})
-        else:
+        elif periph == 'rescue':
             try:
                 resp = jsc.commands['rescue'].exec(du[1], args=dict(state=status2write))
             except Exception as e:
-                return jsonify({'status' : f'ERROR IN OPERATE RESCUE ENABLE {e}',
+                return jsonify({'status' : f'ERROR IN OPERATING RESCUE ENABLE {e}',
                                     'response' : False})
+        else:
+            pass
 
         #status = 1 if operatedsws['SW_1']['SWITCHSTATE'] == 'CLOSED' and operatedsws['SW_2']['SWITCHSTATE'] == 'CLOSED' else 0
         #print('status => ', status)
