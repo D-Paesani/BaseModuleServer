@@ -110,7 +110,8 @@
          const name = toggleButton.getAttribute("name");
 
          const requestBody = {};
-         requestBody[name] = value;
+         requestBody['periph'] = name;
+         requestBody['val'] = value;
          requestBody['du'] = '{{prefilldu}}'
 
          fetch('/peripherals', {
