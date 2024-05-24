@@ -82,7 +82,7 @@ class jcmd:
         
 peripheral_dict_BPD = { 
                        'veoc' :     ['1', '2'],
-                       '12volts' :  ['3'],
+                       'switch_12V' :  ['3'],
                        'beacon' :   ['4'],
                        'hydrophone' :    ['5'],
                        }     

@@ -213,7 +213,7 @@ def f_rescue():
 @cmd_blueprint.route('/sendraw', methods = ['GET', 'POST']) 
 @login_required
 def f_sendraw(): 
-    templ = dict(name='sendraw.html', prefilldu='', prefillcmd='VERSION', answ='') 
+    templ = dict(name='sendraw.html', prefilldu='0', prefillcmd='VERSION', answ='') 
      
     if request.method == 'POST':
          
