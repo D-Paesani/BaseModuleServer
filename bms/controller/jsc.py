@@ -81,10 +81,10 @@ class jcmd:
             return None
         
 peripheral_dict_BPD = { 
-                       'veoc' :     ['1', '2'],
-                       'switch_12V' :  ['3'],
-                       'beacon' :   ['4'],
-                       'hydrophone' :    ['5'],
+                       'veoc' :         ['1', '2'],
+                       'switch_12V' :   ['3'],
+                       'beacon' :       ['4'],
+                       'hydrophone' :   ['5'],
                        }     
 
 sens_pars_BPS =   ['5V_I', 'LBL_I', 'DU_I', 'DU_IRTN', 'BPS_V', 'HYDRO_I', 'THEATSINK', 'TBOARD',]
