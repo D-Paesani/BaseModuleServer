@@ -20,15 +20,11 @@ def gettemplate(templ, msg=None):
     if msg != None: templ['msg'] = msg
     return render_template(templ['name'], **templ)
 
-
-
 @cmd_blueprint.route('/help', methods = ['GET'])
 @login_required
 #@register_breadcrumb(app, '.home', 'Home')
 def f_help(): 
     return render_template('help.html')
-
-
 
 def read_log_file(nlines=2000):
     with open(f'{BASEDIR}/logs/jsccmd.log', 'r') as log:
@@ -53,8 +49,6 @@ def render_log():
 #                 # time.sleep(1)
 #     return app.response_class(generate(), mimetype='text/plain')
 
-
-
 @cmd_blueprint.route('/dumpsensor/<duid>', methods = ['GET'])
 @login_required
 def f_dumpsensor(duid):
@@ -66,12 +60,10 @@ def f_dumpsensor(duid):
         abort(404)
     return resp
     
-    
-    
 @cmd_blueprint.route('/sensors', methods = ['GET', 'POST'])
 @login_required
 def f_sensors(): 
-    templ = dict(name='sensors.html', prefilldu='1', table='') 
+    templ = dict(name='sensors.html', prefilldu='0', table='') 
     dd, ddt = [], []
     dudict = {}
     
@@ -101,13 +93,11 @@ def f_sensors():
         return gettemplate(templ, msg=F'Reading sensors on DU={du} with response:')    
     else:
         return gettemplate(templ, msg=F'Waiting for user input')
-    
-    
-    
+     
 @cmd_blueprint.route('/swcontrol', methods = ['GET', 'POST'])
 @login_required
 def f_swcontrol(): 
-    templ = dict(name='swcontrol.html', table='', datajson='', prefilldu='1', prefillsws=1, prefillstate=1) 
+    templ = dict(name='swcontrol.html', table='', datajson='', prefilldu='0', prefillsws=1, prefillstate=1) 
     dd = pd.DataFrame()
     state = 2
     
@@ -122,8 +112,7 @@ def f_swcontrol():
         try:
             sws, templ['prefillsws'] = uu.parsestrlist(request.form.get('sws'), typ=int)
         except:
-            return jsonify({'msg' : 'Error retrieving SW',
-                            'table' : ''})
+            return jsonify({'msg' : 'Error retrieving SW', 'table' : ''})
             return gettemplate(templ, msg='Error retrieving SW')
         
         submit = request.form.get('submit')
@@ -155,24 +144,20 @@ def f_swcontrol():
                 templ['table'] = dd.to_html(index=False)
                 
             except Exception as e:
-                return ({'msg' : F'Error {("writing to" if state<2 else "reading").lower()} SW {ii} ',
-                         'table' : ''})
+                return ({'msg' : F'Error {("writing to" if state<2 else "reading").lower()} SW {ii} ', 'table' : ''})
                 return gettemplate(templ, msg=F'Error {("writing to" if state<2 else "reading").lower()} SW {ii} ')  
                          
         msg = F'{"Writing to" if state<2 else "Reading"} DU{du:04d} switch{"es" if len(sws) > 1 else ""} {sws} {F"to STATE={state}" if state<2 else ""} with response:'
-        return jsonify ({'msg' : msg,
-                         'table' : templ['table']})
+        return jsonify ({'msg' : msg, 'table' : templ['table']})
         return gettemplate(templ, msg)
                     
     else:
          return gettemplate(templ, msg='Waiting for user input')
 
-
-
 @cmd_blueprint.route('/rescue', methods = ['GET', 'POST'])
 @login_required
 def f_rescue(): 
-    templ = dict(name='rescue.html', table='', datajson='', prefilldu='1', prefillstate=1) 
+    templ = dict(name='rescue.html', table='', datajson='', prefilldu='0', prefillstate=1) 
     dd = pd.DataFrame()
     state = 2
      
@@ -204,12 +189,6 @@ def f_rescue():
     else:
         return gettemplate(templ, msg='Waiting for user input')
     
-    
-    
-# @mirko: 
-# questo è per mandare i comandi raw tramite un bottone SEND
-# poi se aggiungiamo questa pagina, ricordiamoci il link sulla pagina "help"
-# qui ho messo anche un bottone PING per pingare la DU e avere il risultato a schermo
 @cmd_blueprint.route('/sendraw', methods = ['GET', 'POST']) 
 @login_required
 def f_sendraw(): 
@@ -221,10 +200,9 @@ def f_sendraw():
         templ['answ'] = ''
         
         try:
-            du = templ['prefilldu'] = int(request.form.get('du'))  # qui la pagina html dice "insert target DU"
+            du = templ['prefilldu'] = int(request.form.get('du')) 
         except:
-            return jsonify ({'msg' : 'Error retrieving DU',
-                         'answ' : templ['answ']})
+            return jsonify ({'msg' : 'Error retrieving DU', 'answ' : templ['answ']})
             return gettemplate(templ, msg='Error retrieving DU') 
             
         if submit == 'SEND':
@@ -232,32 +210,26 @@ def f_sendraw():
             try:
                 cmd =  templ['prefillcmd'] = request.form.get('cmd') # string per il comando
             except:
-                return jsonify ({'msg' : 'Error retrieving CMD value',
-                         'answ' : templ['answ']})
+                return jsonify ({'msg' : 'Error retrieving CMD value', 'answ' : templ['answ']})
                 return gettemplate(templ, msg='Error retrieving CMD value')
                 
             try: 
                 templ['answ'] = jsc.commands['raw'].exec(du, args=dict(cmdstr=cmd))['answ'].replace("\n",'<br>').replace('  ','&nbsp;&nbsp;&nbsp;&nbsp;') #answ contiene la risposta raw di jsend command da mostrare a schermo
             except:
-                return jsonify ({'msg' : 'Error sending command',
-                         'answ' : templ['answ']})
+                return jsonify ({'msg' : 'Error sending command', 'answ' : templ['answ']})
                 return gettemplate(templ, msg=F'Error sending command') 
                                 
             msg = F'Sending command [{cmd}] to DU{du:04d} with response:'
-        
         
         elif submit == 'PING':
         
             pingd = uu.isDuAlive(du)
             msg = f'Pinging DU{du:04d} at [{uu.getbaseip(du)}] : {"ALIVE" if pingd else "UNREACHABLE"}'
         
-        return jsonify ({'msg' : msg,
-                         'answ' : templ['answ']})
+        return jsonify ({'msg' : msg, 'answ' : templ['answ']})
                 
     else:
         return gettemplate(templ, msg='Waiting for user input')
-
-
 
 @cmd_blueprint.route('/export_to_xlsx', methods=['POST'])   # @mirko, dobbiamo rifarla per tabelle di lunghezza variabile, magari usiamo pandas + lista globale di dfs...
 @login_required
@@ -298,53 +270,55 @@ def generate_xlsx():
     fnam = 'BMS_' + (F'DU{int(dus[0]):04d}_' if len(dus)==1 else  '') + datetime.datetime.utcnow().strftime('%Y-%m-%d_%H-%M-%S') 
     return jsonify({'file_data': data_base64, 'du' : fnam})
 
-
-
 @cmd_blueprint.route('/peripherals', methods=['GET', 'POST'])
 @login_required
 def f_peripherals():
-    templ = dict(name='peripherals.html', prefilldu='0', du='', answ='')
+    templ = dict(name='peripherals.html', prefilldu='0', du='', peri_status=None)
 
     if request.method == 'GET':
         
         try:
-            du = request.args['du']
-        except:
-            return gettemplate(templ, msg='Waiting for user input')
-        
-        templ = dict(name='peripherals.html', prefilldu=du, du=du, answ='')
-
-        to_send = {}
-
-        # read peripheral sws
-        for periph, periphsws in jsc.peripheral_dict_BPD.items():
-            operatedsws = {}
-            l_couple = []
-
-            for ii in periphsws:
-                try: #gestione errori si può copiare da swcontrol
+            
+            try:
+                du = request.args['du']
+            except:
+                return gettemplate(templ, msg='Waiting for user input')
+            
+            to_send = {} 
+                    
+            #read SWS
+            for periph, periphsws in jsc.peripheral_dict_BPD.items():
+                operatedsws = {}
+    
+                for ii in periphsws:
                     resp = jsc.commands['switch'].exec(du, args=dict(sw=ii, state=2))
-                    operatedsws[F'SW_{ii}'] = resp      
-                except:
-                    pass 
-            for key in operatedsws.values():
-                if key.get('SWITCHSTATE'):
-                    if key.get('SWITCHSTATE') == 'CLOSED':
-                        l_couple.append(f"1, {key.get('SWITCHNUM').replace('SWITCH_','')}")
-                    else:
-                        l_couple.append(f"0, {key.get('SWITCHNUM').replace('SWITCH_','')}")
-            to_send[periph] = l_couple
-            to_send[periph].append('ON' if l_couple[0]=='1' and l_couple[1 if len(l_couple)>1 else 0]=='1' else 'OFF')
+                    swname = F'SW_{ii}'
+                    operatedsws[swname] = {}
+                    # operatedsws[swname]['resp'] =       resp
+                    sw_name =                           resp.get('SWITCHNUM').replace('SWITCH_','')
+                    sw_status =                         resp.get('SWITCHSTATE').replace('OPEN','OFF').replace('CLOSED','ON')
+                    operatedsws[swname]['sw_status']  = int(sw_status == 'ON')
+                    operatedsws[swname]['sw_display'] = F'{sw_name} is {sw_status}'
+     
+                to_send[periph] = operatedsws
+                
+            #read RESCUE
+            thiscommand = 'rescue'
+            resp = jsc.commands[thiscommand].exec(du, args=dict(state=2))
+            to_send[thiscommand] = {}
+            sw_status = resp.get('ENABLESTATE').replace('DISABLED','OFF').replace('ENABLED','ON')
+            # to_send[thiscommand]['resp'] = resp           
+            to_send[thiscommand]['SW'] = {'sw_status' : int(sw_status == 'ON')}
+            to_send[thiscommand]['SW'].update({'sw_display' : F'AUTORESCUE is {sw_status}'}) 
+
+        except Exception as ee:
+            return gettemplate(templ, msg='Error retrieving status')
+            return gettemplate(templ, msg=F'Error retrieving status: {ee}')
         
-        # read peripheral rescue
-        thiscommand = 'rescue'
-        resp = jsc.commands[thiscommand].exec(du, args=dict(state=2))
-        to_send[thiscommand] = ['1' if resp['ENABLESTATE'] == 'ENABLED' else '0']
-        to_send[thiscommand].append('ON')
-
-        templ['du'] = to_send
-
-        return gettemplate(templ, msg='Waiting for user input')
+        templ['du'] = du
+        templ['peri_status'] = to_send
+        # return jsonify(templ) #@mirko per diagnostica
+        return gettemplate(templ, msg='Requesting status')
         
     if request.method == 'POST':
         
@@ -353,28 +327,21 @@ def f_peripherals():
 
         if periph2operate in jsc.peripheral_dict_BPD:     
             for ii in jsc.peripheral_dict_BPD[periph2operate]: 
-                try: #gestione errori si può copiare da swcontrol
+                try:
                     resp = jsc.commands['switch'].exec(du, args=dict(sw=ii, state=status2write))
-                    #operatedsws[F'SW_{ii}'] = resp      OPERATE
-                except Exception as e:
-                    return jsonify({'status' : f'ERROR IN OPERATING SWITCH {e}',
-                                    'response' : False})
+                except Exception as ee:
+                    return jsonify({'status' : f'Error in operating rescue enable: {ee}', 'response':False})
                     
         elif periph2operate == 'rescue':
             try:
                 resp = jsc.commands['rescue'].exec(du, args=dict(state=status2write))
-            except Exception as e:
-                return jsonify({'status' : f'ERROR IN OPERATING RESCUE ENABLE {e}',
-                                    'response' : False})
+            except Exception as ee:
+                return jsonify({'status' : f'Error in operating rescue enable: {ee}', 'response':False})
         else:
-            pass
+            pass # for future use
 
-        #status = 1 if operatedsws['SW_1']['SWITCHSTATE'] == 'CLOSED' and operatedsws['SW_2']['SWITCHSTATE'] == 'CLOSED' else 0
-        #print('status => ', status)
-        return jsonify({'status' : 'status',
-                        'response' : True})
-        
-    return gettemplate(templ, msg='Waiting for user input')
+        return jsonify({'status' : 'status', 'response':True})
+
 
 
 

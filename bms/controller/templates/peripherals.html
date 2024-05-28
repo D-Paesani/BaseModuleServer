@@ -24,10 +24,12 @@
                   <input type = "submit" value = "READ" name = "submit" class="btn btn-primary">
                </div>
             </form>
-            {% if du %}
-               <!--{{ du }}-->
+            <div class="row d-flex justify-content-center fw-bold mt-4">
+               {{ msg }}
+            </div>
+
+            {% if peri_status %}
                <div class="row">
-                  
                   <div class="card-body table-full-width table-responsive ">
                      <table class="table table-default table-hover">
                         <tr class="text-left fw-bold text-primary h5">
@@ -37,31 +39,23 @@
                            <th>STATUS</th>
                         </tr>
                         <tbody class="text-left">
-                           {% for ph in du %}
+                           {% for ph in peri_status %}
                            <tr>
                               <td class="fw-bold text-primary h5 text-right align-middle">{{ ph }}</td>
                               <td class="text-center align-middle"><i id="{{ph}}" name="{{ph}}" class="fa fa-power-off fa-2x text-success toggles" value='1'></i></td>
                               <td class="align-middle"><i id="{{ph}}" name="{{ph}}" class="fa fa-power-off fa-2x text-danger toggles" value='0'></i></td>
-                              {% for sw in du[ph][0:1] %}
-                                 
-                                 {% set sw, swname = sw | split_comma %}
-
-                                 <td class="align-middle">
-                                 {% if sw == '1' %}
-                                    <i class="fa fa-circle fa-2x text-success"></i> {{ swname}}
-                                 {% else %}
-                                    <i class="fa fa-circle-o fa-2x text-danger"></i> {{ swname}}
-                                 {% endif %}
-
-                                 {% set sw, swname = du[ph][1:2][0] | split_comma %}
-                                 {% if sw == '1' %}
-                                    <br><i class="fa fa-circle fa-2x text-success"></i> {{ swname}}
-                                 {% elif sw == '0' %}
-                                    <br><i class="fa fa-circle-o fa-2x text-danger"></i> {{ swname}}
-                                 {% endif %}
-                                 </td>
                               
+                              <td class="align-middle">
+                              {% for swname, sw in peri_status[ph].items() %}
+
+                                 {% if sw['sw_status'] == 1 %}
+                                    <i class="fa fa-circle fa-2x text-success"></i> {{ sw['sw_display']}}<br>
+                                 {% else %}
+                                    <i class="fa fa-circle-o fa-2x text-danger"></i> {{ sw['sw_display']}}<br>
+                                 {% endif %}
                               {% endfor %}
+                              </td>
+
                            </tr>
                            {% endfor %}
                         </tbody>
@@ -89,6 +83,7 @@
                   </div> 
                </div>
             {% endif %}
+            
          </div>
 
          <div class="card-footer text-center">

@@ -63,6 +63,8 @@ if "SENSOR_MAXVALUES_GETALL" in aaa:
     
 elif "SWITCH_CONTROL" in aaa:
     
+    # a = 1/0
+    
     print "Sending packet:"
     print "    Command code: SWITCH_CONTROL (raw data: 64)"
     print "    Request payload:"
@@ -86,8 +88,9 @@ elif "RESCUE" in aaa:
     print "    Response payload:"
     print "        ENABLESTATE = DISABLED" 
     
-    
-    
+elif "VERSION" in aaa:
+
+    print "Congratulazioni, hai mandato il comando VERSION :)"
     
 
 # import sys
