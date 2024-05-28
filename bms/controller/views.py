@@ -88,7 +88,7 @@ def f_sensors():
         
         templ['table_toex'] = dudict
         spacer, nspacer = '-', 35
-        templ['table'] = '\n\n\n'.join(['<br>' + spacer*nspacer + F'DU{ddt[iii]:04d}' + spacer*nspacer + dd[iii].to_html(index=True) for iii in range(len(dd))])
+        templ['table'] = '\n\n\n'.join(['<br>' + spacer*nspacer + F'DU{ddt[iii]:03d}' + spacer*nspacer + dd[iii].to_html(index=True) for iii in range(len(dd))])
 
         return gettemplate(templ, msg=F'Reading sensors on DU={du} with response:')    
     else:
@@ -147,7 +147,7 @@ def f_swcontrol():
                 return ({'msg' : F'Error {("writing to" if state<2 else "reading").lower()} SW {ii} ', 'table' : ''})
                 return gettemplate(templ, msg=F'Error {("writing to" if state<2 else "reading").lower()} SW {ii} ')  
                          
-        msg = F'{"Writing to" if state<2 else "Reading"} DU{du:04d} switch{"es" if len(sws) > 1 else ""} {sws} {F"to STATE={state}" if state<2 else ""} with response:'
+        msg = F'{"Writing to" if state<2 else "Reading"} DU{du:03d} switch{"es" if len(sws) > 1 else ""} {sws} {F"to STATE={state}" if state<2 else ""} with response:'
         return jsonify ({'msg' : msg, 'table' : templ['table']})
         return gettemplate(templ, msg)
                     
@@ -183,7 +183,7 @@ def f_rescue():
         except:
             return gettemplate(templ, msg=F'Error {("writing" if state<2 else "reading").lower()}') 
                                
-        msg = F'{"Writing" if state<2 else "Reading"} DU{du:04d} rescue enable {F"to STATE={state}" if state<2 else ""} with response:'
+        msg = F'{"Writing" if state<2 else "Reading"} DU{du:03d} rescue enable {F"to STATE={state}" if state<2 else ""} with response:'
         return gettemplate(templ, msg)
                     
     else:
@@ -219,12 +219,12 @@ def f_sendraw():
                 return jsonify ({'msg' : 'Error sending command', 'answ' : templ['answ']})
                 return gettemplate(templ, msg=F'Error sending command') 
                                 
-            msg = F'Sending command [{cmd}] to DU{du:04d} with response:'
+            msg = F'Sending command [{cmd}] to DU{du:03d} with response:'
         
         elif submit == 'PING':
         
             pingd = uu.isDuAlive(du)
-            msg = f'Pinging DU{du:04d} at [{uu.getbaseip(du)}] : {"ALIVE" if pingd else "UNREACHABLE"}'
+            msg = f'Pinging DU{du:03d} at [{uu.getbaseip(du)}] : {"ALIVE" if pingd else "UNREACHABLE"}'
         
         return jsonify ({'msg' : msg, 'answ' : templ['answ']})
                 
@@ -267,7 +267,7 @@ def generate_xlsx():
         data = f.read()
         data_base64 = base64.b64encode(data).decode('utf-8')
     remove(filename) 
-    fnam = 'BMS_' + (F'DU{int(dus[0]):04d}_' if len(dus)==1 else  '') + datetime.datetime.utcnow().strftime('%Y-%m-%d_%H-%M-%S') 
+    fnam = 'BMS_' + (F'DU{int(dus[0]):03d}_' if len(dus)==1 else  '') + datetime.datetime.utcnow().strftime('%Y-%m-%d_%H-%M-%S') 
     return jsonify({'file_data': data_base64, 'du' : fnam})
 
 @cmd_blueprint.route('/peripherals', methods=['GET', 'POST'])
@@ -297,7 +297,7 @@ def f_peripherals():
                     # operatedsws[swname]['resp'] =       resp
                     sw_name =                           resp.get('SWITCHNUM').replace('SWITCH_','')
                     sw_status =                         resp.get('SWITCHSTATE').replace('OPEN','OFF').replace('CLOSED','ON')
-                    operatedsws[swname]['sw_status']  = int(sw_status == 'ON')
+                    operatedsws[swname]['sw_status']  = int('ON' in sw_status)
                     operatedsws[swname]['sw_display'] = F'{sw_name} is {sw_status}'
      
                 to_send[periph] = operatedsws
@@ -308,7 +308,7 @@ def f_peripherals():
             to_send[thiscommand] = {}
             sw_status = resp.get('ENABLESTATE').replace('DISABLED','OFF').replace('ENABLED','ON')
             # to_send[thiscommand]['resp'] = resp           
-            to_send[thiscommand]['SW'] = {'sw_status' : int(sw_status == 'ON')}
+            to_send[thiscommand]['SW'] = {'sw_status' : int('ON' in sw_status)}
             to_send[thiscommand]['SW'].update({'sw_display' : F'AUTORESCUE is {sw_status}'}) 
 
         except Exception as ee:

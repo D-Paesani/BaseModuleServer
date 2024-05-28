@@ -7,7 +7,7 @@ import json
 from . import BASEDIR
 from flask_login import current_user
 
-usedummy = False
+usedummy = True
 logerrors = False
 cmdlogfile =  f'{BASEDIR}/logs/jsccmd.log'
 
