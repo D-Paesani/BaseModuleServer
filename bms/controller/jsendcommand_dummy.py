@@ -43,6 +43,27 @@ if "SENSOR_MAXVALUES_GETALL" in aaa:
     print "        MON_GLRB_I_MAXVALUE = 23689 (2.18 A)"
     print "        MON_PWB_I_MAXVALUE = 10280 (0.464 A)"
 
+
+if "SENSOR_VALUES_GETALL" in aaa:
+    
+    print "Sending packet:" 
+    print "Command code: SENSOR_AVERAGE_GETALL (raw data: 100)" 
+    print 'Request payload: Executing command: "./execute.sh NG_BPDCmd 10.0.1.100 100 101 44 null"' 
+    print 'Response:"64b39aaba818716378ed01806fb8017e5f605c892828"'
+    print "Received packet:"
+    print "    Response payload:" 
+    print "        MON_DUL_BOARDTEMP_VALUE = 25779 (30.6 C)" 
+    print "        MON_TEMP2_VALUE = 39595 (31.7 C)"
+    print "        MON_TEMP1_VALUE = 43032 (36.7 C)" 
+    print "        MON_VEOC_RTN_I_VALUE = 29027 (0.433 A)"
+    print "        MON_VEOC_FWR_I_VALUE = 30957 (0.547 A)" 
+    print "        MON_HYDRO_I_VALUE = 384 (0.00213 mA)"
+    print "        MON_INPUT_V_VALUE = 28600 (3.58e+02 V)" 
+    print "        MON_LBL_I_VALUE = 382 (0.00371 mA)" 
+    print "        MON_GLRA_I_VALUE = 24416 (2.25 A)"
+    print "        MON_GLRB_I_VALUE = 23689 (2.18 A)"
+    print "        MON_PWB_I_VALUE = 10280 (0.464 A)"
+
 # if "GETALL" in aaa:
 
 #     print "Sending packet:"

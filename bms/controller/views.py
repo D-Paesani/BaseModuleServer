@@ -76,19 +76,41 @@ def f_sensors():
         
         for ii in du:
             try: 
-                resp = {} 
-                for icmd in ['sensors_avg', 'sensors_max']: resp.update(jsc.commands[icmd].exec(ii, args=None))
+                #ricordiamoci aggiungere backup di come era fatto (meglio) prima
+                resp = {}
+                ddtemp_list = []
+                for readtype in ['avg', 'max', 'val']:
+                    ccmd = 'sensors_'+readtype
+                    ddtemp = pd.DataFrame(jsc.commands[ccmd].exec(ii, args=None), columns=jsc.commands[ccmd].params, index=jsc.commands[ccmd].index)
+                    ddtemp.columns = [jjj.rsplit('_',1)[0] for jjj in ddtemp.columns]
+                    ddtemp = ddtemp.transpose()
+                    ddtemp.columns = [jjj + '_' + readtype for jjj in ddtemp.columns]
+                    ddtemp_list.append(ddtemp)
+
+                for icmd in ['sensors_avg', 'sensors_max', 'sensors_val']: resp.update(jsc.commands[icmd].exec(ii, args=None))
                 ddt.append(int(resp['du']))
-                # resp.pop('du')
-                ddtemp = pd.DataFrame(resp, columns=[ii for ii in sum([jsc.commands[jj].params for jj in ['sensors_avg', 'sensors_max']],[])], index=jsc.commands['sensors_avg'].index)
-                dd.append(ddtemp.transpose())
-                dudict[F'{ii:03d}'] = ddtemp.to_dict()
-            except:
-                return gettemplate(templ, msg=F'Error reading DU {ii}')
+                
+                ddtemp_pivot = ddtemp_list[0].join(ddtemp_list[1].join(ddtemp_list[2]))
+                ddtemp_pivot = ddtemp_pivot[['ADC_avg', 'VALUE_avg', 'ADC_max', 'VALUE_max', 'ADC_val', 'VALUE_val', 'UNIT_avg']]
+                ddtemp_pivot.rename(columns={'UNIT_avg': 'UNIT'}, inplace=True)
+
+                dudict[F'{ii:03d}'] = ddtemp_pivot.to_dict()
+
+                columns = pd.MultiIndex.from_tuples([
+                                                        ('AVERAGE', 'ADC'), ('AVERAGE', 'VALUE'),
+                                                        ('MAX', 'ADC'), ('MAX', 'VALUE'),
+                                                        ('VALUE', 'ADC'), ('VALUE', 'VALUE'),
+                                                        ('', 'UNIT')
+                                                    ])
+                ddtemp_pivot.columns = columns
+                print(ddtemp_pivot)                                             
+                
+                dd.append(ddtemp_pivot)
+            except Exception as e:
+                return gettemplate(templ, msg=F'Error reading DU {ii} {e}')
         
         templ['table_toex'] = dudict
-        spacer, nspacer = '-', 35
-        templ['table'] = '\n\n\n'.join(['<br>' + spacer*nspacer + F'DU{ddt[iii]:03d}' + spacer*nspacer + dd[iii].to_html(index=True) for iii in range(len(dd))])
+        templ['table'] = {f'DU{ddt[i]:03d}': tab.to_html(classes='table table-striped', index=True) for i, tab in enumerate(dd)}
 
         return gettemplate(templ, msg=F'Reading sensors on DU={du} with response:')    
     else:

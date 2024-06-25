@@ -42,12 +42,20 @@
                                        <h6 class="text-primary">Export in</h6>
                                     </li>
                                     <li>
-                                    <a class="dropdown-item" onclick='exportxlsx({{ table_toex | tojson }} )'> XLSX</a>
+                                       <a class="dropdown-item" onclick='exportxlsx({{ table_toex | tojson }} )'> XLSX</a>
+                                    </li>
+                                    <li>
+                                       <a class="dropdown-item" onclick='copyToClipboard({{ table_toex | tojson }})'> Copy to Clipboard</a>
                                     </li>
                                  </ul>
                                  {% endif %}
                               </div>
-                              {{ table | safe }}
+                              {% if table %}
+                                 {% for key, table_html in table.items() %}
+                                    <span class="h6 fw-bold">{{ key }}</span>
+                                    {{ table_html | safe }}
+                                 {% endfor %}
+                              {% endif %}
                            </div>
                      </div>
                   </form>
@@ -96,6 +104,33 @@
          }
       </script>
       
+<script>
+   function copyToClipboard(table) {
+      console.log("Table data received:", table);
+      if (typeof table !== "object") {
+         console.error("Table must be a json object", table);
+         return;
+      }
+
+      let csvContent = "";
+      for (const [key, params] of Object.entries(table)) {
+         csvContent += `DU${key}\n`;
+         csvContent += "BPD Readings\tADC\tUnit\tValue\n";
+         for (const [param, details] of Object.entries(params)) {
+            let rowContent = `${param}\t${details.ADC}\t${details.UNIT}\t${details.VALUE}`;
+            csvContent += rowContent + "\n";
+         }
+         csvContent += "\n";
+      }
       
+      let tempElement = document.createElement("textarea");
+      tempElement.value = csvContent;
+      document.body.appendChild(tempElement);
+      tempElement.select();
+      document.execCommand("copy");
+      document.body.removeChild(tempElement);
+
+   }
+</script>
 {% endblock content %}
 
