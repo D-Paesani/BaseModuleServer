@@ -104,8 +104,7 @@ def f_sensors():
                                                         ('VALUE', 'ADC'), ('VALUE', 'VALUE'),
                                                         ('', 'UNIT')
                                                     ])
-                ddtemp_pivot.columns = columns
-                print(ddtemp_pivot)                                             
+                ddtemp_pivot.columns = columns                                         
                 
                 dd.append(ddtemp_pivot)
             except Exception as e:
