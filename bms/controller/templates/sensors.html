@@ -106,21 +106,30 @@
       
 <script>
    function copyToClipboard(table) {
-      console.log("Table data received:", table);
-      if (typeof table !== "object") {
-         console.error("Table must be a json object", table);
-         return;
-      }
-
+      //console.log("Table data received:", table);
+      
       let csvContent = "";
       for (const [key, params] of Object.entries(table)) {
          csvContent += `DU${key}\n`;
-         csvContent += "BPD Readings\tADC\tUnit\tValue\n";
+
+         let rows = [];
+         rows[0] = [''];
+
          for (const [param, details] of Object.entries(params)) {
-            let rowContent = `${param}\t${details.ADC}\t${details.UNIT}\t${details.VALUE}`;
-            csvContent += rowContent + "\n";
+            rows[0].push(param.slice(1));
+
+            for (let [i, [val]] of Object.entries(Object.entries(details))) {
+               i = parseInt(i) + 1;
+               if (!rows[i]) rows[i] = [val];
+               rows[i].push(details[val]);
+            } 
          }
-         csvContent += "\n";
+
+         for (let row of rows) {
+            csvContent += row.join('\t') + '\n';
+         }
+
+         csvContent += '\t';
       }
       
       let tempElement = document.createElement("textarea");

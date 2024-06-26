@@ -10,7 +10,7 @@ from ..web_manager.decorators import admin_required
 from .export_to_xlsx import *
 from time import sleep
 import datetime
-from itertools import chain
+
 
 #from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 
@@ -92,9 +92,11 @@ def f_sensors():
                 
                 ddtemp_pivot = ddtemp_list[0].join(ddtemp_list[1].join(ddtemp_list[2]))
                 ddtemp_pivot = ddtemp_pivot[['ADC_avg', 'VALUE_avg', 'ADC_max', 'VALUE_max', 'ADC_val', 'VALUE_val', 'UNIT_avg']]
+                dujson = ddtemp_pivot.copy()
                 ddtemp_pivot.rename(columns={'UNIT_avg': 'UNIT'}, inplace=True)
 
-                dudict[F'{ii:03d}'] = ddtemp_pivot.to_dict()
+                dujson.rename(columns={'ADC_avg':'0ADC_avg', 'VALUE_avg':'1VALUE_avg', 'ADC_max':'2ADC_max', 'VALUE_max':'3VALUE_max', 'ADC_val':'4ADC_val', 'VALUE_val':'5VALUE_val', 'UNIT_avg': '6UNIT'}, inplace=True)
+                dudict[F'{ii:03d}'] = dujson.to_dict()
 
                 columns = pd.MultiIndex.from_tuples([
                                                         ('AVERAGE', 'ADC'), ('AVERAGE', 'VALUE'),
@@ -257,29 +259,31 @@ def f_sendraw():
 @login_required
 def generate_xlsx():
     import base64
-    
+    cols = {1:'A',2:'B',3:'C',4:'D',5:'E',6:'F',7:'G',8:'H',9:'I'}
     table = request.json.get('table')
+
     wb = Workbook()
 
     dus=[]
-    for key, val in table.items():
-        dus.append(key)
-        ws = wb.create_sheet(title=f'DU{key}')
-        #pd.DataFrame(val).transpose().to_excel('test'+key+'.xlsx', sheet_name=f'DU{key}')
-        df = pd.DataFrame(val).transpose()
-    
-        for r_idx, row in enumerate(df.itertuples(), 1):
-            ws.row_dimensions[r_idx].height = 25
-            for c_idx, value in enumerate(row, 1):
-                if r_idx == 1 and c_idx < 4:
-                    ws.cell(row=r_idx, column=c_idx+1, value=df.columns[c_idx-1]).font = txt_pry
-                    ws.cell(row=r_idx, column=c_idx+1).alignment = alin_centr
-                if c_idx == 1:
-                    ws.cell(row=r_idx+1, column=c_idx, value=value).font = txt_pry
-                else:
-                    ws.cell(row=r_idx+1, column=c_idx, value=value).font = txt_cont
-                ws.cell(row=r_idx+1, column=c_idx).alignment = alin_centr
-        ws.column_dimensions['A'].width = 38
+    for duname, content in table.items():
+        j = 2
+        ws = wb.create_sheet(title=f'DU{duname}')
+        for colname, param_content in content.items():
+            ws.column_dimensions[cols[j]].width = 18
+            ws.cell(row=1, column=j, value=colname[1:]).font = txt_pry #nomi colonne
+            ws.cell(row=1, column=j).alignment = align_centr
+            i = 2
+            for param_name, param_value in param_content.items():
+                ws.row_dimensions[i].height = 25
+                ws.cell(row=i, column=1, value=param_name).font = txt_pry #nomi valori righe
+
+                ws.cell(row=i, column=j, value=param_value).font = txt_cont #valori
+                ws.cell(row=i, column=j).alignment = align_centr
+                i += 1
+            j += 1
+        
+        ws.column_dimensions['A'].width = 34
+        ws.row_dimensions[1].height = 30
 
     wb.remove(wb.active)
 
