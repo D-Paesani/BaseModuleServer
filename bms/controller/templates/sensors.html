@@ -32,7 +32,7 @@
                      <div class="row d-flex justify-content-center mt-4">
                         <span class="fw-bold">{{msg}}</span>
                      </div>
-                     {% if table_toex %}
+                     {% if table_to_clip %}
                      <div class="card">
                         <div class="d-flex justify-content-center">
                            <a class="icon" href="#" data-toggle="dropdown"><i class="fa fa-download fa-2x mt-4"></i></a>
@@ -41,10 +41,13 @@
                                     <h6 class="text-primary">Export in</h6>
                                  </li>
                                  <li>
-                                    <a class="dropdown-item" onclick='exportxlsx({{ table_toex | tojson }} )'> XLSX</a>
+                                    <a class="dropdown-item" onclick='exportxlsx({{ table_to_clip | tojson }} )'> XLSX</a>
                                  </li>
                                  <li>
-                                    <a class="dropdown-item" onclick='copyToClipboard({{ table_toex | tojson }})'> Copy to Clipboard</a>
+                                    <a class="dropdown-item" onclick='copyToClipboard({{ table_to_clip | tojson }})'> Copy to Clipboard</a>
+                                 </li>
+                                 <li>
+                                    <a class="dropdown-item" onclick='copyToClipboardPowertest({{ table_clip_power | tojson }})'> Clipboard PowerTest</a>
                                  </li>
                               </ul>
                         </div>
@@ -124,11 +127,9 @@
                rows[i].push(details[val]);
             } 
          }
-
          for (let row of rows) {
             csvContent += row.join('\t') + '\n';
          }
-
          csvContent += '\t';
       }
       
@@ -138,8 +139,31 @@
       tempElement.select();
       document.execCommand("copy");
       document.body.removeChild(tempElement);
+   }
+</script>
+<script>
+   function copyToClipboardPowertest(table) {
+      let csvContent = "";
+      let rows = [];
 
+      for (const [colname, param_name] of Object.entries(table)) {
+
+          for (let [i, [param_val]] of Object.entries(Object.entries(param_name))) {
+               i = parseInt(i);
+               if (!rows[i]) rows[i] = [];
+               rows[i].push(param_name[param_val]);            
+         }
+      }
+      for (let row of rows) {
+         csvContent += row.join('\t') + '\n';
+      }
+      
+      let tempElement = document.createElement("textarea");
+      tempElement.value = csvContent;
+      document.body.appendChild(tempElement);
+      tempElement.select();
+      document.execCommand("copy");
+      document.body.removeChild(tempElement);
    }
 </script>
 {% endblock content %}
-

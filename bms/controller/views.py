@@ -65,7 +65,7 @@ def f_dumpsensor(duid):
 def f_sensors(): 
     templ = dict(name='sensors.html', prefilldu='0', table='') 
     dd, ddt = [], []
-    dudict = {}
+    duClipboardDict = {}
     
     if request.method == 'POST':
         
@@ -91,12 +91,33 @@ def f_sensors():
                 ddt.append(int(resp['du']))
                 
                 ddtemp_pivot = ddtemp_list[0].join(ddtemp_list[1].join(ddtemp_list[2]))
+
+                ###
+                duClipPower = ddtemp_pivot.copy()
+                duClipPower = duClipPower[['ADC_val', 'ADC_max', 'ADC_avg', 'VALUE_avg']]
+                duClipPower.rename(columns={'ADC_val':'0ADC_val','ADC_max':'1ADC_max','ADC_avg':'2ADC_avg','VALUE_avg':'3VALUE_avg'}, inplace=True)
+                rename_rows_clip_power = {
+                                    'DUL_BOARDTEMP': 'aDUL_BOARDTEMP',
+                                    'TEMP2': 'bTEMP2',
+                                    'TEMP1': 'cTEMP1',
+                                    'VEOC_RTN_I': 'dVEOC_RTN_I',
+                                    'VEOC_FWR_I': 'eVEOC_FWR_I',
+                                    'HYDRO_I': 'fHYDRO_I',
+                                    'INPUT_V': 'gINPUT_V',
+                                    'LBL_I': 'hLBL_I',
+                                    'GLRA_I': 'iGLRA_I',
+                                    'GLRB_I': 'lGLRB_I',
+                                    'PWB_I': 'm1PWB_I'
+                                }
+                duClipPower.rename(index=rename_rows_clip_power, inplace=True)
+                ###
+
                 ddtemp_pivot = ddtemp_pivot[['ADC_avg', 'VALUE_avg', 'ADC_max', 'VALUE_max', 'ADC_val', 'VALUE_val', 'UNIT_avg']]
-                dujson = ddtemp_pivot.copy()
+                duClipboard = ddtemp_pivot.copy()
                 ddtemp_pivot.rename(columns={'UNIT_avg': 'UNIT'}, inplace=True)
 
-                dujson.rename(columns={'ADC_avg':'0ADC_avg', 'VALUE_avg':'1VALUE_avg', 'ADC_max':'2ADC_max', 'VALUE_max':'3VALUE_max', 'ADC_val':'4ADC_val', 'VALUE_val':'5VALUE_val', 'UNIT_avg': '6UNIT'}, inplace=True)
-                dudict[F'{ii:03d}'] = dujson.to_dict()
+                duClipboard.rename(columns={'ADC_avg':'0ADC_avg', 'VALUE_avg':'1VALUE_avg', 'ADC_max':'2ADC_max', 'VALUE_max':'3VALUE_max', 'ADC_val':'4ADC_val', 'VALUE_val':'5VALUE_val', 'UNIT_avg': '6UNIT'}, inplace=True)
+                duClipboardDict[F'{ii:03d}'] = duClipboard.to_dict()
 
                 columns = pd.MultiIndex.from_tuples([
                                                         ('AVERAGE', 'ADC'), ('AVERAGE', 'VALUE'),
@@ -109,8 +130,9 @@ def f_sensors():
                 dd.append(ddtemp_pivot)
             except Exception as e:
                 return gettemplate(templ, msg=F'Error reading DU {ii} {e}')
-        
-        templ['table_toex'] = dudict
+        print(duClipPower.to_dict())
+        templ['table_clip_power'] = duClipPower.to_dict()
+        templ['table_to_clip'] = duClipboardDict
         templ['table'] = {f'DU{ddt[i]:03d}': tab.to_html(classes='table table-striped', index=True) for i, tab in enumerate(dd)}
 
         return gettemplate(templ, msg=F'Reading sensors on DU={du} with response:')    
