@@ -10,7 +10,7 @@ from ..web_manager.decorators import admin_required
 from .export_to_xlsx import *
 from time import sleep
 import datetime
-from itertools import chain
+
 
 #from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 
@@ -65,7 +65,7 @@ def f_dumpsensor(duid):
 def f_sensors(): 
     templ = dict(name='sensors.html', prefilldu='0', table='') 
     dd, ddt = [], []
-    dudict = {}
+    duClipboardDict = {}
     
     if request.method == 'POST':
         
@@ -76,19 +76,64 @@ def f_sensors():
         
         for ii in du:
             try: 
-                resp = {} 
-                for icmd in ['sensors_avg', 'sensors_max']: resp.update(jsc.commands[icmd].exec(ii, args=None))
+                #ricordiamoci aggiungere backup di come era fatto (meglio) prima
+                resp = {}
+                ddtemp_list = []
+                for readtype in ['avg', 'max', 'val']:
+                    ccmd = 'sensors_'+readtype
+                    ddtemp = pd.DataFrame(jsc.commands[ccmd].exec(ii, args=None), columns=jsc.commands[ccmd].params, index=jsc.commands[ccmd].index)
+                    ddtemp.columns = [jjj.rsplit('_',1)[0] for jjj in ddtemp.columns]
+                    ddtemp = ddtemp.transpose()
+                    ddtemp.columns = [jjj + '_' + readtype for jjj in ddtemp.columns]
+                    ddtemp_list.append(ddtemp)
+
+                for icmd in ['sensors_avg', 'sensors_max', 'sensors_val']: resp.update(jsc.commands[icmd].exec(ii, args=None))
                 ddt.append(int(resp['du']))
-                # resp.pop('du')
-                ddtemp = pd.DataFrame(resp, columns=[ii for ii in sum([jsc.commands[jj].params for jj in ['sensors_avg', 'sensors_max']],[])], index=jsc.commands['sensors_avg'].index)
-                dd.append(ddtemp.transpose())
-                dudict[F'{ii:03d}'] = ddtemp.to_dict()
-            except:
-                return gettemplate(templ, msg=F'Error reading DU {ii}')
-        
-        templ['table_toex'] = dudict
-        spacer, nspacer = '-', 35
-        templ['table'] = '\n\n\n'.join(['<br>' + spacer*nspacer + F'DU{ddt[iii]:03d}' + spacer*nspacer + dd[iii].to_html(index=True) for iii in range(len(dd))])
+                
+                ddtemp_pivot = ddtemp_list[0].join(ddtemp_list[1].join(ddtemp_list[2]))
+
+                ###
+                duClipPower = ddtemp_pivot.copy()
+                duClipPower = duClipPower[['ADC_val', 'ADC_max', 'ADC_avg', 'VALUE_avg']]
+                duClipPower.rename(columns={'ADC_val':'0ADC_val','ADC_max':'1ADC_max','ADC_avg':'2ADC_avg','VALUE_avg':'3VALUE_avg'}, inplace=True)
+                rename_rows_clip_power = {
+                                    'DUL_BOARDTEMP': 'aDUL_BOARDTEMP',
+                                    'TEMP2': 'bTEMP2',
+                                    'TEMP1': 'cTEMP1',
+                                    'VEOC_RTN_I': 'dVEOC_RTN_I',
+                                    'VEOC_FWR_I': 'eVEOC_FWR_I',
+                                    'HYDRO_I': 'fHYDRO_I',
+                                    'INPUT_V': 'gINPUT_V',
+                                    'LBL_I': 'hLBL_I',
+                                    'GLRA_I': 'iGLRA_I',
+                                    'GLRB_I': 'lGLRB_I',
+                                    'PWB_I': 'm1PWB_I'
+                                }
+                duClipPower.rename(index=rename_rows_clip_power, inplace=True)
+                ###
+
+                ddtemp_pivot = ddtemp_pivot[['ADC_avg', 'VALUE_avg', 'ADC_max', 'VALUE_max', 'ADC_val', 'VALUE_val', 'UNIT_avg']]
+                duClipboard = ddtemp_pivot.copy()
+                ddtemp_pivot.rename(columns={'UNIT_avg': 'UNIT'}, inplace=True)
+
+                duClipboard.rename(columns={'ADC_avg':'0ADC_avg', 'VALUE_avg':'1VALUE_avg', 'ADC_max':'2ADC_max', 'VALUE_max':'3VALUE_max', 'ADC_val':'4ADC_val', 'VALUE_val':'5VALUE_val', 'UNIT_avg': '6UNIT'}, inplace=True)
+                duClipboardDict[F'{ii:03d}'] = duClipboard.to_dict()
+
+                columns = pd.MultiIndex.from_tuples([
+                                                        ('AVERAGE', 'ADC'), ('AVERAGE', 'VALUE'),
+                                                        ('MAX', 'ADC'), ('MAX', 'VALUE'),
+                                                        ('VALUE', 'ADC'), ('VALUE', 'VALUE'),
+                                                        ('', 'UNIT')
+                                                    ])
+                ddtemp_pivot.columns = columns                                         
+                
+                dd.append(ddtemp_pivot)
+            except Exception as e:
+                return gettemplate(templ, msg=F'Error reading DU {ii} {e}')
+        print(duClipPower.to_dict())
+        templ['table_clip_power'] = duClipPower.to_dict()
+        templ['table_to_clip'] = duClipboardDict
+        templ['table'] = {f'DU{ddt[i]:03d}': tab.to_html(classes='table table-striped', index=True) for i, tab in enumerate(dd)}
 
         return gettemplate(templ, msg=F'Reading sensors on DU={du} with response:')    
     else:
@@ -235,29 +280,31 @@ def f_sendraw():
 @login_required
 def generate_xlsx():
     import base64
-    
+    cols = {1:'A',2:'B',3:'C',4:'D',5:'E',6:'F',7:'G',8:'H',9:'I'}
     table = request.json.get('table')
+
     wb = Workbook()
 
     dus=[]
-    for key, val in table.items():
-        dus.append(key)
-        ws = wb.create_sheet(title=f'DU{key}')
-        #pd.DataFrame(val).transpose().to_excel('test'+key+'.xlsx', sheet_name=f'DU{key}')
-        df = pd.DataFrame(val).transpose()
-    
-        for r_idx, row in enumerate(df.itertuples(), 1):
-            ws.row_dimensions[r_idx].height = 25
-            for c_idx, value in enumerate(row, 1):
-                if r_idx == 1 and c_idx < 4:
-                    ws.cell(row=r_idx, column=c_idx+1, value=df.columns[c_idx-1]).font = txt_pry
-                    ws.cell(row=r_idx, column=c_idx+1).alignment = alin_centr
-                if c_idx == 1:
-                    ws.cell(row=r_idx+1, column=c_idx, value=value).font = txt_pry
-                else:
-                    ws.cell(row=r_idx+1, column=c_idx, value=value).font = txt_cont
-                ws.cell(row=r_idx+1, column=c_idx).alignment = alin_centr
-        ws.column_dimensions['A'].width = 38
+    for duname, content in table.items():
+        j = 2
+        ws = wb.create_sheet(title=f'DU{duname}')
+        for colname, param_content in content.items():
+            ws.column_dimensions[cols[j]].width = 18
+            ws.cell(row=1, column=j, value=colname[1:]).font = txt_pry #nomi colonne
+            ws.cell(row=1, column=j).alignment = align_centr
+            i = 2
+            for param_name, param_value in param_content.items():
+                ws.row_dimensions[i].height = 25
+                ws.cell(row=i, column=1, value=param_name).font = txt_pry #nomi valori righe
+
+                ws.cell(row=i, column=j, value=param_value).font = txt_cont #valori
+                ws.cell(row=i, column=j).alignment = align_centr
+                i += 1
+            j += 1
+        
+        ws.column_dimensions['A'].width = 34
+        ws.row_dimensions[1].height = 30
 
     wb.remove(wb.active)
 

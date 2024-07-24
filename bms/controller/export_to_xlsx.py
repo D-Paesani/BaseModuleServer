@@ -27,7 +27,7 @@ txt_data = Font(size=9, bold=True, color='008080') #per la data
 txt_sub_red = Font(color='dc3545', bold=True, size=12)
 txt_sub_green = Font(color='198754', bold=True, size=12)
 txt_sub_gray = Font(color='6c757d', bold=True, size=12)
-alin_centr = Alignment(horizontal='center', vertical='center')
+align_centr = Alignment(horizontal='center', vertical='center')
 
 inline_red = InlineFont(txt_sub_red)
 inline_green = InlineFont(txt_sub_green)

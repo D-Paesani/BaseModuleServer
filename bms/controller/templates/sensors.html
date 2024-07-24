@@ -32,24 +32,35 @@
                      <div class="row d-flex justify-content-center mt-4">
                         <span class="fw-bold">{{msg}}</span>
                      </div>
+                     {% if table_to_clip %}
                      <div class="card">
-                           <div class="card-body row d-flex justify-content-center mt-4">
-                              {% if table_toex %}
-                              <div class="filter d-flex justify-content-end me-2">
-                              <a class="icon" href="#" data-toggle="dropdown"><i class="fa fa-download fa-2x"></i></a>
-                                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow lg">
-                                    <li class="dropdown-header text-start">
-                                       <h6 class="text-primary">Export in</h6>
-                                    </li>
-                                    <li>
-                                    <a class="dropdown-item" onclick='exportxlsx({{ table_toex | tojson }} )'> XLSX</a>
-                                    </li>
-                                 </ul>
-                                 {% endif %}
+                        <div class="d-flex justify-content-center">
+                           <a class="icon" href="#" data-toggle="dropdown"><i class="fa fa-download fa-2x mt-4"></i></a>
+                              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow lg">
+                                 <li class="dropdown-header text-start">
+                                    <h6 class="text-primary">Export in</h6>
+                                 </li>
+                                 <li>
+                                    <a class="dropdown-item" onclick='exportxlsx({{ table_to_clip | tojson }} )'> XLSX</a>
+                                 </li>
+                                 <li>
+                                    <a class="dropdown-item" onclick='copyToClipboard({{ table_to_clip | tojson }})'> Copy to Clipboard</a>
+                                 </li>
+                                 <li>
+                                    <a class="dropdown-item" onclick='copyToClipboardPowertest({{ table_clip_power | tojson }})'> Clipboard PowerTest</a>
+                                 </li>
+                              </ul>
+                        </div>
+                        <div class="card-body row d-flex justify-content-center mt-4">
+                           {% for key, table_html in table.items() %}
+                              <div class="">
+                                 <span class="h6 fw-bold">{{ key }}</span>
                               </div>
-                              {{ table | safe }}
-                           </div>
+                              {{ table_html | safe }}
+                           {% endfor %}
+                        </div>
                      </div>
+                     {% endif %}
                   </form>
                </div>
                <div class="card-footer text-center">
@@ -96,6 +107,63 @@
          }
       </script>
       
+<script>
+   function copyToClipboard(table) {
+      //console.log("Table data received:", table);
       
-{% endblock content %}
+      let csvContent = "";
+      for (const [key, params] of Object.entries(table)) {
+         csvContent += `DU${key}\n`;
 
+         let rows = [];
+         rows[0] = [''];
+
+         for (const [param, details] of Object.entries(params)) {
+            rows[0].push(param.slice(1));
+
+            for (let [i, [val]] of Object.entries(Object.entries(details))) {
+               i = parseInt(i) + 1;
+               if (!rows[i]) rows[i] = [val];
+               rows[i].push(details[val]);
+            } 
+         }
+         for (let row of rows) {
+            csvContent += row.join('\t') + '\n';
+         }
+         csvContent += '\t';
+      }
+      
+      let tempElement = document.createElement("textarea");
+      tempElement.value = csvContent;
+      document.body.appendChild(tempElement);
+      tempElement.select();
+      document.execCommand("copy");
+      document.body.removeChild(tempElement);
+   }
+</script>
+<script>
+   function copyToClipboardPowertest(table) {
+      let csvContent = "";
+      let rows = [];
+
+      for (const [colname, param_name] of Object.entries(table)) {
+
+          for (let [i, [param_val]] of Object.entries(Object.entries(param_name))) {
+               i = parseInt(i);
+               if (!rows[i]) rows[i] = [];
+               rows[i].push(param_name[param_val]);            
+         }
+      }
+      for (let row of rows) {
+         csvContent += row.join('\t') + '\n';
+      }
+      
+      let tempElement = document.createElement("textarea");
+      tempElement.value = csvContent;
+      document.body.appendChild(tempElement);
+      tempElement.select();
+      document.execCommand("copy");
+      document.body.removeChild(tempElement);
+   }
+</script>
+{% endblock content %}
