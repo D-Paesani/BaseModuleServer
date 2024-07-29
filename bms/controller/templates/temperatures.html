@@ -1,0 +1,220 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+
+<div class="container-fluid">
+    <div class="container d-flex justify-content-center ">
+        <span id="monStatus" class="border-top border-bottom border-success text-center text-success">{{ msg }}</span>    
+    </div>
+    <div class="row col-12 mb-6 mt-4 d-flex justify-content-center">
+        <div class="card">
+            <div class="card-body">
+                <form id="startForm" action="" method="POST">
+                    <div class="row">
+                        <div class="col-sm-4 text-right">
+                            <h4>DU =</h4>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" name="du" class="form-control" value="{{ prefilldu }}" />     
+                        </div>
+                        <div class="col-sm-4 text-left">
+                            (du number)
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4 text-right">
+                            <h4>WWRS_A =</h4>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" name="wwrsa" class="form-control" value="{{ wwrsa }}" />     
+                        </div>
+                        <div class="col-sm-4 text-left">
+                            (wwrs_a ip)
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4 text-right">
+                            <h4>WWRS_B =</h4>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" name="wwrsb" class="form-control" value="{{ wwrsb }}" />     
+                        </div>
+                        <div class="col-sm-4 text-left">
+                            (wwrs_b ip)
+                        </div>
+                    </div>
+                    <div class="row d-flex justify-content-center mt-4 ">
+                        <input type="submit" value="START" name="submit" class="btn btn-primary mr-1">
+                        <button type="button" onclick="stopReading()" class="btn btn-danger">STOP</button>
+                        <button type="button" onclick="updateCharts()" class="btn btn-success ml-4">REFRESH</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row col-12 mb-5 mt-4">
+        <div class="card col-6 " style="width:100%;">
+            <div class="card card-header bg-primary text-center">
+                <div class="card-title">
+                      <h1 class="text-white">WWRS A</h1>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="chartDivA" style="width:100%; height:300px; margin:0 auto;"></div>
+                <button id="downloadChartA" type="button" class="btn btn-primary">Download</button>
+            </div>
+        </div>
+
+
+
+        <div class="card col-6 " style="width:100%;">
+            <div class="card card-header bg-primary text-center">
+                <div class="card-title">
+                      <h1 class="text-white">WWRS B</h1>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="chartDivB" style="width:100%; height:300px; margin:0 auto;"></div>
+                <button id="downloadChartB" type="button" class="btn btn-primary">Download</button>
+            </div>
+        </div>
+    </div>
+    <div class="row col-12 d-flex justify-content-center mt-5">
+        <div class="card" style="width:100%;">
+            <div class="card card-header bg-primary text-center">
+                <div class="card-title">
+                      <h1 class="text-white">FPGA CLB</h1>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="chartDivFPGA" style="width:100%; height:300px; margin:0 auto;"></div>
+                <button id="downloadChartFPGA" type="button" class="btn btn-primary">Download</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    
+
+    function updateCharts() {
+        fetch('/api/temperatures')
+            .then(response => response.json())
+            .then(data => {
+                const wwrsATemps = data.wwrsa_ip.map(d => ({x: new Date(d.timestamp).toISOString(), y: d.temperature}));
+                const wwrsBTemps = data.wwrsb_ip.map(d => ({x: new Date(d.timestamp).toISOString(), y: d.temperature}));
+                const fpgaTemps = data.clb_ip.map(d => ({x: new Date(d.timestamp).toISOString(), y: d.temperature}));
+
+                const lastWwrsA = wwrsATemps[wwrsATemps.length - 1];
+                const lastWwrsB = wwrsBTemps[wwrsBTemps.length - 1];
+                const lastFpga = fpgaTemps[fpgaTemps.length - 1];
+
+                const chartA = JSC.Chart('chartDivA', {
+                    defaultPoint_marker_visible: false,
+                    legend_visible: false,
+                    type: 'line',
+                    title_label_text: 'Temperature Data',
+                    series: [{
+                        name: 'WWRS A',
+                        points: wwrsATemps
+                    }],
+                    xAxis: {
+                        label_text: 'Time',
+                        scale_type: 'time'
+                    },
+                    yAxis: {
+                        label_text: 'Temp'
+                    },
+                    annotations: [{
+                        label_text: `${lastWwrsA.y}°C at ${lastWwrsA.x.split('.')[0]}`,
+                        position: 'top right'
+                    }],
+                });
+
+                const chartB = JSC.Chart('chartDivB', {
+                    defaultPoint_marker_visible: false,
+                    legend_visible: false,
+                    type: 'line',
+                    series: [{
+                        name: 'WWRS B',
+                        points: wwrsBTemps
+                    }],
+                    xAxis: {
+                        label_text: 'Time',
+                        scale_type: 'time'
+                    },
+                    yAxis: {
+                        label_text: 'Temp'
+                    },
+                    annotations: [{
+                        label_text: `${lastWwrsB.y}°C at ${lastWwrsB.x.split('.')[0]}`,
+                        position: 'top right'
+                    }],
+                });
+
+                const chartFPGA = JSC.Chart('chartDivFPGA', {
+                    defaultPoint_marker_visible: false,
+                    legend_visible: false,
+                    type: 'line',
+                    series: [{
+                        name: 'FPGA',
+                        points: fpgaTemps
+                    }],
+                    xAxis: {
+                        label_text: 'Time',
+                        scale_type: 'time'
+                    },
+                    yAxis: {
+                        label_text: 'Temp'
+                    },
+                    annotations: [{
+                        label_text: `${lastFpga.y}°C at ${lastFpga.x.split('.')[0]}`,
+                        position: 'top right'
+                    }],
+                });
+
+                document.getElementById('downloadChartA').addEventListener('click', () => {
+                    chartA.exportImage('png');
+                });
+
+                document.getElementById('downloadChartB').addEventListener('click', () => {
+                    chartB.exportImage('png');
+                });
+
+                document.getElementById('downloadChartFPGA').addEventListener('click', () => {
+                    chartFPGA.exportImage('png');
+                });
+            })
+            .catch(error => {
+                let status = document.getElementById('monStatus');
+                status.textContent = "Can't refresh, is Temperature monitor on?";
+                status.classList.remove('text-success', 'text-danger', 'border-success', 'border-danger');
+                status.classList.add('text-warning', 'border-warning');
+            });
+    }
+    function stopReading() {
+        fetch('/stop_reading')
+            .then(response => response.json())
+            .then(data => {
+                let status = document.getElementById('monStatus');
+                status.textContent = data.msg;
+                status.classList.remove('text-success', 'text-warning', 'border-success', 'border-warning');
+                status.classList.add('text-danger', 'border-danger');
+            });
+    }
+
+</script>
+
+{% endblock %}
+document.addEventListener('DOMContentLoaded', () => {
+    updateCharts();
+});
+
+function startUpdating() {
+    updateCharts();
+    setInterval(updateCharts, 5000); 
+}
+
+document.addEventListener('DOMContentLoaded', startUpdating);
