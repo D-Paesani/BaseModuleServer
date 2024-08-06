@@ -26,7 +26,7 @@ def read_temp_wwrs(duno=None, ips=None):
  
 def read_temp_fpga(duno):
     try: 
-        cc = f'/app/clb-client-v1.4.2-7f0365b9/bin/cmdr {uu.getbaseip(duno)} var.get sys.fpga_temp'
+        cc = f'/clbtools/clb-client-v1.4.2-7f0365b9/bin/cmdr {uu.getbaseip(duno)} var.get sys.fpga_temp'
         print('--> TEMPFPGA --> EXEC:', cc)
         resp = subprocess.check_output(cc, shell=True).decode('utf-8')
         return {'TEMP_FPGA': int(resp.rsplit(' ')[-2][1:],16)/100.0}

@@ -31,7 +31,7 @@ RUN apk add --no-cache python2
 
 WORKDIR /app
 
-RUN mkdir -p ../logs && chmod 755 ../logs && touch ../logs/jsccmd.log
+RUN mkdir -p ../logs && chmod 755 ../logs && touch ../logs/jsccmd.log 
 
 COPY . /app
 RUN pip3 install -r requirements.txt --verbose | tee pip_install_log.txt 
@@ -41,9 +41,11 @@ ARG clbclient=clb-client-v1.4.2-7f0365b9
 RUN git clone https://git.km3net.de/daq/shore-station/cu_tools.git /cu_tools
 # RUN git clone https://git.km3net.de/cnicolau/bpd-software.git      /bpd-software 
 RUN git clone --branch fix_jsendcommand2 https://git.km3net.de/cnicolau/bpd-software.git /bpd-software 
-RUN curl -o ${clbclient}.tar.gz https://sftp.km3net.de/CLB_Builds/${clbclient}.tar.gz
-RUN tar xzf ${clbclient}.tar.gz
-RUN mv ${clbclient}/lib/remote.jar /cu_tools/NG-DUBase_java
+
+ADD https://sftp.km3net.de/CLB_Builds/${clbclient}.tar.gz /tmp/
+RUN mkdir -p /clbtools && tar -xzf /tmp/${clbclient}.tar.gz -C /clbtools
+
+RUN cp /clbtools/${clbclient}/lib/remote.jar /cu_tools/NG-DUBase_java
 
 RUN rm /cu_tools/NG-DUBase_java/java_setenv.sh 
 RUN echo myjava=/usr/bin/java           >> /cu_tools/NG-DUBase_java/java_setenv.sh 
@@ -67,4 +69,3 @@ EXPOSE 5001
 WORKDIR /app
 
 CMD [ "bash","run.sh" ]
-
