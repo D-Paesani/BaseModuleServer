@@ -26,6 +26,9 @@ def create_app():
     app = Flask(__name__, static_folder="../../static")
 
     app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.path.join(BASEDIR, "db.sqlite")
+    app.config['SQLALCHEMY_BINDS'] = {
+        'secondary': 'sqlite:///'+os.path.join("/app", "bms", "controller", "dbtemp.sqlite")
+    }
     app.config['SQLALCHEMY_TRACK_MODIFICATION'] = False
 
     app.debug = True

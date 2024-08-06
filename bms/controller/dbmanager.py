@@ -32,3 +32,7 @@ class Temperature(db.Model):
     clb_ip = db.Column(db.String(15))
     wwrsa_ip = db.Column(db.String(15))
     wwrsb_ip = db.Column(db.String(15))
+    temp1 = db.Column(db.Boolean)
+    temp2 = db.Column(db.Boolean)
+    dul = db.Column(db.Boolean)
+

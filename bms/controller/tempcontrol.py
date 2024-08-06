@@ -1,21 +1,17 @@
 import bms.controller.bms_utils as uu
 import subprocess
-import os
-import re
-from datetime import datetime
-import json
-from . import BASEDIR
-from flask_login import current_user
+import bms.controller.jsc as jsc
 
 
 def read_temp_wwrs(duno=None, ips=None):
         
-    if not ips: 
+    if not ips or (len(ips) > 1 and not ips[0] and not ips[1]): 
         ips = uu.getwwrsips(duno)
     
     try: 
         temps = dict()
         for ii,ww in zip(ips,['A','B']):
+            print(ii)
             cc =  f'snmpwalk -v2c -c public {ii} .1.3.6.1.4.1.96.100.7.1.3.1'
             print('--> TEMPCTRL --> EXEC:',  cc)
             resp = subprocess.check_output(cc, shell=True).decode('utf-8')
@@ -38,3 +34,11 @@ def read_temp_fpga(duno):
     except Exception as ee:
         print('--> TEMPFPGA --> ERROR:', ee)
         return None
+
+
+def read_temp_dul_t1_t2(duno):
+    temp = jsc.commands['sensors_val'].exec(duno, args=None)
+
+    return {'TEMP_DUL' : temp['DUL_BOARDTEMP_VALUE'][1]},\
+            {'TEMP_1' : temp['TEMP1_VALUE'][1]},\
+            {'TEMP_2' : temp['TEMP2_VALUE'][1]}

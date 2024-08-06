@@ -5,6 +5,7 @@ import os, random, string
 from flask_bcrypt import generate_password_hash
 from flask_login import UserMixin, AnonymousUserMixin
 from .roles import Permission, Roles
+#from ..controller.dbmanager import DeviceType
 
 class Users(db.Model, UserMixin):
 
@@ -36,7 +37,7 @@ class Users(db.Model, UserMixin):
                 'email' : self.email,
                 'source' : self.source,
                 'role_id' : self.role_id}
-
+    
 
 class AnonymousUser(AnonymousUserMixin):
     def can(self, permissions):
@@ -53,8 +54,9 @@ def load_user(email):
 def is_db_created():
     with current_app.app_context():
         db_file = current_app.config['SQLALCHEMY_DATABASE_URI'].replace('sqlite:///', '')
+        print(db_file)
         if not os.path.isfile(db_file):
-            db.create_all()
+            db.create_all(bind_key=None)
             db_admin = Users(username='guest', 
                              password=generate_password_hash('guess').decode('utf-8'), 
                              email='admin@email.com',
@@ -74,6 +76,24 @@ def is_db_created():
             db_roles = Roles(id=1, name='admin', default=True, permissions=7)
             db.session.add(db_roles)
             db.session.commit()
+        
+        for bind_key, bind_uri in current_app.config['SQLALCHEMY_BINDS'].items():
+            db_file = bind_uri.replace('sqlite:///', '')
+            print(db_file)
+            if not os.path.isfile(db_file):
+                db.create_all(bind_key="secondary")
+                
+                # weta = DeviceType(type="wwrs_a")
+                # db.session.add(weta)
+                # db.session.commit()
+
+                # wetb = DeviceType(type="wwrs_b")
+                # db.session.add(wetb)
+                # db.session.commit()
+
+                # clb_fpga = DeviceType(type="clb_fpga")
+                # db.session.add(clb_fpga)
+                # db.session.commit()
             
 
 def gen_random_psw():

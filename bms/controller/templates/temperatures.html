@@ -53,7 +53,7 @@
     </div>
 
     <div class="row col-12 mb-5 mt-4">
-        <div class="card col-6 " style="width:100%;">
+        <div class="card col-4 " style="width:100%;">
             <div class="card card-header bg-primary text-center">
                 <div class="card-title">
                       <h1 class="text-white">WWRS A</h1>
@@ -65,9 +65,7 @@
             </div>
         </div>
 
-
-
-        <div class="card col-6 " style="width:100%;">
+        <div class="card col-4 " style="width:100%;">
             <div class="card card-header bg-primary text-center">
                 <div class="card-title">
                       <h1 class="text-white">WWRS B</h1>
@@ -78,12 +76,11 @@
                 <button id="downloadChartB" type="button" class="btn btn-primary">Download</button>
             </div>
         </div>
-    </div>
-    <div class="row col-12 d-flex justify-content-center mt-5">
-        <div class="card" style="width:100%;">
+        
+        <div class="card col-4" style="width:100%;">
             <div class="card card-header bg-primary text-center">
                 <div class="card-title">
-                      <h1 class="text-white">FPGA CLB</h1>
+                        <h1 class="text-white">FPGA CLB</h1>
                 </div>
             </div>
             <div class="card-body">
@@ -92,29 +89,75 @@
             </div>
         </div>
     </div>
+
+
+    
+
+    <div class="row col-12 mb-5 mt-4">
+        <div class="card col-4 " style="width:100%;">
+            <div class="card card-header bg-primary text-center">
+                <div class="card-title">
+                      <h1 class="text-white">BPD TEMP1</h1>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="chartDivT1" style="width:100%; height:300px; margin:0 auto;"></div>
+                <button id="downloadChartT1" type="button" class="btn btn-primary">Download</button>
+            </div>
+        </div>
+
+        <div class="card col-4 " style="width:100%;">
+            <div class="card card-header bg-primary text-center">
+                <div class="card-title">
+                      <h1 class="text-white">BPD TEMP2</h1>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="chartDivT2" style="width:100%; height:300px; margin:0 auto;"></div>
+                <button id="downloadChartT2" type="button" class="btn btn-primary">Download</button>
+            </div>
+        </div>
+
+        <div class="card col-4" style="width:100%;">
+            <div class="card card-header bg-primary text-center">
+                <div class="card-title">
+                      <h1 class="text-white">DUL</h1>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="chartDivDUL" style="width:100%; height:300px; margin:0 auto;"></div>
+                <button id="downloadChartDUL" type="button" class="btn btn-primary">Download</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 
-
 <script>
-    
-
     function updateCharts() {
-        fetch('/api/temperatures')
-            .then(response => response.json())
-            .then(data => {
-                const wwrsATemps = data.wwrsa_ip.map(d => ({x: new Date(d.timestamp).toISOString(), y: d.temperature}));
-                const wwrsBTemps = data.wwrsb_ip.map(d => ({x: new Date(d.timestamp).toISOString(), y: d.temperature}));
-                const fpgaTemps = data.clb_ip.map(d => ({x: new Date(d.timestamp).toISOString(), y: d.temperature}));
+    fetch('/get-temps')
+        .then(response => response.json())
+        .then(data => {
+            const formatTime = timestamp => {
+                const date = new Date(timestamp);
+                return date.toTimeString().split(' ')[0]; 
+            };
 
+            const wwrsATemps = data.wwrsa_ip.map(d => ({x: new Date(d.timestamp).toISOString(), y: d.temperature}));
+            const wwrsBTemps = data.wwrsb_ip.map(d => ({x: new Date(d.timestamp).toISOString(), y: d.temperature}));
+            const fpgaTemps = data.clb_ip.map(d => ({x: new Date(d.timestamp).toISOString(), y: d.temperature}));
+            const t1Temps = data.temp1.map(d => ({x: new Date(d.timestamp).toISOString(), y: d.temperature}));
+            const t2Temps = data.temp2.map(d => ({x: new Date(d.timestamp).toISOString(), y: d.temperature}));
+            const dulTemps = data.dul.map(d => ({x: new Date(d.timestamp).toISOString(), y: d.temperature}));
+
+            const charts = [];
+
+            if (wwrsATemps.length > 0) {
                 const lastWwrsA = wwrsATemps[wwrsATemps.length - 1];
-                const lastWwrsB = wwrsBTemps[wwrsBTemps.length - 1];
-                const lastFpga = fpgaTemps[fpgaTemps.length - 1];
-
                 const chartA = JSC.Chart('chartDivA', {
                     defaultPoint_marker_visible: false,
                     legend_visible: false,
-                    type: 'line',
+                    type: 'spline',
                     title_label_text: 'Temperature Data',
                     series: [{
                         name: 'WWRS A',
@@ -125,18 +168,25 @@
                         scale_type: 'time'
                     },
                     yAxis: {
-                        label_text: 'Temp'
+                        label_text: 'Temp',
+                        scale_interval: 5,
+                        scale_range: {min : '0', max : '60'}
                     },
                     annotations: [{
-                        label_text: `${lastWwrsA.y}°C at ${lastWwrsA.x.split('.')[0]}`,
+                        label_text: `<b>Last Record: ${lastWwrsA.y}°C at ${formatTime(lastWwrsA.x)}</b>`,
                         position: 'top right'
                     }],
                 });
+                charts.push({ chart: chartA, id: 'downloadChartA' });
+            }
 
+            if (wwrsBTemps.length > 0) {
+                const lastWwrsB = wwrsBTemps[wwrsBTemps.length - 1];
                 const chartB = JSC.Chart('chartDivB', {
                     defaultPoint_marker_visible: false,
                     legend_visible: false,
-                    type: 'line',
+                    type: 'spline',
+                    title_label_text: 'Temperature Data',
                     series: [{
                         name: 'WWRS B',
                         points: wwrsBTemps
@@ -146,18 +196,25 @@
                         scale_type: 'time'
                     },
                     yAxis: {
-                        label_text: 'Temp'
+                        label_text: 'Temp',
+                        scale_interval: 5,
+                        scale_range: {min : '0', max : '60'}
                     },
                     annotations: [{
-                        label_text: `${lastWwrsB.y}°C at ${lastWwrsB.x.split('.')[0]}`,
+                        label_text: `<b>Last Record: ${lastWwrsB.y}°C at ${formatTime(lastWwrsB.x)}</b>`,
                         position: 'top right'
                     }],
                 });
+                charts.push({ chart: chartB, id: 'downloadChartB' });
+            }
 
+            if (fpgaTemps.length > 0) {
+                const lastFpga = fpgaTemps[fpgaTemps.length - 1];
                 const chartFPGA = JSC.Chart('chartDivFPGA', {
                     defaultPoint_marker_visible: false,
                     legend_visible: false,
-                    type: 'line',
+                    type: 'spline',
+                    title_label_text: 'Temperature Data',
                     series: [{
                         name: 'FPGA',
                         points: fpgaTemps
@@ -167,54 +224,140 @@
                         scale_type: 'time'
                     },
                     yAxis: {
-                        label_text: 'Temp'
+                        label_text: 'Temp',
+                        scale_interval: 5,
+                        scale_range: {min : '0', max : '60'}
                     },
                     annotations: [{
-                        label_text: `${lastFpga.y}°C at ${lastFpga.x.split('.')[0]}`,
+                        label_text: `<b>Last Record: ${lastFpga.y}°C at ${formatTime(lastFpga.x)}</b>`,
                         position: 'top right'
                     }],
                 });
+                charts.push({ chart: chartFPGA, id: 'downloadChartFPGA' });
+            }
 
-                document.getElementById('downloadChartA').addEventListener('click', () => {
-                    chartA.exportImage('png');
+            if (t1Temps.length > 0) {
+                const lastT1 = t1Temps[t1Temps.length - 1];
+                const chartT1 = JSC.Chart('chartDivT1', {
+                    defaultPoint_marker_visible: false,
+                    legend_visible: false,
+                    type: 'spline',
+                    title_label_text: 'Temperature Data',
+                    series: [{
+                        name: 'TEMP 1',
+                        points: t1Temps
+                    }],
+                    xAxis: {
+                        label_text: 'Time',
+                        scale_type: 'time'
+                    },
+                    yAxis: {
+                        label_text: 'Temp',
+                        scale_interval: 5,
+                        scale_range: {min : '0', max : '60'}
+                    },
+                    annotations: [{
+                        label_text: `<b>Last Record: ${lastT1.y}°C at ${formatTime(lastT1.x)}</b>`,
+                        position: 'top right'
+                    }],
                 });
+                charts.push({ chart: chartT1, id: 'downloadChartT1' });
+            }
 
-                document.getElementById('downloadChartB').addEventListener('click', () => {
-                    chartB.exportImage('png');
+            if (t2Temps.length > 0) {
+                const lastT2 = t2Temps[t2Temps.length - 1];
+                const chartT2 = JSC.Chart('chartDivT2', {
+                    defaultPoint_marker_visible: false,
+                    legend_visible: false,
+                    type: 'spline',
+                    title_label_text: 'Temperature Data',
+                    series: [{
+                        name: 'TEMP 2',
+                        points: t2Temps
+                    }],
+                    xAxis: {
+                        label_text: 'Time',
+                        scale_type: 'time'
+                    },
+                    yAxis: {
+                        label_text: 'Temp',
+                        scale_interval: 5,
+                        scale_range: {min : '0', max : '60'}
+                    },
+                    annotations: [{
+                        label_text: `<b>Last Record: ${lastT2.y}°C at ${formatTime(lastT2.x)}</b>`,
+                        position: 'top right'
+                    }],
                 });
+                charts.push({ chart: chartT2, id: 'downloadChartT2' });
+            }
 
-                document.getElementById('downloadChartFPGA').addEventListener('click', () => {
-                    chartFPGA.exportImage('png');
+            if (dulTemps.length > 0) {
+                const lastDul = dulTemps[dulTemps.length - 1];
+                const chartDUL = JSC.Chart('chartDivDUL', {
+                    defaultPoint_marker_visible: false,
+                    legend_visible: false,
+                    type: 'spline',
+                    title_label_text: 'Temperature Data',
+                    series: [{
+                        name: 'DUL',
+                        points: dulTemps
+                    }],
+                    xAxis: {
+                        label_text: 'Time',
+                        scale_type: 'time'
+                    },
+                    yAxis: {
+                        label_text: 'Temp',
+                        scale_interval: 5,
+                        scale_range: {min : '0', max : '60'}
+                    },
+                    annotations: [{
+                        label_text: `<b>Last Record: ${lastDul.y}°C at ${formatTime(lastDul.x)}</b>`,
+                        position: 'top right'
+                    }],
                 });
-            })
-            .catch(error => {
-                let status = document.getElementById('monStatus');
-                status.textContent = "Can't refresh, is Temperature monitor on?";
-                status.classList.remove('text-success', 'text-danger', 'border-success', 'border-danger');
-                status.classList.add('text-warning', 'border-warning');
+                charts.push({ chart: chartDUL, id: 'downloadChartDUL' });
+            }
+
+            charts.forEach(({ chart, id }) => {
+                document.getElementById(id).addEventListener('click', () => {
+                    chart.exportImage('png');
+                });
             });
-    }
+        })
+        .catch(error => {
+            let status = document.getElementById('monStatus');
+            status.textContent = "Can't refresh, is Temperature monitor on?";
+            status.classList.remove('text-success', 'text-danger', 'border-success', 'border-danger', 'pulse');
+            status.classList.add('text-warning', 'border-warning');
+        });
+}
     function stopReading() {
+        updateCharts();
         fetch('/stop_reading')
             .then(response => response.json())
             .then(data => {
                 let status = document.getElementById('monStatus');
                 status.textContent = data.msg;
-                status.classList.remove('text-success', 'text-warning', 'border-success', 'border-warning');
+                status.classList.remove('text-success', 'text-warning', 'border-success', 'border-warning', 'pulse');
                 status.classList.add('text-danger', 'border-danger');
             });
     }
 
+    document.addEventListener("DOMContentLoaded", function () {
+        let msg = document.getElementById("monStatus");
+        if (msg.textContent == "Temperature monitor is off")
+        {
+            msg.classList.remove('text-success', 'text-warning', 'border-success', 'border-warning', 'pulse');
+            msg.classList.add('text-danger', 'border-danger');
+        }
+        else if (msg.textContent == "Temperature monitor is on")
+        {
+            msg.classList.add('pulse');
+        }
+    })
 </script>
 
 {% endblock %}
-document.addEventListener('DOMContentLoaded', () => {
-    updateCharts();
-});
 
-function startUpdating() {
-    updateCharts();
-    setInterval(updateCharts, 5000); 
-}
-
-document.addEventListener('DOMContentLoaded', startUpdating);

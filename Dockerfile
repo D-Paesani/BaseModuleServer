@@ -6,7 +6,8 @@ RUN apk update && apk upgrade \
 && apk add --no-cache curl \
 && apk add --no-cache openjdk11 \
 && apk add --no-cache python3-dev \
-&& apk add --no-cache git 
+&& apk add --no-cache git \
+&& apk add --no-cache net-snmp-tools
 # && apk add --no-cache build-base \
 # && apk add --no-cache subversion \
 # && apk add --no-cache gfortran \

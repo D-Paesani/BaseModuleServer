@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, abort, Blueprint, abort, flash, redirect, url_for, jsonify
+from flask import Flask, request, render_template, abort, Blueprint, abort, flash, redirect, url_for, jsonify, current_app
 from flask_debugtoolbar import DebugToolbarExtension
 import bms.controller.jsc as jsc
 import bms.controller.bms_utils  as uu
@@ -6,10 +6,15 @@ import pandas as pd
 from collections import deque
 from flask_login import login_required, current_user
 from . import BASEDIR
-from ..web_manager.decorators import admin_required
+from bms.web_manager.decorators import admin_required
 from .export_to_xlsx import *
 from time import sleep
 import datetime
+from . import tempcontrol
+from .dbmanager import Temperature
+from bms.web_manager import db
+from datetime import datetime
+
 
 
 #from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
@@ -389,7 +394,156 @@ def f_peripherals():
 
         return jsonify({'status' : 'status', 'response':True})
 
+import threading
+TEMP_THREAD = None
+TEMP_THREAD_STOP = threading.Event()
+THREAD_START_TIMESTAMP = None
+
+def read_temperatures(du, wwrsa_ip, wwrsb_ip, app):
+    #print('thread ', du, wwrsa_ip, wwrsb_ip)
+    clb_ip = uu.getbaseip(du)
+    if not wwrsa_ip and not wwrsb_ip:
+        wwrsa_ip, wwrsb_ip = uu.getwwrsips(du)
+    with app.app_context():
+        while not TEMP_THREAD_STOP.is_set():
+            try:
+                wets_temp = tempcontrol.read_temp_wwrs(du, [wwrsa_ip, wwrsb_ip])
+                twa = Temperature(du=du, wwrsa_ip=wwrsa_ip, temperature=wets_temp['TEMP_WWRSA'])
+                twb = Temperature(du=du, wwrsb_ip=wwrsb_ip, temperature=wets_temp['TEMP_WWRSB'])
+                db.session.add_all([twa,twb])
+                db.session.commit()
+            except:
+                print(f'ERROR IN tempcontrol.read_temp_wwrs(du, [wwrsa_ip, wwrsb_ip]) {du} {wwrsa_ip} {wwrsb_ip}')
+            
+            try:
+                clb_temp = tempcontrol.read_temp_fpga(du)
+                clb = Temperature(du=du, clb_ip=clb_ip, temperature=clb_temp['TEMP_FPGA'])
+                db.session.add(clb)
+                db.session.commit()
+            except:
+                print(f'ERROR IN tempcontrol.read_temp_fpga(du) {du}')
+            
+            try:
+                dul_temp, temp1, temp2 = tempcontrol.read_temp_dul_t1_t2(du)
+                dul_temp = Temperature(du=du, dul=True, temperature=dul_temp['TEMP_DUL'])
+                temp1 = Temperature(du=du, temp1=True, temperature=temp1['TEMP_1'])
+                temp2 = Temperature(du=du, temp2=True, temperature=temp2['TEMP_2'])
+                db.session.add_all([dul_temp,temp1,temp2])
+                db.session.commit()
+            except:
+                print(f'ERROR IN tempcontrol.read_temp_dul_t1_t2(du) {du}')
+
+            #ciclo necessario per kill istantaneo    
+            for _ in range(30):  #ogni quanto prendere le misurazioni
+                if TEMP_THREAD_STOP.is_set():
+                    break
+                sleep(1)  
+
+@cmd_blueprint.route('/temperatures', methods=['GET', 'POST'])
+@login_required
+def temperatures():
+    global TEMP_THREAD, TEMP_THREAD_STOP, THREAD_START_TIMESTAMP
+    templ = dict(name='temperatures.html', prefilldu='0', wwrs_a='', wwrs_b='')
+    
+    if request.method == 'POST':
+        submit = request.form.get('submit')
+        
+        if submit == 'START':
+            du = templ['prefilldu'] = request.form.get('du')
+            wwrsa = templ['wwrs_a'] = request.form.get('wwrsa')
+            wwrsb = templ['wwrs_b'] = request.form.get('wwrsb')
+
+            if TEMP_THREAD is not None and TEMP_THREAD.is_alive():
+                TEMP_THREAD_STOP.set()
+                TEMP_THREAD.join()
+            
+            TEMP_THREAD_STOP.clear()
+            TEMP_THREAD = threading.Thread(target=read_temperatures, args=(int(du), wwrsa, wwrsb, current_app._get_current_object()))
+            TEMP_THREAD.start()
+            THREAD_START_TIMESTAMP = datetime.utcnow()
+
+            templ['msg'] = "Temperature monitor is on"
+            return gettemplate(templ)
+        
+    templ['msg'] = "Temperature monitor is on" if TEMP_THREAD is not None else "Temperature monitor is off"      
+    return gettemplate(templ)
+
+@cmd_blueprint.route('/stop_reading', methods=['GET'])
+@login_required
+def stop_reading():
+    global TEMP_THREAD, TEMP_THREAD_STOP, THREAD_START_TIMESTAMP
+    
+    if TEMP_THREAD is not None and TEMP_THREAD.is_alive():
+        TEMP_THREAD_STOP.set()
+        TEMP_THREAD.join()
+        TEMP_THREAD = None
+        THREAD_START_TIMESTAMP = None
+        
+    return jsonify({"msg": "Temperature monitor is off"}), 200
+
+# @cmd_blueprint.route('/get-temps', methods=['GET'])
+# @login_required
+# def get_temperatures():
+#     global THREAD_START_TIMESTAMP
+    
+#     temperatures = Temperature.query.filter(Temperature.timestamp > THREAD_START_TIMESTAMP).order_by(Temperature.timestamp.asc()).all()
+
+#     data = {'wwrsa_ip': [], 'wwrsb_ip': [], 'clb_ip': [], 'temp1' : [], 'temp2' : [], 'dul' : []}
+
+#     for key in data.keys():
+#         key_data = [t for t in temperatures if getattr(t, key)]
+#         interval = len(key_data) // 100 or 1
+#         for i in range(0, len(key_data), interval):
+#             subset = key_data[i:i + interval]
+#             avg_temp = sum(t.temperature for t in subset) / len(subset)
+#             timestamp = subset[0].timestamp.isoformat()
+#             data[key].append({
+#                 'timestamp': timestamp,
+#                 'temperature': round(avg_temp),
+#             })
+#     #print(data)
+#     return jsonify(data)
+
+@cmd_blueprint.route('/get-temps', methods=['GET'])
+@login_required
+def get_temperatures():
+    global THREAD_START_TIMESTAMP
+
+    try:
+        temperatures = Temperature.query.filter(Temperature.timestamp > THREAD_START_TIMESTAMP).order_by(Temperature.timestamp.asc()).all()
+
+        # Inizializza i dati per ogni chiave
+        data = {'wwrsa_ip': [], 'wwrsb_ip': [], 'clb_ip': [], 'temp1': [], 'temp2': [], 'dul': []}
+
+        # Aggiungi i dati per ogni chiave
+        for key in data.keys():
+            key_data = [t for t in temperatures if getattr(t, key)]
+            for t in key_data:
+                data[key].append({
+                    'timestamp': t.timestamp.isoformat(),
+                    'temperature': round(t.temperature),
+                })
+    except Exception as e:
+        print(f'ERROR IN API UPDATE => {e}')
+    
+    #print(data)
+    return jsonify(data)
 
 
 
-
+# def get_temperatures():
+#     global THREAD_START_TIMESTAMP
+#     temperatures = Temperature.query.filter(Temperature.timestamp>THREAD_START_TIMESTAMP).order_by(Temperature.timestamp.desc()).all()
+#     data = [
+#         {
+#             'timestamp': t.timestamp.isoformat(),
+#             'temperature': t.temperature,
+#             'du': t.du,
+#             'clb_ip': t.clb_ip,
+#             'wwrsa_ip': t.wwrsa_ip,
+#             'wwrsb_ip': t.wwrsb_ip
+#         }
+#         for t in temperatures
+#     ]
+#     print(data)
+#     return jsonify(data)
