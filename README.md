@@ -1,8 +1,8 @@
 
 
 
--> docker build -t bmserver . 
--> docker run -it -p 5001:5001 -v .:/app bmserver
+-> docker build -t bmserver . -> copy the files mentioned in the gitignore file -> ./dockerrun.sh
+
 
 ADD  /Users/dp/Documents/Software/Python/km3net/logs ./logs 
 
