@@ -319,7 +319,7 @@ def generate_xlsx():
         data = f.read()
         data_base64 = base64.b64encode(data).decode('utf-8')
     remove(filename) 
-    fnam = 'BMS_' + (F'DU{int(dus[0]):03d}_' if len(dus)==1 else  '') + datetime.datetime.utcnow().strftime('%Y-%m-%d_%H-%M-%S') 
+    fnam = 'BMS_' + (F'DU{int(dus[0]):03d}_' if len(dus)==1 else  '') + datetime.utcnow().strftime('%Y-%m-%d_%H-%M-%S') 
     return jsonify({'file_data': data_base64, 'du' : fnam})
 
 @cmd_blueprint.route('/peripherals', methods=['GET', 'POST'])
@@ -450,8 +450,8 @@ def temperatures():
         
         if submit == 'START':
             du = templ['prefilldu'] = request.form.get('du')
-            wwrsa = templ['wwrs_a'] = request.form.get('wwrsa')
-            wwrsb = templ['wwrs_b'] = request.form.get('wwrsb')
+            wwrsa = templ['wwrsa'] = request.form.get('wwrsa')
+            wwrsb = templ['wwrsb'] = request.form.get('wwrsb')
 
             if TEMP_THREAD is not None and TEMP_THREAD.is_alive():
                 TEMP_THREAD_STOP.set()
