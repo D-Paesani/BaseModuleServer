@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from authlib.integrations.flask_client import OAuth
+from requests.exceptions import ConnectionError
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
@@ -47,8 +48,17 @@ def create_app():
     from bms.web_manager.routes import routes_blueprint
     app.register_blueprint(routes_blueprint)
 
-    from bms.google.google_main import google_blueprint
-    app.register_blueprint(google_blueprint)
+    app.config['NO_CONN'] = {'status' : False}
+    try:
+        from bms.google.google_main import google_blueprint
+        app.register_blueprint(google_blueprint)
+    except ConnectionError as e:
+        app.config['NO_CONN'] = {'status' : True,
+                                 'response' : str(e)}
+    except Exception as e:
+        app.config['NO_CONN'] = {'status' : True,
+                                 'response' : str(e)}
+
 
     from bms.controller.views import cmd_blueprint
     app.register_blueprint(cmd_blueprint)

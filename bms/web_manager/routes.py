@@ -1,7 +1,7 @@
 from .forms import LoginForm
 from .dbmanager import Users, gen_random_psw
 from . import bcrypt, db
-from flask import Flask, request, render_template, redirect, url_for, flash, Blueprint
+from flask import Flask, request, render_template, redirect, url_for, flash, Blueprint, current_app
 from flask_login import login_user, current_user, logout_user, login_required
 from .roles import Permission
 from ..keycloak.manager import Manager
@@ -51,7 +51,7 @@ def login():
                 return redirect(url_for('user.base'))
             else:
                 flash("Wrong Password", 'danger-custom')
-    return render_template('accounts/login.html', form=form)
+    return render_template('accounts/login.html', form=form, NO_CONN=current_app.config['NO_CONN'])
 
 @routes_blueprint.route('/logout')
 @login_required

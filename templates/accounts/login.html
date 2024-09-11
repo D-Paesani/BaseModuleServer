@@ -32,10 +32,14 @@
       
     </form>
     
-    <div class="or-container"><div class="line-separator"></div> <div class="or-label">or</div><div class="line-separator"></div></div>
+    <div class="or-container"><div class="line-separator"></div> <div class="or-label">{% if NO_CONN['status'] == False %}or{% endif %}</div><div class="line-separator"></div></div>
       <div class="row">
         <div class="col-md-12">
+          {% if NO_CONN['status'] %}
+            {{NO_CONN['response']}}
+          {% else %}
           <a class="btn btn-google btn-block btn-outline" href="{{url_for('google.google_login')}}"><img src="https://img.icons8.com/color/16/000000/google-logo.png"> Signup Using Google</a>
+          {% endif %}
         </div>
     </div>
 
