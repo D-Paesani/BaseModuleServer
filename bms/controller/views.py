@@ -402,6 +402,7 @@ THREAD_START_TIMESTAMP = None
 @cmd_blueprint.route('/monitoring_status', methods=['GET'])
 @login_required
 def monitoring_status():
+    sleep(1)
     #status = current_app.config['TEMP_MONITORING_STATUS']
     #print(status)
     #return jsonify({"status": "Temperature monitor is ON" if status else "Temperature monitor is OFF" })
@@ -416,13 +417,13 @@ def read_temperatures(du, wwrsa_ip, wwrsb_ip, app):
         wwrsa_ip, wwrsb_ip = uu.getwwrsips(du)
     with app.app_context():
         while not TEMP_THREAD_STOP.is_set():
-            # if current_app.config['TEMP_ALARM'] > 10:
-            #     #current_app.config.update({'TEMP_MONITORING_STATUS' : False})
-            #     current_app.config.update({'TEMP_MONITORING_ALARM' : True})
-            #     #stop_reading()
-            #     #break
-            # else:
-            #     current_app.config.update({'TEMP_MONITORING_ALARM' : False})
+            if current_app.config['TEMP_ALARM'] > 10:
+                #current_app.config.update({'TEMP_MONITORING_STATUS' : False})
+                current_app.config.update({'TEMP_MONITORING_ALARM' : True})
+                #stop_reading()
+                #break
+            else:
+                current_app.config.update({'TEMP_MONITORING_ALARM' : False})
             try:
                 wets_temp = tempcontrol.read_temp_wwrs(du, [wwrsa_ip, wwrsb_ip])
                 twa = Temperature(du=du, wwrsa_ip=wwrsa_ip, temperature=wets_temp['TEMP_WWRSA'])

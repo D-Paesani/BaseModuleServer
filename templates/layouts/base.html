@@ -57,8 +57,11 @@
 
   </body>
 <script>
-
+let isModal = false;
   function updateMonitoringStatus() {
+    if (isModal) {
+        return; 
+    }
     fetch('/monitoring_status')
         .then(response => response.json())
         .then(data => {
@@ -69,7 +72,7 @@
                 //msg.classList.remove('text-success', 'text-warning', 'border-success', 'border-warning', 'pulse');
                 //msg.classList.add('text-danger', 'border-danger');
             //}
-            if (status == true) {
+            if (status == true && !isModal) {
                 showModalAndExecute();
             }
         });
@@ -77,6 +80,7 @@
 
 
   function showModalAndExecute() {
+    isModal = true;
     const modalHtml = `
         <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -102,8 +106,7 @@
     `;
 
     document.body.insertAdjacentHTML('beforeend', modalHtml);
-
-    const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+    const modal = new bootstrap.Modal(document.getElementById('confirmationModal'), { backdrop: 'static' });
     modal.show();
 
     let countdown = 60;
@@ -142,9 +145,11 @@
             .then(response => response.json())
             .then(data => {
                 let status = document.getElementById('monStatus');
-                status.textContent = data.msg;
-                status.classList.remove('text-success', 'text-warning', 'border-success', 'border-warning', 'pulse');
-                status.classList.add('text-danger', 'border-danger');
+                if (status) { // Verifica se l'elemento esiste
+                    status.textContent = data.msg;
+                    status.classList.remove('text-success', 'text-warning', 'border-success', 'border-warning', 'pulse');
+                    status.classList.add('text-danger', 'border-danger');
+                }
                 console.log('Action executed:', data);
                 alert('!DU TURNED OFF!')
             });
@@ -155,6 +160,7 @@
         if (modalElement) {
             modalElement.remove();
         }
+        isModal = false;
     }
 }
 

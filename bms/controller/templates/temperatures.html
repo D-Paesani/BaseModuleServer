@@ -54,7 +54,10 @@
         </div>
         <div class="col-4 mb-6 mt-4 d-flex justify-content-left">
             <div class="card">
-                <div class="card-body">
+                <div class="card-header modal-title text-center fw-bold text-primary">
+                    Set a maximum control temperature
+                </div>
+                <div class="card-body d-flex flex-column justify-content-end">
                     <form>
                         <div class="row">
                             <div class="col-sm-4 text-right">
@@ -67,8 +70,10 @@
                                 (Max value in C°)
                             </div>
                         </div>
-                        <button id="set" type="button" name="set" onclick="setTempAlarm()" class="btn btn-primary mr-1">Set</button>
-                        <button id="unset" type="button" name="unset" onclick="unsetTempAlarm()" class="btn btn-primary mr-1">Unset</button>
+                        <div class="row d-flex justify-content-center mt-4 ">
+                            <button id="set" type="button" name="set" onclick="setTempAlarm()" class="btn btn-primary mr-1">Set</button>
+                            <button id="unset" type="button" name="unset" onclick="unsetTempAlarm()" class="btn btn-danger mr-1">Unset</button>
+                        </div>
                     </form>
                 </div>
             </div>
