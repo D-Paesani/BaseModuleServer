@@ -473,7 +473,7 @@ def read_temperatures(du, wwrsa_ip, wwrsb_ip, app):
                 print(f'ERROR IN tempcontrol.read_temp_dul_t1_t2(du) {du}')
 
             #ciclo necessario per kill istantaneo    
-            for _ in range(5):  #ogni quanto prendere le misurazioni
+            for _ in range(30):  #ogni quanto prendere le misurazioni
                 if TEMP_THREAD_STOP.is_set():
                     break
                 sleep(1)
@@ -552,10 +552,18 @@ def stop_reading():
     current_app.config.update({'TEMP_MONITORING_ALARM' : False})
     return jsonify({"msg": "Temperature monitor is OFF"}), 200
 
-@cmd_blueprint.route('/test')
-def test():
+@cmd_blueprint.route('/test_on')
+@login_required
+def test_on():
     import subprocess
-    command = ['bms/tdk_lambda.py', 'dvc']
+    command = ['bms/tdk_lambda.py', 'power_on']
+    print(command)
+    subprocess.call(command)
+@cmd_blueprint.route('/test_dvc')
+@login_required
+def test_dvc():
+    import subprocess
+    command = ['bms/tdk_lambda.py', 'power_dvc']
     print(command)
     subprocess.call(command)
 

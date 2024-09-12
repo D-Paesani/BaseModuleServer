@@ -77,7 +77,6 @@
 
 
   function showModalAndExecute() {
-    // Create the modal HTML structure
     const modalHtml = `
         <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -94,41 +93,50 @@
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelBtn">Cancel</button>
                         <button type="button" class="btn btn-primary" id="okBtn">OK</button>
                     </div>
+                    <div class="modal-footer">
+                      <span id="countdown">60</span> seconds left!
+                    </div>
                 </div>
             </div>
         </div>
     `;
 
-    // Append the modal to the body
     document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-    // Show the modal
     const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
     modal.show();
 
-    // Set a timer for 60 seconds
+    let countdown = 60;
+    const countdownElement = document.getElementById('countdown');
+
+    const timerInterval = setInterval(() => {
+        countdown--;
+        countdownElement.textContent = countdown;
+        if (countdown <= 0) {
+            clearInterval(timerInterval); 
+        }
+    }, 1000); // timer in footer
+
     const timer = setTimeout(() => {
-        executeAction(); // Automatically execute the action after 30 seconds
+        executeAction(); 
         modal.hide();
         removeModal();
         
-    }, 6000);
+    }, 60000); //60 secondi
 
-    // Add event listeners to buttons
     document.getElementById('okBtn').addEventListener('click', () => {
-        clearTimeout(timer); // Clear the timer if OK is pressed
+        clearTimeout(timer); 
         executeAction();
         modal.hide();
         removeModal();
     });
 
     document.getElementById('cancelBtn').addEventListener('click', () => {
-        clearTimeout(timer); // Clear the timer if Cancel is pressed
+        clearTimeout(timer); 
         modal.hide();
         removeModal();
     });
 
-    // Function to execute the action
     function executeAction() {
         fetch('/stop_reading')
             .then(response => response.json())
@@ -138,10 +146,10 @@
                 status.classList.remove('text-success', 'text-warning', 'border-success', 'border-warning', 'pulse');
                 status.classList.add('text-danger', 'border-danger');
                 console.log('Action executed:', data);
+                alert('!DU TURNED OFF!')
             });
     }
 
-    // Function to remove the modal from the DOM
     function removeModal() {
         const modalElement = document.getElementById('confirmationModal');
         if (modalElement) {
