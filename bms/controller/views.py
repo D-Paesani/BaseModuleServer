@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, abort, Blueprint, abort, flash, redirect, url_for, jsonify, current_app
+from flask import Flask, request, render_template, abort, Blueprint, abort, flash, redirect, url_for, jsonify, current_app, make_response
 from flask_debugtoolbar import DebugToolbarExtension
 import bms.controller.jsc as jsc
 import bms.controller.bms_utils  as uu
@@ -399,6 +399,16 @@ TEMP_THREAD = None
 TEMP_THREAD_STOP = threading.Event()
 THREAD_START_TIMESTAMP = None
 
+@cmd_blueprint.route('/monitoring_status', methods=['GET'])
+@login_required
+def monitoring_status():
+    #status = current_app.config['TEMP_MONITORING_STATUS']
+    #print(status)
+    #return jsonify({"status": "Temperature monitor is ON" if status else "Temperature monitor is OFF" })
+    status = current_app.config['TEMP_MONITORING_ALARM']
+    print('STATUS ',status, current_app.config['TEMP_ALARM'])
+    return jsonify({'status': status})
+
 def read_temperatures(du, wwrsa_ip, wwrsb_ip, app):
     #print('thread ', du, wwrsa_ip, wwrsb_ip)
     clb_ip = uu.getbaseip(du)
@@ -406,12 +416,27 @@ def read_temperatures(du, wwrsa_ip, wwrsb_ip, app):
         wwrsa_ip, wwrsb_ip = uu.getwwrsips(du)
     with app.app_context():
         while not TEMP_THREAD_STOP.is_set():
+            if current_app.config['TEMP_ALARM'] > 10:
+                #current_app.config.update({'TEMP_MONITORING_STATUS' : False})
+                current_app.config.update({'TEMP_MONITORING_ALARM' : True})
+                #stop_reading()
+                #break
+            else:
+                current_app.config.update({'TEMP_MONITORING_ALARM' : False})
             try:
                 wets_temp = tempcontrol.read_temp_wwrs(du, [wwrsa_ip, wwrsb_ip])
                 twa = Temperature(du=du, wwrsa_ip=wwrsa_ip, temperature=wets_temp['TEMP_WWRSA'])
                 twb = Temperature(du=du, wwrsb_ip=wwrsb_ip, temperature=wets_temp['TEMP_WWRSB'])
                 db.session.add_all([twa,twb])
                 db.session.commit()
+                if current_app.config['TEMP_ALARM'] > 1:
+                    if wets_temp['TEMP_WWRSA'] > current_app.config['TEMP_ALARM'] or wets_temp['TEMP_WWRSB'] > current_app.config['TEMP_ALARM']:
+                        #current_app.config.update({'TEMP_MONITORING_STATUS' : False})
+                        current_app.config.update({'TEMP_MONITORING_ALARM' : True})
+                        #stop_reading()
+                        #break
+                    else:
+                        current_app.config.update({'TEMP_MONITORING_ALARM' : False})
             except:
                 print(f'ERROR IN tempcontrol.read_temp_wwrs(du, [wwrsa_ip, wwrsb_ip]) {du} {wwrsa_ip} {wwrsb_ip}')
             
@@ -420,6 +445,13 @@ def read_temperatures(du, wwrsa_ip, wwrsb_ip, app):
                 clb = Temperature(du=du, clb_ip=clb_ip, temperature=clb_temp['TEMP_FPGA'])
                 db.session.add(clb)
                 db.session.commit()
+                if current_app.config['TEMP_ALARM'] > 1:
+                    if clb_temp['TEMP_FPGA'] > current_app.config['TEMP_ALARM']:
+                        #stop_reading()
+                        #break
+                        current_app.config.update({'TEMP_MONITORING_ALARM' : True})
+                    else:
+                        current_app.config.update({'TEMP_MONITORING_ALARM' : False})
             except:
                 print(f'ERROR IN tempcontrol.read_temp_fpga(du) {du}')
             
@@ -430,20 +462,48 @@ def read_temperatures(du, wwrsa_ip, wwrsb_ip, app):
                 temp2 = Temperature(du=du, temp2=True, temperature=temp2['TEMP_2'])
                 db.session.add_all([dul_temp,temp1,temp2])
                 db.session.commit()
+                if current_app.config['TEMP_ALARM'] > 1:
+                    if dul_temp['TEMP_DUL'] > current_app.config['TEMP_ALARM'] or temp1['TEMP_1'] > current_app.config['TEMP_ALARM'] or temp2['TEMP_2'] > current_app.config['TEMP_ALARM']:
+                        #stop_reading()
+                        #break
+                        current_app.config.update({'TEMP_MONITORING_ALARM' : True})
+                    else:
+                        current_app.config.update({'TEMP_MONITORING_ALARM' : False})
             except:
                 print(f'ERROR IN tempcontrol.read_temp_dul_t1_t2(du) {du}')
 
             #ciclo necessario per kill istantaneo    
-            for _ in range(30):  #ogni quanto prendere le misurazioni
+            for _ in range(5):  #ogni quanto prendere le misurazioni
                 if TEMP_THREAD_STOP.is_set():
                     break
-                sleep(1)  
+                sleep(1)
+
+@cmd_blueprint.route('/unset_temp_alarm', methods=['POST'])
+@login_required
+def unset_temp_alarm():
+    current_app.config.update({'TEMP_ALARM' : 0})
+    current_app.config.update({'TEMP_MONITORING_ALARM' : False})
+    return jsonify ({'response' : 'Temperature Alarm is OFF'})
+
+    
+@cmd_blueprint.route('/set_temp_alarm', methods=['POST'])
+@login_required
+def set_temp_alarm():
+    data = request.get_json()
+    try:
+        value = int(data.get('value'))
+        current_app.config.update({'TEMP_ALARM' : value})
+        return jsonify ({'response' : f'Temperature Alarm is ON - {value}°'})
+    except Exception as e:
+        return jsonify ({'response' : f'Value Error => {e}'})
+
 
 @cmd_blueprint.route('/temperatures', methods=['GET', 'POST'])
 @login_required
 def temperatures():
     global TEMP_THREAD, TEMP_THREAD_STOP, THREAD_START_TIMESTAMP
-    templ = dict(name='temperatures.html', prefilldu='0', wwrs_a='', wwrs_b='')
+    templ = dict(name='temperatures.html', prefilldu='0', wwrs_a='', wwrs_b='', temp='')
+    templ['temp'] = current_app.config['TEMP_ALARM']
     
     if request.method == 'POST':
         submit = request.form.get('submit')
@@ -452,6 +512,7 @@ def temperatures():
             du = templ['prefilldu'] = request.form.get('du')
             wwrsa = templ['wwrsa'] = request.form.get('wwrsa')
             wwrsb = templ['wwrsb'] = request.form.get('wwrsb')
+            templ['temp'] = current_app.config['TEMP_ALARM']
 
             if TEMP_THREAD is not None and TEMP_THREAD.is_alive():
                 TEMP_THREAD_STOP.set()
@@ -462,10 +523,12 @@ def temperatures():
             TEMP_THREAD.start()
             THREAD_START_TIMESTAMP = datetime.utcnow()
 
-            templ['msg'] = "Temperature monitor is on"
+            templ['msg'] = "Temperature monitor is ON"
+            current_app.config.update({'TEMP_MONITORING_STATUS' : True})
             return gettemplate(templ)
-        
-    templ['msg'] = "Temperature monitor is on" if TEMP_THREAD is not None else "Temperature monitor is off"      
+
+    status = current_app.config['TEMP_MONITORING_STATUS']    
+    templ['msg'] = "Temperature monitor is ON" if status else "Temperature monitor is OFF"      
     return gettemplate(templ)
 
 @cmd_blueprint.route('/stop_reading', methods=['GET'])
@@ -477,32 +540,24 @@ def stop_reading():
         TEMP_THREAD_STOP.set()
         TEMP_THREAD.join()
         TEMP_THREAD = None
+
         THREAD_START_TIMESTAMP = None
-        
-    return jsonify({"msg": "Temperature monitor is off"}), 200
-
-# @cmd_blueprint.route('/get-temps', methods=['GET'])
-# @login_required
-# def get_temperatures():
-#     global THREAD_START_TIMESTAMP
     
-#     temperatures = Temperature.query.filter(Temperature.timestamp > THREAD_START_TIMESTAMP).order_by(Temperature.timestamp.asc()).all()
+    if current_app.config['TEMP_MONITORING_ALARM']:
+        import subprocess
+        command = ['bms/tdk_lambda.py', 'power_off']
+        subprocess.call(command)
+    
+    current_app.config.update({'TEMP_MONITORING_STATUS' : False})
+    current_app.config.update({'TEMP_MONITORING_ALARM' : False})
+    return jsonify({"msg": "Temperature monitor is OFF"}), 200
 
-#     data = {'wwrsa_ip': [], 'wwrsb_ip': [], 'clb_ip': [], 'temp1' : [], 'temp2' : [], 'dul' : []}
-
-#     for key in data.keys():
-#         key_data = [t for t in temperatures if getattr(t, key)]
-#         interval = len(key_data) // 100 or 1
-#         for i in range(0, len(key_data), interval):
-#             subset = key_data[i:i + interval]
-#             avg_temp = sum(t.temperature for t in subset) / len(subset)
-#             timestamp = subset[0].timestamp.isoformat()
-#             data[key].append({
-#                 'timestamp': timestamp,
-#                 'temperature': round(avg_temp),
-#             })
-#     #print(data)
-#     return jsonify(data)
+@cmd_blueprint.route('/test')
+def test():
+    import subprocess
+    command = ['bms/tdk_lambda.py', 'dvc']
+    print(command)
+    subprocess.call(command)
 
 @cmd_blueprint.route('/get-temps', methods=['GET'])
 @login_required
@@ -529,21 +584,3 @@ def get_temperatures():
     #print(data)
     return jsonify(data)
 
-
-
-# def get_temperatures():
-#     global THREAD_START_TIMESTAMP
-#     temperatures = Temperature.query.filter(Temperature.timestamp>THREAD_START_TIMESTAMP).order_by(Temperature.timestamp.desc()).all()
-#     data = [
-#         {
-#             'timestamp': t.timestamp.isoformat(),
-#             'temperature': t.temperature,
-#             'du': t.du,
-#             'clb_ip': t.clb_ip,
-#             'wwrsa_ip': t.wwrsa_ip,
-#             'wwrsb_ip': t.wwrsb_ip
-#         }
-#         for t in temperatures
-#     ]
-#     print(data)
-#     return jsonify(data)

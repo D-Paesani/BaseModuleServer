@@ -48,6 +48,11 @@ def create_app():
     from bms.web_manager.routes import routes_blueprint
     app.register_blueprint(routes_blueprint)
 
+    # app.config['TEMP_ALARM'] = {'status' : False,
+    #                             'value' : 0}
+    app.config['TEMP_MONITORING_ALARM'] = False
+    app.config['TEMP_MONITORING_STATUS'] = False
+    app.config['TEMP_ALARM'] = 0
     app.config['NO_CONN'] = {'status' : False}
     try:
         from bms.google.google_main import google_blueprint

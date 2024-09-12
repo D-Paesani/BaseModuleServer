@@ -56,5 +56,101 @@
     
 
   </body>
+<script>
 
+  function updateMonitoringStatus() {
+    fetch('/monitoring_status')
+        .then(response => response.json())
+        .then(data => {
+            const status = data.status;
+            //if (status == 'Temperature monitor is OFF') {
+             //   msg = document.getElementById('monStatus')
+              ////  msg.textContent = `${status}`;
+                //msg.classList.remove('text-success', 'text-warning', 'border-success', 'border-warning', 'pulse');
+                //msg.classList.add('text-danger', 'border-danger');
+            //}
+            if (status == true) {
+                showModalAndExecute();
+            }
+        });
+}
+
+
+  function showModalAndExecute() {
+    // Create the modal HTML structure
+    const modalHtml = `
+        <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">TEMPERATURE OVER LIMIT</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Click OK to shutdown the DU, or click CANCEL!<br>
+                        Otherwise i will automatically turn off the du after 60 seconds!
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelBtn">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="okBtn">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Append the modal to the body
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    // Show the modal
+    const modal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+    modal.show();
+
+    // Set a timer for 60 seconds
+    const timer = setTimeout(() => {
+        executeAction(); // Automatically execute the action after 30 seconds
+        modal.hide();
+        removeModal();
+        
+    }, 6000);
+
+    // Add event listeners to buttons
+    document.getElementById('okBtn').addEventListener('click', () => {
+        clearTimeout(timer); // Clear the timer if OK is pressed
+        executeAction();
+        modal.hide();
+        removeModal();
+    });
+
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+        clearTimeout(timer); // Clear the timer if Cancel is pressed
+        modal.hide();
+        removeModal();
+    });
+
+    // Function to execute the action
+    function executeAction() {
+        fetch('/stop_reading')
+            .then(response => response.json())
+            .then(data => {
+                let status = document.getElementById('monStatus');
+                status.textContent = data.msg;
+                status.classList.remove('text-success', 'text-warning', 'border-success', 'border-warning', 'pulse');
+                status.classList.add('text-danger', 'border-danger');
+                console.log('Action executed:', data);
+            });
+    }
+
+    // Function to remove the modal from the DOM
+    function removeModal() {
+        const modalElement = document.getElementById('confirmationModal');
+        if (modalElement) {
+            modalElement.remove();
+        }
+    }
+}
+
+// Chiamata periodica per aggiornare lo stato per l'alarm temp
+setInterval(updateMonitoringStatus, 5000);  
+</script>
 </html>
