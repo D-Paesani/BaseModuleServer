@@ -1,7 +1,8 @@
 
 
 
--> docker build -t bmserver . -> copy the files mentioned in the gitignore file -> ./dockerrun.sh
+-> docker build -t bmtest . (or make.sh) -> copy the files mentioned in the gitignore file -> ./dockerun.sh
+-> for next runs use ./dockerstart.sh
 
 
 ADD  /Users/dp/Documents/Software/Python/km3net/logs ./logs 
