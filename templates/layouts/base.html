@@ -137,7 +137,10 @@ let isModal = false;
     document.getElementById('cancelBtn').addEventListener('click', () => {
         clearTimeout(timer); 
         modal.hide();
-        removeModal();
+        setTimeout(() => {
+            removeModal();
+        }, 60000);
+        //removeModal();
     });
 
     function executeAction() {

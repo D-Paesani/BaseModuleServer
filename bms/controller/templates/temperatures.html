@@ -52,7 +52,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-4 mb-6 mt-4 d-flex justify-content-left">
+        <div class="col-4 mb-6 mt-4 d-flex justify-content-left {% if temp > 1 %}border-temp-pulse{% endif %}" id="divTemAlert">
             <div class="card">
                 <div class="card-header modal-title text-center fw-bold text-primary">
                     Set a maximum control temperature
@@ -71,8 +71,8 @@
                             </div>
                         </div>
                         <div class="row d-flex justify-content-center mt-4 ">
-                            <button id="set" type="button" name="set" onclick="setTempAlarm()" class="btn btn-primary mr-1">Set</button>
-                            <button id="unset" type="button" name="unset" onclick="unsetTempAlarm()" class="btn btn-danger mr-1">Unset</button>
+                            <button id="setBtn" type="button" name="set" onclick="setTempAlarm()" class="btn btn-primary mr-1">Set</button>
+                            <button id="unsetBtn" type="button" name="unset" onclick="unsetTempAlarm()" class="btn btn-danger mr-1">Unset</button>
                         </div>
                     </form>
                 </div>
@@ -171,6 +171,9 @@
         })
         .then(response => response.json())
         .then(data => {
+            let active_set = document.getElementById('divTemAlert');
+            active_set.classList.remove('border-temp-pulse');
+
             let tempUp = document.getElementById('temp_alarm');
             tempUp.value = '0';
             console.log(data);  
@@ -188,6 +191,8 @@
         })
         .then(response => response.json())
         .then(data => {
+            let active_set = document.getElementById('divTemAlert');
+            active_set.classList.add('border-temp-pulse');
             console.log(data);  
         });  
     }

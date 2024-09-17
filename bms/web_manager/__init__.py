@@ -48,11 +48,12 @@ def create_app():
     from bms.web_manager.routes import routes_blueprint
     app.register_blueprint(routes_blueprint)
 
-    # app.config['TEMP_ALARM'] = {'status' : False,
-    #                             'value' : 0}
-    app.config['TEMP_MONITORING_ALARM'] = False
-    app.config['TEMP_MONITORING_STATUS'] = False
-    app.config['TEMP_ALARM'] = 0
+    app.config['wwrsa'] = '' #ip
+    app.config['wwrsb'] = '' #ip
+    app.config['du'] = '0' #ip or 0 for default *.*.1.100
+    app.config['TEMP_MONITORING_ALARM'] = False #if the temp > temp_alarm SET TRUE 
+    app.config['TEMP_MONITORING_STATUS'] = False #temp monitoring status (not include if a temp alarm is set)
+    app.config['TEMP_ALARM'] = 0 #temp limit alarm
     app.config['NO_CONN'] = {'status' : False}
     try:
         from bms.google.google_main import google_blueprint

@@ -147,7 +147,7 @@ table.dataframe, .dataframe th, .dataframe td {
 
 }
 
-
+/* Pulse effect when temperature monitor is ON */
 @keyframes pulse {
   0% {
       transform: scale(1);
@@ -165,4 +165,26 @@ table.dataframe, .dataframe th, .dataframe td {
 
 .pulse {
   animation: pulse 1.5s infinite;
+}
+
+
+
+@keyframes border-temp-pulse {
+  0% {
+      border-color: white;
+      opacity: 1;
+  }
+  50% {
+      border-color: #28a745;
+      opacity: 1;
+  }
+  100% {
+      border-color: white;
+      opacity: 1;
+  }
+}
+
+.border-temp-pulse {
+  border: 8px solid white;
+  animation: border-temp-pulse 1.5s infinite;
 }
