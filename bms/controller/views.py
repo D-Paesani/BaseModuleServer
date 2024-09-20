@@ -12,9 +12,9 @@ from time import sleep
 import datetime
 from . import tempcontrol
 from .dbmanager import Temperature
-from bms.web_manager import db
+from bms.web_manager import db, USEDUMMY
 from datetime import datetime
-
+import concurrent.futures
 
 
 #from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
@@ -29,7 +29,7 @@ def gettemplate(templ, msg=None):
 @login_required
 #@register_breadcrumb(app, '.home', 'Home')
 def f_help(): 
-    return render_template('help.html')
+    return render_template('help.html', runas=USEDUMMY)
 
 def read_log_file(nlines=2000):
     with open(f'{BASEDIR}/logs/jsccmd.log', 'r') as log:
@@ -402,13 +402,48 @@ THREAD_START_TIMESTAMP = None
 @cmd_blueprint.route('/monitoring_status', methods=['GET'])
 @login_required
 def monitoring_status():
-    sleep(1)
-    #status = current_app.config['TEMP_MONITORING_STATUS']
-    #print(status)
-    #return jsonify({"status": "Temperature monitor is ON" if status else "Temperature monitor is OFF" })
+    sleep(1)   
     status = current_app.config['TEMP_MONITORING_ALARM']
     print('STATUS ',status, current_app.config['TEMP_ALARM'])
+    if status:
+        return jsonify({'status' : status,
+                        'temps' : current_app.config['TEMP_OVER_LIMIT']})
     return jsonify({'status': status})
+
+def thread_read_wwrs(du, wwrsa_ip, wwrsb_ip, app):
+    with app.app_context():
+        try:
+            wets_temp = tempcontrol.read_temp_wwrs(du, [wwrsa_ip, wwrsb_ip])
+            twa = Temperature(du=du, wwrsa_ip=wwrsa_ip, temperature=wets_temp['TEMP_WWRSA'])
+            twb = Temperature(du=du, wwrsb_ip=wwrsb_ip, temperature=wets_temp['TEMP_WWRSB'])
+            db.session.add_all([twa,twb])
+            db.session.commit()
+        except Exception as e:
+            print(f'ERROR IN tempcontrol.read_temp_wwrs(du, [wwrsa_ip, wwrsb_ip]) \
+                    {du}{type(du)} {wwrsa_ip}{type(wwrsa_ip)} {wwrsb_ip}{type(wwrsb_ip)} \
+                    {e}')
+def thread_read_clb_fpga(du, clb_ip, app):
+    with app.app_context():
+        try:
+            clb_temp = tempcontrol.read_temp_fpga(du)
+            clb = Temperature(du=du, clb_ip=clb_ip, temperature=clb_temp['TEMP_FPGA'])
+            db.session.add(clb)
+            db.session.commit()
+        except Exception as e:
+            print(f'ERROR IN tempcontrol.read_temp_fpga(du) {du}{type(du)} \
+                    {e}')
+def thread_read_du_t1_t2(du, app):
+    with app.app_context():
+        try:
+            dul_temp, temp1, temp2 = tempcontrol.read_temp_dul_t1_t2(du)
+            dul_temp_obj = Temperature(du=du, dul=True, temperature=dul_temp['TEMP_DUL'])
+            temp1_obj = Temperature(du=du, temp1=True, temperature=temp1['TEMP_1'])
+            temp2_obj = Temperature(du=du, temp2=True, temperature=temp2['TEMP_2'])
+            db.session.add_all([dul_temp_obj,temp1_obj,temp2_obj])
+            db.session.commit()
+        except Exception as e:
+            print(f'ERROR IN tempcontrol.read_temp_dul_t1_t2(du) {du} {dul_temp} {temp1} {temp2} \
+                    {e}')
 
 def read_temperatures(du, wwrsa_ip, wwrsb_ip, app):
     #print('thread ', du, wwrsa_ip, wwrsb_ip)
@@ -418,43 +453,40 @@ def read_temperatures(du, wwrsa_ip, wwrsb_ip, app):
     with app.app_context():
         while not TEMP_THREAD_STOP.is_set():
 
-            ### for tests
-            # try:
-            #     temp_test = 40
-            # except:
-            #     pass
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                futures = []
+                futures.append(executor.submit(thread_read_wwrs, du, wwrsa_ip, wwrsb_ip, app))
+                futures.append(executor.submit(thread_read_clb_fpga, du, clb_ip, app))
+                futures.append(executor.submit(thread_read_du_t1_t2, du, app))
 
-
-            try:
-                wets_temp = tempcontrol.read_temp_wwrs(du, [wwrsa_ip, wwrsb_ip])
-                twa = Temperature(du=du, wwrsa_ip=wwrsa_ip, temperature=wets_temp['TEMP_WWRSA'])
-                twb = Temperature(du=du, wwrsb_ip=wwrsb_ip, temperature=wets_temp['TEMP_WWRSB'])
-                db.session.add_all([twa,twb])
-                db.session.commit()
-            except Exception as e:
-                print(f'ERROR IN tempcontrol.read_temp_wwrs(du, [wwrsa_ip, wwrsb_ip]) \
-                      {du}{type(du)} {wwrsa_ip}{type(wwrsa_ip)} {wwrsb_ip}{type(wwrsb_ip)} \
-                      {e}')
+                for future in concurrent.futures.as_completed(futures):
+                    print(future.result())
             
-            try:
-                clb_temp = tempcontrol.read_temp_fpga(du)
-                clb = Temperature(du=du, clb_ip=clb_ip, temperature=clb_temp['TEMP_FPGA'])
-                db.session.add(clb)
-                db.session.commit()
-            except Exception as e:
-                print(f'ERROR IN tempcontrol.read_temp_fpga(du) {du}{type(du)} \
-                      {e}')
             
-            try:
-                dul_temp, temp1, temp2 = tempcontrol.read_temp_dul_t1_t2(du)
-                dul_temp_obj = Temperature(du=du, dul=True, temperature=dul_temp['TEMP_DUL'])
-                temp1_obj = Temperature(du=du, temp1=True, temperature=temp1['TEMP_1'])
-                temp2_obj = Temperature(du=du, temp2=True, temperature=temp2['TEMP_2'])
-                db.session.add_all([dul_temp_obj,temp1_obj,temp2_obj])
-                db.session.commit()
-            except Exception as e:
-                print(f'ERROR IN tempcontrol.read_temp_dul_t1_t2(du) {du} {dul_temp} {temp1} {temp2} \
-                      {e}')
+            ## for tests
+            # if app.config['RUNAS'] == 'TEST':
+            #     try:
+            #         wets_temp = {}
+            #         clb_temp = {}
+            #         dul_temp ={}
+            #         temp1 = {}
+            #         temp2 = {}
+            #         wets_temp['TEMP_WWRSA']=45
+            #         wets_temp['TEMP_WWRSB']=40
+            #         clb_temp['TEMP_FPGA']=35
+            #         dul_temp['TEMP_DUL']=33
+            #         temp1['TEMP_1']=24
+            #         temp2['TEMP_2']=26
+            #         twa = Temperature(du=du, wwrsa_ip=wwrsa_ip, temperature=wets_temp['TEMP_WWRSA'])
+            #         twb = Temperature(du=du, wwrsb_ip=wwrsb_ip, temperature=wets_temp['TEMP_WWRSB'])
+            #         clb = Temperature(du=du, clb_ip=clb_ip, temperature=clb_temp['TEMP_FPGA'])
+            #         dul_temp_obj = Temperature(du=du, dul=True, temperature=dul_temp['TEMP_DUL'])
+            #         temp1_obj = Temperature(du=du, temp1=True, temperature=temp1['TEMP_1'])
+            #         temp2_obj = Temperature(du=du, temp2=True, temperature=temp2['TEMP_2'])
+            #         db.session.add_all([twa,twb,clb,dul_temp_obj,temp1_obj,temp2_obj])
+            #         db.session.commit()
+            #     except Exception as e:
+            #         print(f'#TEST {e}')
             
             #check for the temp alert
             if current_app.config['TEMP_ALARM'] > 1:
@@ -494,21 +526,27 @@ def read_temperatures(du, wwrsa_ip, wwrsb_ip, app):
                         trigger = trigger or True
                 except Exception as e:
                     print(f'Error in temp temp_2 {e}')
-
-                #for test
-                # try:
-                #     if temp_test > current_app.config['TEMP_ALARM']:
-                #         trigger = trigger or True
-                # except Exception as e:
-                #     print(f'Error in temp test {e}')
                     
                 current_app.config.update({'TEMP_MONITORING_ALARM' : trigger}) #temp over limit
 
+                if current_app.config['TEMP_MONITORING_ALARM']:
+                    current_app.config.update({'TEMP_OVER_LIMIT' : {
+                        'WWRSA' : wets_temp['TEMP_WWRSA'],
+                        'WWRSB' : wets_temp['TEMP_WWRSB'],
+                        'CLB_FPGA' : clb_temp['TEMP_FPGA'],
+                        'DUL' : dul_temp['TEMP_DUL'],
+                        'TEMP1' : temp1['TEMP_1'],
+                        'TEMP2' : temp2['TEMP_2'],
+                        'LIMIT' : current_app.config['TEMP_ALARM']}
+                        })
+                else:
+                    current_app.config.update({'TEMP_OVER_LIMIT' : False })
+
             #ciclo necessario per kill istantaneo    
-            for _ in range(30):  #ogni quanto prendere le misurazioni
+            for _ in range(60):  #ogni quanto prendere le misurazioni
                 if TEMP_THREAD_STOP.is_set():
                     break
-                sleep(1)
+                sleep(0.5)
 
 @cmd_blueprint.route('/unset_temp_alarm', methods=['POST'])
 @login_required
@@ -573,14 +611,12 @@ def temperatures():
 @login_required
 def stop_reading():
     global TEMP_THREAD, TEMP_THREAD_STOP, THREAD_START_TIMESTAMP
-    
     if TEMP_THREAD is not None and TEMP_THREAD.is_alive():
         TEMP_THREAD_STOP.set()
         TEMP_THREAD.join()
         TEMP_THREAD = None
 
         THREAD_START_TIMESTAMP = None
-    
     try:
         if current_app.config['TEMP_MONITORING_ALARM']:
             jsc.commands['switch'].exec(0, args=dict(sw='2', state=0)) #SWITCH_CONTROL 2 0
@@ -590,10 +626,12 @@ def stop_reading():
             command = ['/app/bms/tdk_lambda.py', 'power_off']
             subprocess.call(command)
     except Exception as e:
-        print(f'{e}')
+        print(f'ERROR IN STOP LAMBDA {e}')
     
     current_app.config.update({'TEMP_MONITORING_STATUS' : False})
     current_app.config.update({'TEMP_MONITORING_ALARM' : False})
+    current_app.config.update({'TEMP_ALARM' : 0})
+
     return jsonify({"msg": "Temperature monitor is OFF"}), 200
 
 @cmd_blueprint.route('/lambda_on')

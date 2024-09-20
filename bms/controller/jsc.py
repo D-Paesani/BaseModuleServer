@@ -6,6 +6,7 @@ from datetime import datetime
 import json
 from . import BASEDIR
 from flask_login import current_user
+from bms.web_manager import USEDUMMY
 
 usedummy = False
 logerrors = False

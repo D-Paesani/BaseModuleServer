@@ -66,35 +66,46 @@ let isModal = false;
         .then(response => response.json())
         .then(data => {
             const status = data.status;
-            //if (status == 'Temperature monitor is OFF') {
-             //   msg = document.getElementById('monStatus')
-              ////  msg.textContent = `${status}`;
-                //msg.classList.remove('text-success', 'text-warning', 'border-success', 'border-warning', 'pulse');
-                //msg.classList.add('text-danger', 'border-danger');
-            //}
+
             if (status == true && !isModal) {
-                showModalAndExecute();
+                showModalAndExecute(data.temps);
             }
         });
 }
 
 
-  function showModalAndExecute() {
+  function showModalAndExecute(data) {
     isModal = true;
+    txt = '<ul>';
+    for (key in data) {
+      if (key != 'LIMIT') {
+        let temp_style = '';
+        if (data[key] > data['LIMIT']) {
+          temp_style = `<span class="text-danger fw-bold">${data[key]}</span>`;
+        } else {
+          temp_style = `<span class="text-success">${data[key]}</span>`;
+        }
+        txt += `<li>${key} => ${temp_style}</li>`;
+      }
+    }
+    txt += '</ul>';
+
     const modalHtml = `
         <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content">
+                <div class="modal-content border border-2 border-warning">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">TEMPERATURE OVER LIMIT</h5>
+                        <h5 class="modal-title text-danger" id="exampleModalLabel">TEMPERATURE OVER LIMIT</h5>
+                        <span class="fa fa-2x fa-exclamation-triangle text-warning" aria-hidden="true"></span>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body text-dark">
                         Click OK to shutdown the DU, or click CANCEL!<br>
                         Otherwise i will automatically turn off the du after 60 seconds!
+                        ${txt}
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelBtn">Cancel</button>
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="cancelBtn">Cancel</button>
                         <button type="button" class="btn btn-primary" id="okBtn">OK</button>
                     </div>
                     <div class="modal-footer">
@@ -124,7 +135,7 @@ let isModal = false;
         executeAction(); 
         modal.hide();
         removeModal();
-        
+        refresh(true);         
     }, 60000); //60 secondi
 
     document.getElementById('okBtn').addEventListener('click', () => {
@@ -132,6 +143,7 @@ let isModal = false;
         executeAction();
         modal.hide();
         removeModal();
+        refresh(true); 
     });
 
     document.getElementById('cancelBtn').addEventListener('click', () => {
@@ -154,7 +166,7 @@ let isModal = false;
                     status.classList.add('text-danger', 'border-danger');
                 }
                 console.log('Action executed:', data);
-                alert('!DU TURNED OFF!')
+                
             });
     }
 
@@ -163,11 +175,21 @@ let isModal = false;
         if (modalElement) {
             modalElement.remove();
         }
-        isModal = false;
-    }
+        isModal = false;   
+    } 
+  }
+
+function refresh(s) {
+  alert('!DU TURNED OFF!');
+  if (s) {
+    setTimeout(() => {
+        window.location.href = window.location.href;
+    }, 1000);
+    
+  }
 }
 
 // Chiamata periodica per aggiornare lo stato per l'alarm temp
-setInterval(updateMonitoringStatus, 5000);  
+setInterval(updateMonitoringStatus, 2000);  
 </script>
 </html>

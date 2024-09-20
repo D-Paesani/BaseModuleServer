@@ -399,7 +399,6 @@
         });
 }
     function stopReading() {
-        updateCharts();
         fetch('/stop_reading')
             .then(response => response.json())
             .then(data => {
@@ -408,6 +407,8 @@
                 status.classList.remove('text-success', 'text-warning', 'border-success', 'border-warning', 'pulse');
                 status.classList.add('text-danger', 'border-danger');
             });
+        //refresh(true);
+        //updateCharts();
     }
 
     document.addEventListener("DOMContentLoaded", function () {

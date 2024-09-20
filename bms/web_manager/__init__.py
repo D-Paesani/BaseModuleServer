@@ -13,6 +13,7 @@ bcrypt = Bcrypt()
 login_manager = LoginManager()
 login_manager.login_view = 'user.login'
 oauth = OAuth()
+USEDUMMY = None
 
 def split_comma(value):
     v = value.split(',')
@@ -25,6 +26,8 @@ def create_app():
     BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
     app = Flask(__name__, static_folder="../../static")
+
+    app.config.from_pyfile('/app/bms/web_manager/config.py')
 
     app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.path.join(BASEDIR, "db.sqlite")
     app.config['SQLALCHEMY_BINDS'] = {
@@ -54,6 +57,7 @@ def create_app():
     app.config['TEMP_MONITORING_ALARM'] = False #if the temp > temp_alarm SET TRUE 
     app.config['TEMP_MONITORING_STATUS'] = False #temp monitoring status (not include if a temp alarm is set)
     app.config['TEMP_ALARM'] = 0 #temp limit alarm
+    app.config['TEMP_OVER_LIMIT'] = False #a dictionary of last temps with at least one over limit
     app.config['NO_CONN'] = {'status' : False}
     try:
         from bms.google.google_main import google_blueprint
@@ -71,6 +75,9 @@ def create_app():
 
     #toolbar = DebugToolbarExtension(app)
     #Breadcrumbs(app=app)
+
+    global USEDUMMY
+    USEDUMMY = True if app.config['RUNAS'] == 'TEST' else False
 
     return app
 

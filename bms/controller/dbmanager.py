@@ -36,3 +36,6 @@ class Temperature(db.Model):
     temp2 = db.Column(db.Boolean)
     dul = db.Column(db.Boolean)
 
+    def __repr__(self):
+        return(f"{self.id}")
+
