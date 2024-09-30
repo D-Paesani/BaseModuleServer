@@ -23,6 +23,7 @@ def initialize_jsc():
         cmdformat = 'cd /bpd-software/host/python/console/ && python2 jsendcommand2.py  {ip} {args}'
         cmdformat = 'python2 %s/jsendcommand_dummy.py {ip} {args}' % (BASEDIR) if usedummy else cmdformat
 
+
 # usedummy = current_app.config['USEDUMMY']
 # logerrors = False
 # cmdlogfile =  f'{BASEDIR}/logs/jsccmd.log'
@@ -31,6 +32,8 @@ def initialize_jsc():
 # cmdformat = 'python2 %s/jsendcommand_dummy.py {ip} {args}' % (BASEDIR) if usedummy else cmdformat
 
 def cmdlogger(cmd, user, msg='-', logfile=cmdlogfile, enable=True):
+    logfile = logfile if logfile is not None else cmdlogfile 
+    
     if not enable: return
     try:
         with open(logfile, 'a') as outfile:
@@ -39,8 +42,8 @@ def cmdlogger(cmd, user, msg='-', logfile=cmdlogfile, enable=True):
                 # outfile.write(F'{" "*4 if ii != "TIM" else "--> "}{ii} = {iii}\n')
                 # outfile.write(F'{ii} = {iii}|')
                 outfile.write(F'{iii}|')
-    except:
-        print('Error logging')
+    except Exception as e:
+        print(f'Error logging - {e}')
             
 def parse_sensors(sss, param):
     ss = re.search(F'MON_{param} = (.*)', sss).group(1).split(' ')
@@ -54,9 +57,8 @@ def parse_generic(sss, param):
     return re.search(F'{param} = (.*)', sss).group(1)
     
 class jcmd:
-    
     command = cmdformat
-    
+
     def __init__(self, cmd, parser=None, params=None, args=None, index=None, loggeron=True, parser_opt=None):
         self.cmd = cmd
         self.parser = parser
@@ -67,14 +69,15 @@ class jcmd:
         self.params = params if type(parser_opt) is not str else [F'{ii}_{parser_opt}' for ii in params]
 
     def exec(self, du, args=None):        
-        try: 
-            
+        try:
             aa = '' if (self.args is None) or (args is None) else ' '.join([str(args[ii]) for ii in self.args])
             cmd = '' if self.cmd is None else self.cmd
                         
             if not (ip := uu.getbaseip(int(du))): 
                 raise Exception(F'problem in retrieving DU IP: got {ip}') 
-            
+            if self.command is None:
+                self.command = cmdformat
+            print('COMMAND IS ', cmdlogfile, self.command)
             cc = self.command.format(ip=ip, args=' '.join([cmd, aa]))
             print('--> JSC --> EXEC:',  cc)
             resp = subprocess.check_output(cc, shell=True).decode('utf-8')
@@ -92,7 +95,7 @@ class jcmd:
             return pp
         
         except Exception as ee:
-            print('--> JSC --> ERROR:', ee)
+            print('--> JSC --> ERROR:', ee, self.command)
             if logerrors: cmdlogger(cmd=cc, user=current_user, msg=F'ERROR: {ee}', enable=self.logen)
             return None
         

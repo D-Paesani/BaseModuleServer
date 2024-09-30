@@ -9,6 +9,7 @@ app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 def before_first_request():
     dbmanager.is_db_created()
     initialize_jsc()
+    print('Initialize JSC ')
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

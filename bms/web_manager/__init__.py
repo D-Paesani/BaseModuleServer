@@ -51,14 +51,6 @@ def create_app(config_type):
     from bms.web_manager.routes import routes_blueprint
     app.register_blueprint(routes_blueprint)
 
-    # app.config['wwrsa'] = '' #ip
-    # app.config['wwrsb'] = '' #ip
-    # app.config['du'] = '0' #ip or 0 for default *.*.1.100
-    # app.config['TEMP_MONITORING_ALARM'] = False #if the temp > temp_alarm SET TRUE 
-    # app.config['TEMP_MONITORING_STATUS'] = False #temp monitoring status (not include if a temp alarm is set)
-    # app.config['TEMP_ALARM'] = 0 #temp limit alarm
-    # app.config['TEMP_OVER_LIMIT'] = False #a dictionary of last temps with at least one over limit
-    # app.config['NO_CONN'] = {'status' : False}
     try:
         from bms.google.google_main import google_blueprint
         app.register_blueprint(google_blueprint)
@@ -75,8 +67,7 @@ def create_app(config_type):
 
     #toolbar = DebugToolbarExtension(app)
     #Breadcrumbs(app=app)
-    print('USE DUMMY => ', app.config['USEDUMMY'])
-
+    
     return app
 
  
