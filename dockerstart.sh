@@ -1,18 +1,21 @@
 #!/bin/bash
 
-CONTAINER_NAME="bmtest"
+docker rm -f bmtest
 
-if [ "$1" == "TEST" ]; then
-    runAs="TEST"
-elif [ "$1" == "PRODUCTION" ]; then
+CONTAINER_NAME="bmtest"
+CONFIG="$1"
+
+if [ "$CONFIG" == "TEST" ]; then
+    DEVICE="/dev/tty9:/dev/ttyUSB0"
+elif [ "$CONFIG" == "PRODUCTION" ]; then
     DEVICE="/dev/ttyUSB0:/dev/ttyUSB0"
-    runAs="PRODUCTION"
 else
     echo "Utilizzo: $0 [TEST|PRODUCTION]"
-    exit 1
+    #exit 1
+    CONFIG="PRODUCTION"
+    echo "Starting in default mode $CONFIG"
+    DEVICE="/dev/ttyUSB0:/dev/ttyUSB0"
 fi
-
-sed -i "s/runAs *= *'.*'/runAs = '$runAs'/" "./bms/web_manager/config.py"
 
 if [ "$(sudo docker ps -a -q -f name=$CONTAINER_NAME)" ]; then
     sudo docker start $CONTAINER_NAME
@@ -24,5 +27,7 @@ else
     -v "/Users/dp/Documents/Software/Python/km3net/BaseModuleServer/bmsvol/logs:/app/bms/controller/logs" \
     -v "/Users/dp/Documents/Software/Python/km3net/BaseModuleServer/bmsvol/jsend:/app/bms/controller/jsend" \
     -v "$(pwd)":/app \
-    --device=/dev/tty9:/dev/ttyUSB0 bmtest
+    --device=$DEVICE \
+    -e FLASK_CONFIG=$CONFIG \
+    $CONTAINER_NAME
 fi

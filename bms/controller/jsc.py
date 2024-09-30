@@ -6,14 +6,29 @@ from datetime import datetime
 import json
 from . import BASEDIR
 from flask_login import current_user
-from bms.web_manager import USEDUMMY
+from flask import current_app
 
-usedummy = False
-logerrors = False
-cmdlogfile =  f'{BASEDIR}/logs/jsccmd.log'
+usedummy = None
+logerrors = None
+cmdlogfile = None
+cmdformat = None
 
-cmdformat = 'cd /bpd-software/host/python/console/ && python2 jsendcommand2.py  {ip} {args}'
-cmdformat = 'python2 %s/jsendcommand_dummy.py {ip} {args}' % (BASEDIR) if usedummy else cmdformat
+def initialize_jsc():
+    global usedummy, logerrors, cmdlogfile, cmdformat
+    with current_app.app_context():
+        usedummy = current_app.config['USEDUMMY']
+        logerrors = False
+        cmdlogfile =  f'{BASEDIR}/logs/jsccmd.log'
+
+        cmdformat = 'cd /bpd-software/host/python/console/ && python2 jsendcommand2.py  {ip} {args}'
+        cmdformat = 'python2 %s/jsendcommand_dummy.py {ip} {args}' % (BASEDIR) if usedummy else cmdformat
+
+# usedummy = current_app.config['USEDUMMY']
+# logerrors = False
+# cmdlogfile =  f'{BASEDIR}/logs/jsccmd.log'
+
+# cmdformat = 'cd /bpd-software/host/python/console/ && python2 jsendcommand2.py  {ip} {args}'
+# cmdformat = 'python2 %s/jsendcommand_dummy.py {ip} {args}' % (BASEDIR) if usedummy else cmdformat
 
 def cmdlogger(cmd, user, msg='-', logfile=cmdlogfile, enable=True):
     if not enable: return

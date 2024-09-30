@@ -13,9 +13,10 @@ def inject_permissions():
     return dict(Permission=Permission)
 
 @routes_blueprint.route('/', methods = ['GET'])
+@routes_blueprint.route('/help', methods = ['GET'])
 @login_required
 def base():
-    return render_template('help.html')
+    return render_template('help.html', usedummy=current_app.config['USEDUMMY'])
 
 @routes_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
