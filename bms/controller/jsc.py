@@ -77,7 +77,7 @@ class jcmd:
                 raise Exception(F'problem in retrieving DU IP: got {ip}') 
             if self.command is None:
                 self.command = cmdformat
-            print('COMMAND IS ', cmdlogfile, self.command)
+
             cc = self.command.format(ip=ip, args=' '.join([cmd, aa]))
             print('--> JSC --> EXEC:',  cc)
             resp = subprocess.check_output(cc, shell=True).decode('utf-8')

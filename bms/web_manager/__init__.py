@@ -65,6 +65,9 @@ def create_app(config_type):
     from bms.controller.views import cmd_blueprint
     app.register_blueprint(cmd_blueprint)
 
+    from bms.controller.cmd_lambda import tdk_blueprint
+    app.register_blueprint(tdk_blueprint)
+
     #toolbar = DebugToolbarExtension(app)
     #Breadcrumbs(app=app)
     

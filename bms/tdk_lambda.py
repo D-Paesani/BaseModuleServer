@@ -41,7 +41,7 @@ class Tdk():
         self.s.write(b'out?\r')
         sleep(0.2)
         o = self.s.read_all().decode('utf-8')
-        print(o)
+        print('Status =>',o)
 
     def power_on(self):
         """Turns the output to ON"""

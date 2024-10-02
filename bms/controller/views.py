@@ -15,6 +15,7 @@ from .dbmanager import Temperature
 from bms.web_manager import db
 from datetime import datetime
 import concurrent.futures
+from bms.controller import cmd_lambda
 
 
 #from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
@@ -637,9 +638,10 @@ def stop_reading():
             jsc.commands['switch'].exec(0, args=dict(sw='2', state=0)) #SWITCH_CONTROL 2 0
             jsc.commands['switch'].exec(0, args=dict(sw='1', state=0)) #SWITCH_CONTROL 1 0
             sleep(1)
-            import subprocess
-            command = ['/app/bms/tdk_lambda.py', 'power_off']
-            subprocess.call(command)
+            # import subprocess
+            # command = ['/app/bms/tdk_lambda.py', 'power_off']
+            # subprocess.call(command)
+            cmd_lambda.lambda_off()
     except Exception as e:
         print(f'ERROR IN STOP LAMBDA {e}')
     
@@ -648,31 +650,6 @@ def stop_reading():
     current_app.config.update({'TEMP_ALARM' : 0})
 
     return jsonify({"msg": "Temperature monitor is OFF"}), 200
-
-@cmd_blueprint.route('/lambda_on')
-@login_required
-def lambda_on():
-    import subprocess
-    command = ['/app/bms/tdk_lambda.py', 'power_on']
-    print(command)
-    subprocess.call(command)
-    return jsonify ({'response' : 'ok'})
-@cmd_blueprint.route('/lambda_off')
-@login_required
-def lambda_off():
-    import subprocess
-    command = ['/app/bms/tdk_lambda.py', 'power_off']
-    print(command)
-    subprocess.call(command)
-    return jsonify ({'response' : 'ok'})
-@cmd_blueprint.route('/lambda_dvc')
-@login_required
-def lambda_dvc():
-    import subprocess
-    command = ['/app/bms/tdk_lambda.py', 'power_dvc']
-    print(command)
-    subprocess.call(command)
-    return jsonify ({'response' : 'ok'})
 
 @cmd_blueprint.route('/get-temps', methods=['GET'])
 @login_required
