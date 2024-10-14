@@ -567,15 +567,17 @@ def read_temperatures(du, wwrsa_ip, wwrsb_ip, app):
 @cmd_blueprint.route('/unset_temp_alarm', methods=['POST'])
 @login_required
 def unset_temp_alarm():
-    current_app.config.update({'TEMP_ALARM' : 0})
-    current_app.config.update({'TEMP_MONITORING_ALARM' : False})
+    if current_app.config['TDK_LAMBDA']:
+        current_app.config.update({'TEMP_ALARM' : 0})
+        current_app.config.update({'TEMP_MONITORING_ALARM' : False})
     return jsonify ({'response' : 'Temperature Alarm is OFF'})
 
     
 @cmd_blueprint.route('/set_temp_alarm', methods=['POST'])
 @login_required
 def set_temp_alarm():
-    data = request.get_json()
+    if current_app.config['TDK_LAMBDA']:
+        data = request.get_json()
     try:
         value = int(data.get('value'))
         current_app.config.update({'TEMP_ALARM' : value})
@@ -634,7 +636,7 @@ def stop_reading():
 
         THREAD_START_TIMESTAMP = None
     try:
-        if current_app.config['TEMP_MONITORING_ALARM']:
+        if current_app.config['TEMP_MONITORING_ALARM'] and current_app.config['TDK_LAMBDA']:
             jsc.commands['switch'].exec(0, args=dict(sw='2', state=0)) #SWITCH_CONTROL 2 0
             jsc.commands['switch'].exec(0, args=dict(sw='1', state=0)) #SWITCH_CONTROL 1 0
             sleep(1)

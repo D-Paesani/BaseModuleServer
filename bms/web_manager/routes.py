@@ -10,7 +10,9 @@ routes_blueprint = Blueprint('user', __name__, template_folder="../../templates"
 
 @routes_blueprint.app_context_processor
 def inject_permissions():
-    return dict(Permission=Permission)
+    return dict(Permission=Permission,
+                tdk_lambda=current_app.config['TDK_LAMBDA'],
+                tdk_status=current_app.config['TDK_STATUS'])
 
 @routes_blueprint.route('/', methods = ['GET'])
 @routes_blueprint.route('/help', methods = ['GET'])

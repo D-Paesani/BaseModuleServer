@@ -5,14 +5,19 @@ docker rm -f bmtest
 CONTAINER_NAME="bmtest"
 CONFIG="$1"
 
-if [ "$CONFIG" == "TEST" ]; then
-    DEVICE="/dev/tty9:/dev/ttyUSB0"
-elif [ "$CONFIG" == "PRODUCTION" ]; then
+if [ "$CONFIG" == "DEV" ]; then
+    DEVICE="/dev/tty0:/dev/ttyUSB0"
+elif [ "$CONFIG" == "BMTEST" ]; then
     DEVICE="/dev/ttyUSB0:/dev/ttyUSB0"
+elif [ "$CONFIG" == "ONSHORE" ]; then
+    DEVICE="/dev/tty0:/dev/ttyUSB0"
 else
-    echo "Utilizzo: $0 [TEST|PRODUCTION]"
+    echo "USE AS: $0 [DEV|BMTEST|ONSHORE]"
+    echo "DEV = DUMMY MODE"
+    echo "BMTEST = A PRODUCTION MODE WITH TDK LAMBDA SUPPORT"
+    echo "ONSHORE = A PRODUCTION MODE WITHOUT TDK LAMBDA SUPPORT AND TEMPERATURE MON POWER OFF"
     #exit 1
-    CONFIG="PRODUCTION"
+    CONFIG="DEV"
     echo "Starting in default mode $CONFIG"
     DEVICE="/dev/ttyUSB0:/dev/ttyUSB0"
 fi

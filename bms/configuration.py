@@ -14,14 +14,24 @@ class Config(object):
     def init_app(app):
         pass
 
-class TEST(Config):
+class DUMMY(Config):
     USEDUMMY = True
+    TDK_LAMBDA = True
+    TDK_STATUS = "enabled"
 
-class PRODUCTION(Config):
+class BMTEST(Config):
     USEDUMMY = False
+    TDK_LAMBDA = True
+    TDK_STATUS = "enabled"
+
+class ONSHORE(Config):
+    USEDUMMY = False
+    TDK_LAMBDA = False
+    TDK_STATUS = "disabled"
 
 config = {
-    'TEST' : TEST,
-    'PRODUCTION' : PRODUCTION,
-    'default' : PRODUCTION
+    'DEV' : DUMMY,
+    'BMTEST' : BMTEST,
+    'ONSHORE' : ONSHORE,
+    'default' : DUMMY
 }

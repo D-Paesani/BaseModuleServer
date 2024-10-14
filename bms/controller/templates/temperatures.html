@@ -64,15 +64,15 @@
                                 <h4>Temp Max</h4>
                             </div>
                             <div class="col-sm-3">
-                                <input id='temp_alarm' type="text" name="temp" class="form-control" value="{{ temp }}" />     
+                                <input id='temp_alarm' type="text" name="temp" class="form-control" value="{{ temp }}" {{tdk_status}}/>     
                             </div>
                             <div class="col-sm-4 text-left">
                                 (Max value in C°)
                             </div>
                         </div>
                         <div class="row d-flex justify-content-center mt-4 ">
-                            <button id="setBtn" type="button" name="set" onclick="setTempAlarm()" class="btn btn-primary mr-1">Set</button>
-                            <button id="unsetBtn" type="button" name="unset" onclick="unsetTempAlarm()" class="btn btn-danger mr-1">Unset</button>
+                            <button id="setBtn" type="button" name="set" onclick="setTempAlarm()" class="btn btn-primary mr-1" {{tdk_status}}>Set</button>
+                            <button id="unsetBtn" type="button" name="unset" onclick="unsetTempAlarm()" class="btn btn-danger mr-1" {{tdk_status}}>Unset</button>
                         </div>
                     </form>
                 </div>

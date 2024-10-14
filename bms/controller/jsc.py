@@ -17,7 +17,7 @@ def initialize_jsc():
     global usedummy, logerrors, cmdlogfile, cmdformat
     with current_app.app_context():
         usedummy = current_app.config['USEDUMMY']
-        logerrors = False
+        logerrors = True
         cmdlogfile =  f'{BASEDIR}/logs/jsccmd.log'
 
         cmdformat = 'cd /bpd-software/host/python/console/ && python2 jsendcommand2.py  {ip} {args}'
