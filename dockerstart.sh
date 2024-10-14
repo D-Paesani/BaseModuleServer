@@ -5,6 +5,26 @@ docker rm -f bmtest
 CONTAINER_NAME="bmtest"
 CONFIG="$1"
 
+Help()
+{
+    echo "USE AS: $0 [DEV|BMTEST|ONSHORE]"
+    echo "DEV = DUMMY MODE"
+    echo "BMTEST = A PRODUCTION MODE WITH TDK LAMBDA SUPPORT"
+    echo "ONSHORE = A PRODUCTION MODE WITHOUT TDK LAMBDA SUPPORT AND TEMPERATURE MON POWER OFF"
+}
+
+while getopts ":h" option; do
+   case $option in
+      h) # display Help
+         Help
+         exit;;
+     \?) # incorrect option
+         echo "Error: Invalid option"
+         exit;;
+   esac
+done
+
+    
 if [ "$CONFIG" == "DEV" ]; then
     DEVICE="/dev/tty0:/dev/ttyUSB0"
 elif [ "$CONFIG" == "BMTEST" ]; then
