@@ -195,4 +195,19 @@ function refresh(s) {
 // Chiamata periodica per aggiornare lo stato per l'alarm temp
 setInterval(updateMonitoringStatus, 2000);  
 </script>
+
+
+<!-- GENERICS MODAL -->
+<div class="modal" id="spinner-modal" tabindex="-1" aria-labelledby="swm-spinner-label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="">
+      <div class="">
+        <div id="spinner" class="btn btn-primary position-fixed position-absolute top-50 start-50 translate-middle z-1 ">
+          <span class="spinner-border spinner-border-sm"></span>Loading...
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 </html>

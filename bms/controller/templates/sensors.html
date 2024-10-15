@@ -47,7 +47,7 @@
                                     <a class="dropdown-item" onclick='copyToClipboard({{ table_to_clip | tojson }})'> Copy to Clipboard</a>
                                  </li>
                                  <li>
-                                    <a class="dropdown-item" onclick='copyToClipboardPowertest({{ table_clip_power | tojson }})'> Clipboard PowerTest</a>
+                                    <a class="dropdown-item" onclick='copyToClipboardPowertest2({{ table_clip_power | tojson }})'> Clipboard PowerTest</a>
                                  </li>
                               </ul>
                         </div>
@@ -156,6 +156,35 @@
       }
       for (let row of rows) {
          csvContent += row.join('\t') + '\n';
+      }
+      
+      let tempElement = document.createElement("textarea");
+      tempElement.value = csvContent;
+      document.body.appendChild(tempElement);
+      tempElement.select();
+      document.execCommand("copy");
+      document.body.removeChild(tempElement);
+   }
+
+function copyToClipboardPowertest2(table) {
+      let csvContent = "";
+      let rows = [];
+
+      for (const [colname, param_name] of Object.entries(table)) {
+
+          for (let [i, [param_val]] of Object.entries(Object.entries(param_name))) {
+               i = parseInt(i);
+               if (!rows[i]) rows[i] = [];
+               rows[i].push(param_name[param_val]);            
+         }
+      }
+      for (let row of rows) {
+         let base = JSON.stringify(row).replace('[','').replace(']','').split(',');
+         let col1 = base[2];
+         let col2 = base[3].replace('.',',');
+         csvContent += col1 + '\t' + col2 + '\n';
+
+         //csvContent += row.join('\t') + '\n';
       }
       
       let tempElement = document.createElement("textarea");

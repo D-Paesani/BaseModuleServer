@@ -108,7 +108,8 @@
          requestBody['periph'] = name;
          requestBody['val'] = value;
          requestBody['du'] = '{{prefilldu}}'
-
+         const spinnerModal = new bootstrap.Modal(document.getElementById('spinner-modal'), { backdrop: 'static', keyboard: false });
+         spinnerModal.show();
          fetch('/peripherals', {
             method: 'POST',
             headers: {
@@ -118,6 +119,7 @@
          })
          .then(response => response.json())
          .then(data => {
+            spinnerModal.hide();
             console.log(data);
             const resp = data.response;
             const newstat = data.status;
