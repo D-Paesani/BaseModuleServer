@@ -369,6 +369,7 @@ def f_peripherals():
             return gettemplate(templ, msg=F'Error retrieving status: {ee}')
         
         templ['du'] = du
+        templ['prefilldu'] = du
         templ['peri_status'] = to_send
         # return jsonify(templ) #@mirko per diagnostica
         return gettemplate(templ, msg='Requesting status')
