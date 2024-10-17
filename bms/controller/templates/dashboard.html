@@ -189,11 +189,25 @@
 
 
 <script>
-    function readAll() {
-        event.preventDefault();
-        periphFunc();
-        sensorsFunc();
+    async function readAll() {
+        if (event) {
+            event.preventDefault();
+        }
+    
+        const spinnerModal = new bootstrap.Modal(document.getElementById('spinner-modal'), { backdrop: 'static', keyboard: false });
+        spinnerModal.show();
+    
+        try {
+            await periphFunc();
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            await sensorsFunc(); 
+        } catch (error) {
+            console.error("Errore durante la lettura:", error);
+        } finally {
+            spinnerModal.hide(); 
+        }
     }
+    
 const dashboard = true;
 let tableClipPower = 'e';
 
@@ -250,7 +264,9 @@ function confirmSubmit(action) {
     SENSORS MODULE FRAME
 */
     function sensorsFunc() {
-        event.preventDefault();
+        if (event) {
+            event.preventDefault();
+        }
 
         const duValue = document.querySelector('input[name="du"]').value;
         const formData = new FormData();
