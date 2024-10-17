@@ -144,7 +144,8 @@ def f_sensors():
 
         if isDash:
             print('dashboard request')
-            return jsonify ({'sensors' : {'table' : templ['table']}})
+            return jsonify ({'sensors' : {'table' : templ['table'],
+                                          'table_clip_power' : templ['table_clip_power']}})
         return gettemplate(templ, msg=F'Reading sensors on DU={du} with response:')    
     else:
         return gettemplate(templ, msg=F'Waiting for user input')
