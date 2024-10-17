@@ -2,9 +2,7 @@
 {% block content %}
 <div class="container-fluid">
     <div class="row d-flex justify-content-center">
-        
         <div class="row">
-      
             <div class="col-sm-4 text-right">
                <h3>DU =</h3>
             </div>
@@ -16,8 +14,9 @@
             </div>            
         </div>
     </div>
-<!--#####################################################  PERIPHERALS FUNC--> 
     <div class="row d-flex col-12">
+<!--#####################################################  PERIPHERALS FUNC--> 
+    
         <div class="col-6 justify-content-center">
             <div class="card  p-2 my-5">
                 <div class="card card-header bg-primary text-center">
@@ -68,80 +67,184 @@
                                      <i class="fa fa-circle text-success"> = PERIPHERAL IS ON</i> 
                                   </td>
                                   <td>
-                                     <i class="fa fa-circle-o text-danger"> = PERIPHERAL IS OFF</i> 
+                                     <i class="fa fa-circle text-danger"> = PERIPHERAL IS OFF</i> 
                                   </td>
                                </tr>
                             </tbody>
                             </table>
-                         </div> 
-                      </div>
-
-                   
+                        </div> 
+                    </div>
                 </div>
-       
-          </div>
+            </div>
         </div>
-<!--#####################################################-->
+    
+<!--##################################################### SENSORS MODULE-->
         <div class="col-6 justify-content-center">
             <div class="card  p-2 my-5">
-               <div class="card card-header bg-primary text-center">
-                     <div class="card-title  ">
-                           <h1 class="text-white">SENSORS MODULE</h1>
-                     </div>
-               </div>
-               <div class="card-body">
-                  <form action = "" method = "POST">
-                     <div class="row">
-                     </div>
+                <div class="card card-header bg-primary text-center">
+                        <div class="card-title  ">
+                            <h1 class="text-white">SENSORS MODULE</h1>
+                        </div>
+                </div>
+                <div class="card-body">
+                    <form action = "" method = "POST">
+                        <div class="row">
+                        </div>
 
-                     <div class="row d-flex justify-content-center mt-4">
+                        <div class="row d-flex justify-content-center mt-4">
                         <input type = "submit" value = "READ" name = "submit" onclick="sensorsFunc(event)" class="btn btn-primary">
-                     </div>
-      
-                     <div class="row d-flex justify-content-center mt-4">
+                        </div>
+        
+                        <div class="row d-flex justify-content-center mt-4">
                         <span class="fw-bold">{{msg}}</span>
-                     </div>
+                        </div>
                     
-                     <div class="card">
+                        <div class="card">
                         <div class="d-flex justify-content-center">
-                           <a class="icon" href="#" data-toggle="dropdown"><i class="fa fa-download fa-2x mt-4"></i></a>
-                              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow lg">
-                                 <li class="dropdown-header text-start">
-                                    <h6 class="text-primary">Export in</h6>
-                                 </li>
-                                 <li>
-                                    <a class="dropdown-item" onclick='exportxlsx()'> XLSX</a>
-                                 </li>
-                                 <li>
-                                    <a class="dropdown-item" onclick='copyToClipboard()'> Copy to Clipboard</a>
-                                 </li>
-                                 <li>
+                            <a class="icon" href="#" data-toggle="dropdown"><i class="fa fa-download fa-2x mt-4"></i></a>
+                                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow lg">
+                                    <li class="dropdown-header text-start">
+                                        <h6 class="text-primary">Export in</h6>
+                                    </li>
+  
+                                    <li>
                                     <a class="dropdown-item" onclick='copyToClipboardPowertest2()'> Clipboard PowerTest</a>
-                                 </li>
-                              </ul>
+                                    </li>
+                                </ul>
                         </div>
                         <div id='sensorsTable' class="card-body row d-flex justify-content-center mt-4">
-                           
                         </div>
-                     </div>
+                        </div>
+                    </form>
+                </div>
+                
+            </div>
+        </div>
+<!-- END ROW-->
+    </div>
+
+<!--########################################## SENDROW MODULE -->
+    <div class="row justify-content-center">
+        <div class="card  p-2 my-5">
+            <div class="card card-header bg-primary text-center">
+                  <div class="card-title  ">
+                        <h1 class="text-white">SENDRAW MODULE</h1>
+                  </div>
+            </div>
+            <div class="card-body">
+               <form  id="confirmForm">
+                  <div class="row">    
                      
-                  </form>
-               </div>
+                  </div>
+   
+                  <div class="row">
+   
+                     <div class="col-sm-4 text-right">
+                        <h3>CMD =</h3>
+                     </div>
+                     <div class="col-sm-3">
+                        <input type="text" name="cmd" class="form-control" value='VERSION' />
+                     </div>
+                     <div class="col-sm-4 text-left">
+                        (enter the command)
+                     </div>
                
-         </div>
+                  </div>
+                  <div class="row d-flex justify-content-center mt-4">
+
+                     <button type="button" class="btn btn-danger mr-4" data-toggle="modal" data-target="#confirmModal">SEND</button>
+                     <button type="button" class="btn btn-primary" onclick="confirmSubmit('PING')">PING</button>
+
+                  </div>
+                  <div class="row d-flex justify-content-center mt-4">
+                     <span class="fw-bold" id="msg"></span>
+                  </div>
+   
+                  <div class="row d-flex justify-content-center mt-4" id="answ">
+                  </div>
+                  
+               </form>
+            </div>  
+      </div>
+   </div>
+<div class="it-example-modal">
+<div class="modal" tabindex="-1" role="dialog" id="confirmModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmation needed</h5>
+            </div>
+            <div class="modal-body">
+                <p>Would you link to proceed ?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-primary btn-sm" type="button" data-dismiss="modal">Ritorna</button>
+                <a class="btn btn-primary btn-sm text-white" onclick="confirmSubmit('SEND')" role="button">Conferma</a>
+            </div>
         </div>
     </div>
-<!--##########################################-->
-    <div class="row justify-content-center">
-        3
-    </div>
 </div>
+
+
+
+
 <script>
     function readAll() {
         periphFunc();
         sensorsFunc();
     }
 const dashboard = true;
+let tableClipPower = 'e';
+
+/* 
+    SENDRAW MODULE FRAME
+*/
+function confirmSubmit(action) {
+    const duValue = document.querySelector('input[name="du"]').value;
+    const cmdValue = document.querySelector('input[name="cmd"]').value;
+    
+    const msg = document.getElementById("msg");
+    const answ = document.getElementById("answ");
+
+    console.log("Invio comando:", duValue, cmdValue);
+      
+    if (action == 'SEND') {
+        $('#confirmModal').modal('hide');
+
+        var formData = new FormData();
+        formData.append('submit', action);
+        formData.append('du', duValue);
+        formData.append('cmd', cmdValue);
+
+        fetch('/sendraw', {
+            method: 'POST',
+            body: formData,
+        }).then(response => response.json())
+        .then(data => {
+            console.log("Server Risposta:", data);
+            msg.innerHTML = data.msg;
+            answ.innerHTML = data.answ;           
+        })
+    }
+    else {
+        var formData = new FormData();
+        formData.append('submit', action);
+        formData.append('du', duValue);
+
+        fetch('/sendraw', {
+            method: 'POST',
+            body: formData,
+        }).then(response => response.json())
+        .then(data => {
+            console.log(data);
+            msg.innerHTML = data.msg;
+            answ.innerHTML = data.answ; 
+        })    
+    }
+}
+///////////////////////////////////////////////////////////
+
+
 /*
     SENSORS MODULE FRAME
 */
@@ -162,6 +265,7 @@ const dashboard = true;
         .then(data => {
             console.log(data);
             updateTable(data.sensors.table);
+            tableClipPower = data.sensors.table_clip_power;
         })
     }
     function updateTable(tableData) {
@@ -178,8 +282,44 @@ const dashboard = true;
             tableContainer.appendChild(tableElement);
         }
     }
+    function copyToClipboardPowertest2() {
+        const table = document.getElementById('sensorsTable');
+      
+        if (table) {
+            let csvContent = ''; // Header del CSV
+            const rows = table.querySelectorAll('tbody tr'); 
+    
+        
+            for (let i = 0; i < rows.length; i++) { 
+                const row = rows[i];
+                const columns = row.querySelectorAll('td'); 
+                if (columns.length > 0) {
+                    const adc = columns[0].innerText; 
+                    const value = columns[1].innerText.replace('.', ','); 
+                    csvContent += `${adc}\t${value}\n`; 
+                }
+            }
+    
+            // Copia negli appunti
+            const tempElement = document.createElement("textarea");
+            tempElement.value = csvContent;
+            document.body.appendChild(tempElement);
+            tempElement.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempElement);
+        } else {
+            alert("Nessun dato disponibile da copiare.");
+        }
+    }
+        /*
+
 ////////////////////////////////////////////////////////////////////////////
 
+
+
+/*
+    PERIPHERALS MODULE FRAME
+*/
 function periphFunc() {
     if (event) {
         event.preventDefault();
@@ -235,7 +375,7 @@ function periphFunc() {
                 const sws = peripherals[ph];
                 for (const [swname, sw] of Object.entries(sws)) {
                     const statusIcon = document.createElement('i');
-                    statusIcon.className = sw.sw_status === 1 ? 'fa fa-circle fa-2x text-success' : 'fa fa-circle-o fa-2x text-danger';
+                    statusIcon.className = sw.sw_status === 1 ? 'fa fa-circle fa-2x text-success' : 'fa fa-circle fa-2x text-danger';
                     statusCell.appendChild(statusIcon);
                     statusCell.append(` ${sw.sw_display}`);
                 }
@@ -277,6 +417,7 @@ function periphFunc() {
         });
     })
 }
+
 
 </script>
 
