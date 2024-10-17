@@ -1,0 +1,273 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row d-flex justify-content-center">
+        <div class="row">
+      
+            <div class="col-sm-4 text-right">
+               <h3>DU =</h3>
+            </div>
+            <div class="col-sm-3">
+               <input type="text" name="du" class="form-control" value={{prefilldu}} />     
+            </div>
+        </div>
+    </div>
+<!--#####################################################  PERIPHERALS FUNC--> 
+    <div class="row d-flex col-12">
+        <div class="col-6 justify-content-center">
+            <div class="card  p-2 my-5">
+                <div class="card card-header bg-primary text-center">
+                      <div class="card-title  ">
+                            <h1 class="text-white">PERIPHERALS MANAGER</h1>
+                      </div>
+                </div>
+                <div class="card-body">
+                   <form action = "" method = "GET">
+                      <div class="row">
+                         
+                      </div>
+                      <div class="row d-flex justify-content-center mt-4">
+                         <input type = "submit" value = "READ" name = "submit" onclick="periphFunc()" class="btn btn-primary">
+                      </div>
+                   </form>
+                   <div class="row d-flex justify-content-center fw-bold mt-4">
+                      {{ msg }}
+                   </div>
+       
+                   
+                      <div id="peripheralsTableContainer" class="row">
+                         <div class="card-body table-full-width table-responsive ">
+                            <table class="table table-default table-hover">
+                               <tr class="text-left fw-bold text-primary h5">
+                                  <th></th>
+                                  <th class="text-center">ON</th>
+                                  <th>OFF</th>
+                                  <th>STATUS</th>
+                               </tr>
+                               <tbody id="peripheralsTableBody" class="text-left">
+
+
+                               </tbody>
+                            </table>
+                         </div>
+                         <div class="card-body table-responsive ">
+                            <table class="table table-default table-hover">
+                               <tbody>
+                               <tr class="text-left fw-bold text-primary h5">
+                                  <td>
+                                     <i class="fa fa-power-off text-success"> = ON BUTTON</i> 
+                                  </td>
+                                  <td>
+                                     <i class="fa fa-power-off text-danger"> = OFF BUTTON</i> 
+                                  </td>
+                                  <td>
+                                     <i class="fa fa-circle text-success"> = PERIPHERAL IS ON</i> 
+                                  </td>
+                                  <td>
+                                     <i class="fa fa-circle-o text-danger"> = PERIPHERAL IS OFF</i> 
+                                  </td>
+                               </tr>
+                            </tbody>
+                            </table>
+                         </div> 
+                      </div>
+
+                   
+                </div>
+       
+          </div>
+        </div>
+<!--#####################################################-->
+        <div class="col-6 justify-content-center">
+            <div class="card  p-2 my-5">
+               <div class="card card-header bg-primary text-center">
+                     <div class="card-title  ">
+                           <h1 class="text-white">SENSORS MODULE</h1>
+                     </div>
+               </div>
+               <div class="card-body">
+                  <form action = "" method = "POST">
+                     <div class="row">
+                     </div>
+
+                     <div class="row d-flex justify-content-center mt-4">
+                        <input type = "submit" value = "READ" name = "submit" onclick="sensorsFunc(event)" class="btn btn-primary">
+                     </div>
+      
+                     <div class="row d-flex justify-content-center mt-4">
+                        <span class="fw-bold">{{msg}}</span>
+                     </div>
+                    
+                     <div class="card">
+                        <div class="d-flex justify-content-center">
+                           <a class="icon" href="#" data-toggle="dropdown"><i class="fa fa-download fa-2x mt-4"></i></a>
+                              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow lg">
+                                 <li class="dropdown-header text-start">
+                                    <h6 class="text-primary">Export in</h6>
+                                 </li>
+                                 <li>
+                                    <a class="dropdown-item" onclick='exportxlsx()'> XLSX</a>
+                                 </li>
+                                 <li>
+                                    <a class="dropdown-item" onclick='copyToClipboard()'> Copy to Clipboard</a>
+                                 </li>
+                                 <li>
+                                    <a class="dropdown-item" onclick='copyToClipboardPowertest2()'> Clipboard PowerTest</a>
+                                 </li>
+                              </ul>
+                        </div>
+                        <div id='sensorsTable' class="card-body row d-flex justify-content-center mt-4">
+                           
+                        </div>
+                     </div>
+                     
+                  </form>
+               </div>
+               
+         </div>
+        </div>
+    </div>
+<!--##########################################-->
+    <div class="row justify-content-center">
+        3
+    </div>
+</div>
+<script>
+const dashboard = true;
+/*
+    SENSORS MODULE FRAME
+*/
+    function sensorsFunc() {
+        event.preventDefault();
+
+        const duValue = document.querySelector('input[name="du"]').value;
+        const formData = new FormData();
+
+        formData.append('du', duValue);
+        formData.append('isDash', dashboard);
+
+        fetch('/sensors', {
+            method: 'POST',
+            body: formData
+            })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            updateTable(data.sensors.table);
+        })
+    }
+    function updateTable(tableData) {
+        let tableContainer = document.getElementById('sensorsTable');
+        tableContainer.innerHTML = ''; 
+    
+        for (const [key, table_html] of Object.entries(tableData)) {
+            const titleElement = document.createElement('div');
+            titleElement.innerHTML = `<span class="h6 fw-bold">${key}</span>`;
+            tableContainer.appendChild(titleElement);
+
+            const tableElement = document.createElement('div');
+            tableElement.innerHTML = table_html; 
+            tableContainer.appendChild(tableElement);
+        }
+    }
+////////////////////////////////////////////////////////////////////////////
+
+function periphFunc() {
+    if (event) {
+        event.preventDefault();
+    }
+
+    const duValue = document.querySelector('input[name="du"]').value;
+
+    fetch(`/peripherals?du=${duValue}&isDash=${dashboard}`, {
+        method: 'GET'
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        const peripherals = data.peripherals.peri_status; 
+        const tableBody = document.getElementById('peripheralsTableBody');
+        tableBody.innerHTML = ''; 
+
+        const renderOrder = ['veoc', 'switch_12V', 'beacon', 'hydrophone', 'rescue'];
+        for (const ph of renderOrder) {
+            if (peripherals[ph]) {
+                const row = document.createElement('tr');
+
+                // Nome della periferica
+                const phCell = document.createElement('td');
+                phCell.className = 'fw-bold text-primary h5 text-right align-middle';
+                phCell.textContent = ph.charAt(0).toUpperCase() + ph.slice(1); 
+                row.appendChild(phCell);
+
+                // Pulsante ON
+                const onCell = document.createElement('td');
+                const onButton = document.createElement('i');
+                onButton.id = ph;
+                onButton.name = ph;
+                onButton.className = 'fa fa-power-off fa-2x text-success toggles';
+                onButton.setAttribute('value', '1');
+                onCell.appendChild(onButton);
+                row.appendChild(onCell);
+
+                // Pulsante OFF
+                const offCell = document.createElement('td');
+                const offButton = document.createElement('i');
+                offButton.id = ph;
+                offButton.name = ph;
+                offButton.className = 'fa fa-power-off fa-2x text-danger toggles';
+                offButton.setAttribute('value', '0');
+                offCell.appendChild(offButton);
+                row.appendChild(offCell);
+
+                // Stato della periferica
+                const statusCell = document.createElement('td');
+                const sws = peripherals[ph];
+                for (const [swname, sw] of Object.entries(sws)) {
+                    const statusIcon = document.createElement('i');
+                    statusIcon.className = sw.sw_status === 1 ? 'fa fa-circle fa-2x text-success' : 'fa fa-circle-o fa-2x text-danger';
+                    statusCell.appendChild(statusIcon);
+                    statusCell.append(` ${sw.sw_display}`);
+                }
+                row.appendChild(statusCell);
+
+                tableBody.appendChild(row); // Aggiungi la riga alla tabella
+            }
+        }
+        const toggleVeoc = document.querySelectorAll(".toggles");
+        toggleVeoc.forEach((toggleButton) => {
+            toggleButton.addEventListener("click", () => {
+                const duValue = document.querySelector('input[name="du"]').value;
+                const value = toggleButton.getAttribute("value");
+                const idp = toggleButton.getAttribute("id");
+                const name = toggleButton.getAttribute("name");
+
+                const requestBody = {};
+                requestBody['periph'] = name;
+                requestBody['val'] = value;
+                requestBody['du'] = duValue;
+
+                const spinnerModal = new bootstrap.Modal(document.getElementById('spinner-modal'), { backdrop: 'static', keyboard: false });
+                spinnerModal.show();
+                fetch('/peripherals', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                    body: JSON.stringify(requestBody)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    spinnerModal.hide();
+                    console.log(data);
+                    periphFunc(); 
+                })
+            });  
+        });
+    })
+}
+
+</script>
+
+
+{% endblock %}

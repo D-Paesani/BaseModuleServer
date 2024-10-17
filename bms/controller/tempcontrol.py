@@ -16,7 +16,6 @@ def read_temp_wwrs(duno=None, ips=None):
             print('--> TEMPCTRL --> EXEC:',  cc)
             resp = subprocess.check_output(cc, shell=True).decode('utf-8')
             temps[f'TEMP_WWRS{ww}'] = int(resp.rsplit(' ')[-1])
-        
         return temps
 
     except Exception as ee:

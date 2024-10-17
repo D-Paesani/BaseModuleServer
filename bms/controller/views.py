@@ -74,6 +74,7 @@ def f_sensors():
     duClipboardDict = {}
     
     if request.method == 'POST':
+        isDash = request.form.get('isDash')
         
         try:
             du, templ['prefilldu'] = uu.parsestrlist(request.form.get('du'), typ=int)
@@ -141,6 +142,9 @@ def f_sensors():
         templ['table_to_clip'] = duClipboardDict
         templ['table'] = {f'DU{ddt[i]:03d}': tab.to_html(classes='table table-striped', index=True) for i, tab in enumerate(dd)}
 
+        if isDash:
+            print('dashboard request')
+            return jsonify ({'sensors' : {'table' : templ['table']}})
         return gettemplate(templ, msg=F'Reading sensors on DU={du} with response:')    
     else:
         return gettemplate(templ, msg=F'Waiting for user input')
@@ -331,11 +335,15 @@ def f_peripherals():
     if request.method == 'GET':
         
         try:
+            try:
+                isDash = request.args['isDash']
+            except:
+                isDash = False
             
             try:
                 du = request.args['du']
             except:
-                return gettemplate(templ, msg='Waiting for user input')
+                return gettemplate(templ, msg='Waiting for user input #error input#')
             
             to_send = {} 
                     
@@ -371,6 +379,10 @@ def f_peripherals():
         templ['du'] = du
         templ['prefilldu'] = du
         templ['peri_status'] = to_send
+
+        if isDash:
+            print('dash periph request')
+            return jsonify ({'peripherals' : templ})
         # return jsonify(templ) #@mirko per diagnostica
         return gettemplate(templ, msg='Requesting status')
         
@@ -395,6 +407,13 @@ def f_peripherals():
             pass # for future use
 
         return jsonify({'status' : 'status', 'response':True})
+    
+@cmd_blueprint.route('/dashboard', methods=['GET', 'POST'])
+@login_required
+def dashboard():
+    templ = dict(name='dashboard.html', prefilldu='0', du='')
+    return gettemplate(templ)
+
 
 import threading
 TEMP_THREAD = None
