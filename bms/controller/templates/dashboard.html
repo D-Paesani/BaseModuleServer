@@ -194,19 +194,20 @@
             event.preventDefault();
         }
     
-        const spinnerModal = new bootstrap.Modal(document.getElementById('spinner-modal'), { backdrop: 'static', keyboard: false });
-        spinnerModal.show();
+        //const spinnerModal = new bootstrap.Modal(document.getElementById('spinner-modal'), { backdrop: 'static', keyboard: false });
+        //spinnerModal.show();
     
         try {
             await periphFunc();
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            //await new Promise(resolve => setTimeout(resolve, 2000));
             await sensorsFunc(); 
         } catch (error) {
             console.error("Errore durante la lettura:", error);
-        } finally {
-            spinnerModal.hide(); 
-        }
+        } //finally {
+            //spinnerModal.hide();
+            
     }
+
     
 const dashboard = true;
 let tableClipPower = 'e';
@@ -274,12 +275,16 @@ function confirmSubmit(action) {
         formData.append('du', duValue);
         formData.append('isDash', dashboard);
 
+        const spinnerModal = new bootstrap.Modal(document.getElementById('spinner-modal'), { backdrop: 'static', keyboard: false });
+        spinnerModal.show();
+
         fetch('/sensors', {
             method: 'POST',
             body: formData
             })
         .then(response => response.json())
         .then(data => {
+            spinnerModal.hide(); 
             console.log(data);
             updateTable(data.sensors.table);
             tableClipPower = data.sensors.table_clip_power;
@@ -343,12 +348,15 @@ function periphFunc() {
     }
 
     const duValue = document.querySelector('input[name="du"]').value;
+    const spinnerModal = new bootstrap.Modal(document.getElementById('spinner-modal'), { backdrop: 'static', keyboard: false });
+    spinnerModal.show();
 
     fetch(`/peripherals?du=${duValue}&isDash=${dashboard}`, {
         method: 'GET'
     })
     .then(response => response.json())
     .then(data => {
+        spinnerModal.hide();
         console.log(data);
         const peripherals = data.peripherals.peri_status; 
         const tableBody = document.getElementById('peripheralsTableBody');
