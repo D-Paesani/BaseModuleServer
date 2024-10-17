@@ -205,6 +205,7 @@ function periphFunc() {
                 const onButton = document.createElement('i');
                 onButton.id = ph;
                 onButton.name = ph;
+                onButton.setAttribute('data-name', ph);
                 onButton.className = 'fa fa-power-off fa-2x text-success toggles';
                 onButton.setAttribute('value', '1');
                 onCell.appendChild(onButton);
@@ -215,6 +216,7 @@ function periphFunc() {
                 const offButton = document.createElement('i');
                 offButton.id = ph;
                 offButton.name = ph;
+                offButton.setAttribute('data-name', ph);
                 offButton.className = 'fa fa-power-off fa-2x text-danger toggles';
                 offButton.setAttribute('value', '0');
                 offCell.appendChild(offButton);
@@ -240,7 +242,8 @@ function periphFunc() {
                 const duValue = document.querySelector('input[name="du"]').value;
                 const value = toggleButton.getAttribute("value");
                 const idp = toggleButton.getAttribute("id");
-                const name = toggleButton.getAttribute("name");
+                //const name = toggleButton.getAttribute("name");
+                const name = toggleButton.getAttribute("data-name");
 
                 const requestBody = {};
                 requestBody['periph'] = name;

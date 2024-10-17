@@ -390,6 +390,7 @@ def f_peripherals():
         
         req = request.json
         du, periph2operate, status2write = int(req['du']), req['periph'], int(req['val'])
+        print('################# ', du, periph2operate, status2write)
 
         if periph2operate in jsc.peripheral_dict_BPD:     
             for ii in jsc.peripheral_dict_BPD[periph2operate]: 
