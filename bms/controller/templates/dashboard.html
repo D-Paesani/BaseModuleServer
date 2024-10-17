@@ -2,6 +2,7 @@
 {% block content %}
 <div class="container-fluid">
     <div class="row d-flex justify-content-center">
+        
         <div class="row">
       
             <div class="col-sm-4 text-right">
@@ -10,6 +11,9 @@
             <div class="col-sm-3">
                <input type="text" name="du" class="form-control" value={{prefilldu}} />     
             </div>
+            <div class="col-sm-4 text-left">
+                <input type="button" value="READ ALL" onclick="readAll()" class="btn btn-primary">
+            </div>            
         </div>
     </div>
 <!--#####################################################  PERIPHERALS FUNC--> 
@@ -133,6 +137,10 @@
     </div>
 </div>
 <script>
+    function readAll() {
+        periphFunc();
+        sensorsFunc();
+    }
 const dashboard = true;
 /*
     SENSORS MODULE FRAME
