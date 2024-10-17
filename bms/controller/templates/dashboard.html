@@ -14,7 +14,7 @@
             </div>            
         </div>
     </div>
-    <div class="row d-flex col-12">
+    <div class="row d-flex ">
 <!--#####################################################  PERIPHERALS FUNC--> 
     
         <div class="col-6 justify-content-center">
@@ -100,20 +100,20 @@
                         </div>
                     
                         <div class="card">
-                        <div class="d-flex justify-content-center">
-                            <a class="icon" href="#" data-toggle="dropdown"><i class="fa fa-download fa-2x mt-4"></i></a>
-                                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow lg">
-                                    <li class="dropdown-header text-start">
-                                        <h6 class="text-primary">Export in</h6>
-                                    </li>
-  
-                                    <li>
-                                    <a class="dropdown-item" onclick='copyToClipboardPowertest2()'> Clipboard PowerTest</a>
-                                    </li>
-                                </ul>
-                        </div>
-                        <div id='sensorsTable' class="card-body row d-flex justify-content-center mt-4">
-                        </div>
+                            <div class="d-flex justify-content-center">
+                                <a class="icon" href="#" data-toggle="dropdown"><i class="fa fa-download fa-2x mt-4"></i></a>
+                                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow lg">
+                                        <li class="dropdown-header text-start">
+                                            <h6 class="text-primary">Export in</h6>
+                                        </li>
+    
+                                        <li>
+                                        <a class="dropdown-item" onclick='copyToClipboardPowertest2()'> Clipboard PowerTest</a>
+                                        </li>
+                                    </ul>
+                            </div>
+                            <div id='sensorsTable' class="card-body row d-flex justify-content-center mt-4">
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -274,9 +274,9 @@ function confirmSubmit(action) {
         tableContainer.innerHTML = ''; 
     
         for (const [key, table_html] of Object.entries(tableData)) {
-            const titleElement = document.createElement('div');
-            titleElement.innerHTML = `<span class="h6 fw-bold">${key}</span>`;
-            tableContainer.appendChild(titleElement);
+            //const titleElement = document.createElement('div');
+            //titleElement.innerHTML = `<span class="h6 fw-bold">${key}</span>`;
+            //tableContainer.appendChild(titleElement);
 
             const tableElement = document.createElement('div');
             tableElement.innerHTML = table_html; 
