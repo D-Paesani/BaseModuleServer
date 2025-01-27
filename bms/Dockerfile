@@ -7,7 +7,7 @@ RUN apk update && apk upgrade \
 && apk add --no-cache openjdk11 \
 && apk add --no-cache python3-dev \
 && apk add --no-cache git \
-&& apk add --no-cache net-snmp-tools
+&& apk add --no-cache net-snmp-tools 
 # && apk add --no-cache build-base \
 # && apk add --no-cache subversion \
 # && apk add --no-cache gfortran \
@@ -31,16 +31,18 @@ RUN apk add --no-cache python2
 
 WORKDIR /app
 
-RUN mkdir -p ../logs && chmod 755 ../logs && touch ../logs/jsccmd.log 
-
 COPY . /app
+RUN mkdir -p /app/bms/controller/logs && chmod 755 /app/bms/controller/logs && touch /app/bms/controller/logs/jsccmd.log 
+
 RUN pip3 install -r requirements.txt --verbose | tee pip_install_log.txt 
 
 ARG clbclient=clb-client-v1.4.2-7f0365b9
 
-RUN git clone https://git.km3net.de/daq/shore-station/cu_tools.git /cu_tools
+RUN GIT_TOKEN=$(cat PAT) && \
+    git clone https://gitlab-ci-token:${GIT_TOKEN}@git.km3net.de/daq/shore-station/cu_tools.git /cu_tools
+
 # RUN git clone https://git.km3net.de/cnicolau/bpd-software.git      /bpd-software 
-RUN git clone --branch fix_jsendcommand2 https://git.km3net.de/cnicolau/bpd-software.git /bpd-software 
+RUN git clone --branch fix_jsendcommand2 https://gitlab-ci-token:${GIT_TOKEN}@git.km3net.de/cnicolau/bpd-software.git /bpd-software 
 
 ADD https://sftp.km3net.de/CLB_Builds/${clbclient}.tar.gz /tmp/
 RUN mkdir -p /clbtools && tar -xzf /tmp/${clbclient}.tar.gz -C /clbtools
@@ -64,7 +66,7 @@ RUN ln -s /cu_tools/NG-DUBase_java/NG_BPDCmd.class /bpd-software/host/python/con
 RUN ln -s /cu_tools/NG-DUBase_java/remote.jar /bpd-software/host/python/console/remote.jar
 RUN ln -s /cu_tools/NG-DUBase_java/execute.sh /bpd-software/host/python/console/execute.sh
 
-EXPOSE 5001
+EXPOSE 5002
 
 WORKDIR /app
 

@@ -8,7 +8,7 @@ Help() {
 }
 
 CONFIG="$1"
-PAT="sBovMGJDpjaTciciAx96"
+PAT=sBovMGJDpjaTciciAx96
 
 if [ "$CONFIG" == "DEV" ]; then
     DEVICE="/dev/ttyUSB0:/dev/ttyUSB0"
@@ -22,4 +22,4 @@ else
     DEVICE="/dev/ttyUSB0:/dev/ttyUSB0"
 fi
 
-CONFIG=$CONFIG DEVICE=$DEVICE docker-compose up --build
+CONFIG=$CONFIG DEVICE=$DEVICE GIT_TOKEN=$PAT docker-compose up --build
