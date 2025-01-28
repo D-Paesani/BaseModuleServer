@@ -46,6 +46,14 @@ def create_app(config_type):
     bcrypt.init_app(app)
     oauth.init_app(app)
 
+    with app.app_context():
+        from bms.web_manager import dbmanager
+        from bms.controller.jsc import initialize_jsc
+        dbmanager.is_db_created()
+        print('********'*4, 'Initialize JSC ', '********'*4)
+        initialize_jsc()
+        print('********'*4, 'JSC Initialized', '********'*4)
+        
     app.jinja_env.filters['split_comma'] = split_comma
 
     from bms.web_manager.routes import routes_blueprint

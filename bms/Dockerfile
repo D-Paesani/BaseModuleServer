@@ -37,9 +37,9 @@ RUN mkdir -p /app/bms/controller/logs && chmod 755 /app/bms/controller/logs && t
 RUN pip3 install -r requirements.txt --verbose | tee pip_install_log.txt 
 
 ARG clbclient=clb-client-v1.4.2-7f0365b9
+ARG GIT_TOKEN
 
-RUN GIT_TOKEN=$(cat PAT) && \
-    git clone https://gitlab-ci-token:${GIT_TOKEN}@git.km3net.de/daq/shore-station/cu_tools.git /cu_tools
+RUN git clone https://gitlab-ci-token:${GIT_TOKEN}@git.km3net.de/daq/shore-station/cu_tools.git /cu_tools
 
 # RUN git clone https://git.km3net.de/cnicolau/bpd-software.git      /bpd-software 
 RUN git clone --branch fix_jsendcommand2 https://gitlab-ci-token:${GIT_TOKEN}@git.km3net.de/cnicolau/bpd-software.git /bpd-software 

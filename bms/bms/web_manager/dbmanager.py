@@ -54,28 +54,31 @@ def load_user(email):
 def is_db_created():
     with current_app.app_context():
         db_file = current_app.config['SQLALCHEMY_DATABASE_URI'].replace('sqlite:///', '')
-        print(db_file)
+        print("db users > ", db_file)
         if not os.path.isfile(db_file):
-            db.create_all(bind_key=None)
-            db_admin = Users(username='guest', 
-                             password=generate_password_hash('guess').decode('utf-8'), 
-                             email='admin@email.com',
-                             source='local',
-                             role_id=1)
-            db.session.add(db_admin)
-            db.session.commit()
+            try:
+                db.create_all(bind_key=None)
+                db_admin = Users(username='guest', 
+                                password=generate_password_hash('guess').decode('utf-8'), 
+                                email='admin@email.com',
+                                source='local',
+                                role_id=1)
+                db.session.add(db_admin)
+                db.session.commit()
 
-            db_roles = Roles(id=3, name='reader', default=True, permissions=1)
-            db.session.add(db_roles)
-            db.session.commit()
+                db_roles = Roles(id=3, name='reader', default=True, permissions=1)
+                db.session.add(db_roles)
+                db.session.commit()
 
-            db_roles = Roles(id=2, name='edit', default=True, permissions=3)
-            db.session.add(db_roles)
-            db.session.commit()
+                db_roles = Roles(id=2, name='edit', default=True, permissions=3)
+                db.session.add(db_roles)
+                db.session.commit()
 
-            db_roles = Roles(id=1, name='admin', default=True, permissions=7)
-            db.session.add(db_roles)
-            db.session.commit()
+                db_roles = Roles(id=1, name='admin', default=True, permissions=7)
+                db.session.add(db_roles)
+                db.session.commit()
+            except Exception as e:
+                print(str(e))
         
         for bind_key, bind_uri in current_app.config['SQLALCHEMY_BINDS'].items():
             db_file = bind_uri.replace('sqlite:///', '')

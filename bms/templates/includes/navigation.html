@@ -34,30 +34,137 @@
     <button type="button" id="sidebarCollapse" class="btn btn-primary" data-toggle="collapse">
       <i class="fa fa-bars"></i>
     </button>
+
+    {% if tdk_lambda %}
+    <div class="container">
+      <div class="row align-items-center col-12">
+        <div id="lambda_status" class="col"></div>
+        <div id="lambda_turn" class="col"></div>
+        <button class="col badge badge-primary mr-2" onclick="lambda_dvc();">Get DVC</button>
+        <div class="col-3">
+          <div class="row">
+            <span>Measured Voltage:</span>
+            <span id="mv" class="text-success"></span>
+          </div>
+          <div class="row">
+            <span>Programmed Voltage:</span>
+            <span id="pv" class="text-success"></span>
+          </div>
+        </div>
+
+        <div class="col-3">
+          <div class="row">
+            <span>Measured Current:</span>
+            <span id="mc" class="text-success"></span>
+          </div>
+          <div class="row">
+            <span>Programmed Current:</span>
+            <span id="pc" class="text-success"></span>
+          </div>
+        </div>
+
+        <div class="col-3">
+          <div class="row">
+            <span>Over Voltage Set point:</span>
+            <span id="ov" class="text-success"></span>
+          </div>
+          <div class="row">
+            <span>Under Voltage Set point:</span>
+            <span id="uv" class="text-success"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
    
 
-      <div class="nav-item dropdown  float-end" id="dropdown-trigger">
-        <a class="nav-link dropdown-toggle dropstart fa fa-user-circle fa-2x" id="dropdown1" aria-expanded="false" href="#" data-toggle="dropdown"></a>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown1">
-          {% if current_user.is_authenticated %}
-            <li class="dropdown-header text-center">
-              <h6>{{ current_user.username }}</h6>
-            </li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-            <li class="nav-item text-center">
-              <span class="dropdown-header">Role: {{ current_user.get_role() }}</span>
-            </li>
-            <li class="nav-item text-center">
-              <a class="nav-link active fw-bold" aria-current="page" href="/logout">Logout</a>
-            </li> 
-          {% else %}
-            <li class="nav-item active text-center">
-              <a class="nav-link" href="/login">Login</a>
-            </li>
-          {% endif %}
-        </ul>
-      </div>
+    <div class="nav-item dropdown  float-end" id="dropdown-trigger">
+      <a class="nav-link dropdown-toggle dropstart fa fa-user-circle fa-2x" id="dropdown1" aria-expanded="false" href="#" data-toggle="dropdown"></a>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown1">
+        {% if current_user.is_authenticated %}
+          <li class="dropdown-header text-center">
+            <h6>{{ current_user.username }}</h6>
+          </li>
+          <li>
+            <hr class="dropdown-divider">
+          </li>
+          <li class="nav-item text-center">
+            <span class="dropdown-header">Role: {{ current_user.get_role() }}</span>
+          </li>
+          <li class="nav-item text-center">
+            <a class="nav-link active fw-bold" aria-current="page" href="/logout">Logout</a>
+          </li> 
+        {% else %}
+          <li class="nav-item active text-center">
+            <a class="nav-link" href="/login">Login</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
   </div>
 </nav>
+
+{% if tdk_lambda %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    let lambda_status = document.getElementById("lambda_status");
+    let lambda_turn = document.getElementById("lambda_turn");
+    fetch('/lambda_status')
+      .then(response => response.json())
+      .then(data => {
+        if (data.response == 'ok') {
+          lambda_status.innerHTML = 'Lambda Status: <i class="fa fa-circle text-success">ON';
+          lambda_turn.innerHTML = "<button onclick=\"lambda_turn_off()\" class=\"badge badge-danger\">TURN OFF</button>";
+        }
+        else if (data.response == 'ok') {
+          lambda_status.innerHTML = 'Lambda Status: <i class="fa fa-circle text-danger">OFF';
+          lambda_turn.innerHTML = "<button onclick=\"lambda_turn_on()\" class=\"badge badge-success\">TURN ON</button>";
+        }
+        else {
+          lambda_status.innerHTML = 'No Lambda';
+        }
+      })
+  })
+
+  function lambda_turn_on() {
+    fetch('/lambda_on')
+      .then(response => response.json())
+      .then(data => {
+        if (data.response == 'ok') {
+          lambda_status.innerHTML = 'Lambda Status: <i class="fa fa-circle text-success">ON';
+          lambda_turn.innerHTML = "<button onclick=\"lambda_turn_off()\" class=\"badge badge-danger\">TURN OFF</button>";
+        }
+      })
+  }
+  function lambda_turn_off() {
+    fetch('/lambda_off')
+      .then(response => response.json())
+      .then(data => {
+        if (data.response == 'ok') {
+          lambda_status.innerHTML = 'Lambda Status: <i class="fa fa-circle text-danger">OFF';
+          lambda_turn.innerHTML = "<button onclick=\"lambda_turn_on()\" class=\"badge badge-success\">TURN ON</button>";
+        }
+      })
+  }
+  function lambda_dvc() {
+    fetch('/lambda_dvc')
+      .then(response => response.json())
+      .then(data => {
+        let mv = data.response["Measured Voltage"];
+        let pv = data.response["Programmed Voltage"];
+        let mc = data.response["Measured Current"];
+        let pc = data.response["Programmed Current"];
+        let ov = data.response["Over Voltage Set point"];
+        let uv = data.response["Under Voltage Set point"];
+
+        document.getElementById("mv").innerText = mv;
+        document.getElementById("pv").innerText = pv;
+        document.getElementById("mc").innerText = mc;
+        document.getElementById("pc").innerText = pc;
+        document.getElementById("ov").innerText = ov;
+        document.getElementById("uv").innerText = uv;
+      })
+  }
+
+</script>
+{% endif %}

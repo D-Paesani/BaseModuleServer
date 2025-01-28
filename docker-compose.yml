@@ -1,8 +1,10 @@
-version: '3'
-
 services:
   bms:
-    build: ./bms
+    build: 
+      context:
+        ./bms
+      args:
+        GIT_TOKEN: ${GIT_TOKEN}
     container_name: bms
     image: bms_image
     restart: always
@@ -12,6 +14,7 @@ services:
       - FLASK_CONFIG=${CONFIG}
     volumes:
       - ./bms/controller/logs:/app/bms/controller/logs/
+      - ./bms:/app
       
   nginx:
     build: ./nginx

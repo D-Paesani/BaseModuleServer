@@ -9,4 +9,4 @@ source google_export.sh
 #pip3 install -r requirements.txt
 
 #gunicorn -w 4 -b 0.0.0.0:5002 app:app
-python3 -m flask run --host=0.0.0.0 --port=5002
+python3 -u -m flask run --host=0.0.0.0 --port=5002 --debug
