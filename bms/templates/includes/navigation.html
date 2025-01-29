@@ -112,6 +112,7 @@
     fetch('/lambda_status')
       .then(response => response.json())
       .then(data => {
+        alert(data.response);
         if (data.response == 'ON') {
           lambda_status.innerHTML = 'Lambda Status: <i class="fa fa-circle text-success">ON';
           lambda_turn.innerHTML = "<button onclick=\"lambda_turn_off()\" class=\"badge badge-danger\">TURN OFF</button>";

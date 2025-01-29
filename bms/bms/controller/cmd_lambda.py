@@ -25,7 +25,7 @@ def lambda_status():
     command = ['/app/bms/tdk_lambda.py', 'status']
     print(command)
     try:
-        output = subprocess.check_output(command, universal_newlines=True).split('=>')[1].strip()
+        output = subprocess.check_output(command, universal_newlines=True)#.split('=>')[1].strip()
     except Exception as e:
         print(str(e))
     print(output) #OFF | #ON
