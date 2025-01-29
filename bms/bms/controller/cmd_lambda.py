@@ -23,8 +23,11 @@ def to_json(text):
 def lambda_status():
     command = ['/app/bms/tdk_lambda.py', 'status']
     print(command)
-    output = subprocess.check_output(command, universal_newlines=True).split('=>')[1].strip()
-    #print(output) #OFF | #ON
+    try:
+        output = subprocess.check_output(command, universal_newlines=True).split('=>')[1].strip()
+    except Exception as e:
+        print(str(e))
+    print(output) #OFF | #ON
     return jsonify ({'response' : output})
 
 @tdk_blueprint.route('/lambda_on')
