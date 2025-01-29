@@ -65,11 +65,11 @@
 
         <div class="col-3">
           <div class="row">
-            <span>Over Voltage Set point:</span>
+            <span>Over Voltage Protection:</span>
             <span id="ov" class="text-success"></span>
           </div>
           <div class="row">
-            <span>Under Voltage Set point:</span>
+            <span>Under Voltage Limit:</span>
             <span id="uv" class="text-success"></span>
           </div>
         </div>
@@ -155,8 +155,8 @@
         let pv = data.response["Programmed Voltage"];
         let mc = data.response["Measured Current"];
         let pc = data.response["Programmed Current"];
-        let ov = data.response["Over Voltage Set point"];
-        let uv = data.response["Under Voltage Set point"];
+        let ov = data.response["Over Voltage Protection"];
+        let uv = data.response["Under Voltage Limit"];
 
         document.getElementById("mv").innerText = mv;
         document.getElementById("pv").innerText = pv;

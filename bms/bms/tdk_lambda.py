@@ -33,8 +33,8 @@ class Tdk():
               \nProgrammed Voltage {Fore.GREEN}{Back.BLACK}{o[1]}{Style.RESET_ALL}\
               \nMeasured Current {Fore.GREEN}{Back.BLACK}{o[2]}{Style.RESET_ALL}\
               \nProgrammed Current {Fore.GREEN}{Back.BLACK}{o[3]}{Style.RESET_ALL}\
-              \nOver Voltage Set point {Fore.GREEN}{Back.BLACK}{o[4]}{Style.RESET_ALL}\
-              \nUnder Voltage Set point {Fore.GREEN}{Back.BLACK}{o[5]}{Style.RESET_ALL}")
+              \nOver Voltage Protection {Fore.GREEN}{Back.BLACK}{o[4]}{Style.RESET_ALL}\
+              \nUnder Voltage Limit {Fore.GREEN}{Back.BLACK}{o[5]}{Style.RESET_ALL}")
     
     def status(self):
         """Return the output ON/OFF status"""
