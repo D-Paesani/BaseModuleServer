@@ -23,9 +23,9 @@ def to_json(text):
 def lambda_status():
     command = ['/app/bms/tdk_lambda.py', 'status']
     print(command)
-    #output = subprocess.check_output(command, universal_newlines=True).split('=>')[1].strip()
+    output = subprocess.check_output(command, universal_newlines=True).split('=>')[1].strip()
     #print(output) #OFF | #ON
-    return jsonify ({'response' : 'ok'})
+    return jsonify ({'response' : output})
 
 @tdk_blueprint.route('/lambda_on')
 @login_required
@@ -54,13 +54,13 @@ def lambda_dvc():
     output = remove_ansi_escape_sequences(output).split('\n')
     print(output)
     #output dummy
-    output= ["Measured Voltage 363.12              ",
-    "Programmed Voltage 363.04              ",
-    "Measured Current 0.0000              ",
-    "Programmed Current 2.7004              ",
-    "Over Voltage Set point 393              ",
-    "Under Voltage Set point 310",
-    ""]
+    # output= ["Measured Voltage 363.12              ",
+    # "Programmed Voltage 363.04              ",
+    # "Measured Current 0.0000              ",
+    # "Programmed Current 2.7004              ",
+    # "Over Voltage Protection 393              ",
+    # "Under Voltage Limit 310",
+    # ""]
     result = {}
     for text in output:
         key, value = to_json(text)
