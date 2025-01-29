@@ -15,6 +15,7 @@ services:
     volumes:
       - ./bms/controller/logs:/app/bms/controller/logs/
       - ./bms:/app
+    devices:
       - ./dev/ttyUSB0:/dev/ttyUSB0
       
   nginx:
