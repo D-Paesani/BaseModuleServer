@@ -112,7 +112,6 @@
     fetch('/lambda_status')
       .then(response => response.json())
       .then(data => {
-        alert(data.response);
         if (data.response == 'ON') {
           lambda_status.innerHTML = 'Lambda Status: <i class="fa fa-circle text-success">ON';
           lambda_turn.innerHTML = "<button onclick=\"lambda_turn_off()\" class=\"badge badge-danger\">TURN OFF</button>";
@@ -131,9 +130,12 @@
     fetch('/lambda_on')
       .then(response => response.json())
       .then(data => {
-        if (data.response == 'ok') {
+        if (data.response == 'OK') {
           lambda_status.innerHTML = 'Lambda Status: <i class="fa fa-circle text-success">ON';
           lambda_turn.innerHTML = "<button onclick=\"lambda_turn_off()\" class=\"badge badge-danger\">TURN OFF</button>";
+        }
+        else {
+          alert('Lambda response error');
         }
       })
   }
@@ -141,9 +143,12 @@
     fetch('/lambda_off')
       .then(response => response.json())
       .then(data => {
-        if (data.response == 'ok') {
+        if (data.response == 'OK') {
           lambda_status.innerHTML = 'Lambda Status: <i class="fa fa-circle text-danger">OFF';
           lambda_turn.innerHTML = "<button onclick=\"lambda_turn_on()\" class=\"badge badge-success\">TURN ON</button>";
+        }
+        else {
+          alert('Lambda response error');
         }
       })
   }
