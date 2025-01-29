@@ -9,18 +9,18 @@ Help() {
 }
 
 CONFIG="$1"
-DEVICE=""
+#DEVICE=""
 PAT=$(head -n 1 PAT)
 OPTS=""
 
 if [ "$CONFIG" == "DEV" ]; then
-    DEVICE="/dev/ttyUSB0:/dev/ttyUSB0"
+#    DEVICE="/dev/ttyUSB0:/dev/ttyUSB0"
     OPTS="docker compose up"
 elif [ "$CONFIG" == "BMTEST" ]; then
-    DEVICE="/dev/ttyUSB0:/dev/ttyUSB0"
+#    DEVICE="/dev/ttyUSB0:/dev/ttyUSB0"
     OPTS="docker compose up"
 elif [ "$CONFIG" == "ONSHORE" ]; then
-    DEVICE="/dev/tty0:/dev/ttyUSB0"
+#    DEVICE="/dev/tty0:/dev/ttyUSB0"
     OPTS="docker compose up"
 elif [ "$CONFIG" == "BUILD" ]; then
     OPTS="docker compose build"
@@ -28,4 +28,4 @@ else
     Help
 fi
 
-CONFIG=$CONFIG DEVICE=$DEVICE GIT_TOKEN=$PAT $OPTS
+CONFIG=$CONFIG GIT_TOKEN=$PAT $OPTS
