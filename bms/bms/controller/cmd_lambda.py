@@ -21,6 +21,7 @@ def to_json(text):
 @tdk_blueprint.route('/lambda_status')
 @login_required
 def lambda_status():
+    output = ''
     command = ['/app/bms/tdk_lambda.py', 'status']
     print(command)
     try:
