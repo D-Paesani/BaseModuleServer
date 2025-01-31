@@ -35,7 +35,7 @@
       <i class="fa fa-bars"></i>
     </button>
 
-    {% if tdk_lambda %}
+    {% if tdk_lambda and current_user.is_authenticated %}
     <div class="container">
       <div class="row align-items-center col-12">
         <div id="lambda_status" class="col"></div>
@@ -104,7 +104,7 @@
   </div>
 </nav>
 
-{% if tdk_lambda %}
+{% if tdk_lambda and current_user.is_authenticated %}
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     let lambda_status = document.getElementById("lambda_status");
