@@ -42,7 +42,8 @@ ARG GIT_TOKEN
 RUN git clone https://gitlab-ci-token:${GIT_TOKEN}@git.km3net.de/daq/shore-station/cu_tools.git /cu_tools
 
 # RUN git clone https://git.km3net.de/cnicolau/bpd-software.git      /bpd-software 
-RUN git clone --branch fix_jsendcommand2 https://gitlab-ci-token:${GIT_TOKEN}@git.km3net.de/cnicolau/bpd-software.git /bpd-software 
+#branch fix_jsendcommand2 #py3-debian-onlyconsole
+RUN git clone --branch py3-debian-onlyconsole https://gitlab-ci-token:${GIT_TOKEN}@git.km3net.de/cnicolau/bpd-software.git /bpd-software 
 
 ADD https://sftp.km3net.de/CLB_Builds/${clbclient}.tar.gz /tmp/
 RUN mkdir -p /clbtools && tar -xzf /tmp/${clbclient}.tar.gz -C /clbtools

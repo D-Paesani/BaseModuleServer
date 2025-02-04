@@ -1,16 +1,9 @@
+Copy the 3 files pointed in the .gitignore 
 
+use ./dockerstart <COMMAND> 
 
-
--> docker build -t bmtest . (or make.sh) -> copy the files mentioned in the gitignore file -> ./dockerun.sh
--> for next runs use ./dockerstart.sh
-
-
-ADD  /Users/dp/Documents/Software/Python/km3net/logs ./logs 
-
-sudo docker run -v -it -p 5001:5001 -d bmserver -v /Users/dp/Documents/Software/Python/km3net/bmsvol:./var
-sudo docker run -v /Users/dp/Documents/Software/Python/km3net/bmsvol:/mypath -it -p 5001:5001 -d bmserver
-
-docker images -a   
-docker ps -a
-
-docker rmi -f bmserver   
+COMMAND LIST:
+	DEV = DUMMY MODE"
+	BMTEST = A PRODUCTION MODE WITH TDK LAMBDA SUPPORT"
+	ONSHORE = A PRODUCTION MODE WITHOUT TDK LAMBDA SUPPORT AND TEMPERATURE MON POWER OFF"
+	BUILD = RUN A DOCKER COMPOSE BUILD"
