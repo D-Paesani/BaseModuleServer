@@ -9,6 +9,7 @@ Help() {
 
     echo "EXAMPLE: ./dockerstart BMTEST /dev/ttyUSB3"
     echo "OR TO USE DEFAULT DEVICE ./dockerstart DEV"
+    echo "IF YOU HAVE DEV MOUNT PROBLEMS ./dockerstart DEV /dev/null"
 }
 
 Set_device() {

@@ -4,7 +4,7 @@ from .dbmanager import Temperature
 from . import tempcontrol
 from time import sleep
 import concurrent.futures
-import bms.controller.bms_utils  as uu
+import bms.controller.bms_utils as uu
 
 
 import threading
