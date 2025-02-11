@@ -193,6 +193,11 @@
         if (event) {
             event.preventDefault();
         }
+        fetch('/dashboard', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({du : document.querySelector('input[name="du"]').value })
+        })
         periphFunc();
         setTimeout(() => {
             sensorsFunc();

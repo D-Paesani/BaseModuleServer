@@ -12,11 +12,12 @@ services:
       - "5002"
     environment:
       - FLASK_CONFIG=${CONFIG}
+      - FLASK_DEVICE=${DEVICE}
     volumes:
       - ./bms/controller/logs:/app/bms/controller/logs/
       - ./bms:/app
     devices:
-      - ./dev/ttyUSB0:/dev/ttyUSB0
+      - ${DEVICE}:/dev/ttyUSB0
     privileged: true
       
   nginx:

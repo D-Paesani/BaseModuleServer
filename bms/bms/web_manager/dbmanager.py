@@ -6,6 +6,7 @@ from flask_bcrypt import generate_password_hash
 from flask_login import UserMixin, AnonymousUserMixin
 from .roles import Permission, Roles
 #from ..controller.dbmanager import DeviceType
+from bms.controller.dbmanager import Temperature
 
 class Users(db.Model, UserMixin):
 
@@ -54,7 +55,7 @@ def load_user(email):
 def is_db_created():
     with current_app.app_context():
         db_file = current_app.config['SQLALCHEMY_DATABASE_URI'].replace('sqlite:///', '')
-        print("db users > ", db_file)
+        print("db users => ", db_file)
         if not os.path.isfile(db_file):
             try:
                 db.create_all(bind_key=None)
@@ -82,7 +83,7 @@ def is_db_created():
         
         for bind_key, bind_uri in current_app.config['SQLALCHEMY_BINDS'].items():
             db_file = bind_uri.replace('sqlite:///', '')
-            print(db_file)
+            print("db temperatures => ", db_file)
             if not os.path.isfile(db_file):
                 db.create_all(bind_key="secondary")
                 

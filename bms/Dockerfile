@@ -63,9 +63,9 @@ RUN chmod +x /cu_tools/NG-DUBase_java/execute.sh
 WORKDIR /cu_tools/NG-DUBase_java/
 RUN sh comp_only.sh NG_BPDCmd
 
-RUN ln -s /cu_tools/NG-DUBase_java/NG_BPDCmd.class /bpd-software/host/python/console/NG_BPDCmd.class
-RUN ln -s /cu_tools/NG-DUBase_java/remote.jar /bpd-software/host/python/console/remote.jar
-RUN ln -s /cu_tools/NG-DUBase_java/execute.sh /bpd-software/host/python/console/execute.sh
+# RUN ln -s /cu_tools/NG-DUBase_java/NG_BPDCmd.class /bpd-software/host/python/console/NG_BPDCmd.class
+# RUN ln -s /cu_tools/NG-DUBase_java/remote.jar /bpd-software/host/python/console/remote.jar
+# RUN ln -s /cu_tools/NG-DUBase_java/execute.sh /bpd-software/host/python/console/execute.sh
 
 EXPOSE 5002
 

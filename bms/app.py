@@ -2,7 +2,8 @@ from bms.web_manager import create_app, dbmanager
 from bms.controller.jsc import initialize_jsc
 import os
 
-print('GET ENV => ',os.getenv('FLASK_CONFIG'))
+print('BMS CONFIG MODE => ',os.getenv('FLASK_CONFIG'))
+print('DEVICE MOUNTED => ',os.getenv('FLASK_DEVICE'))
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 
 # @app.before_first_request
