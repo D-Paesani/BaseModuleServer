@@ -17,7 +17,7 @@ services:
       - ./bms/controller/logs:/app/bms/controller/logs/
       - ./bms:/app
     devices:
-      - ${DEVICE}:/dev/ttyUSB0
+      - ${DEVICE}:/dev/ttyUSB9
     privileged: true
       
   nginx:
