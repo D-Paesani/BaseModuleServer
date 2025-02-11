@@ -35,6 +35,7 @@ elif [ "$CONFIG" == "ONSHORE" ]; then
     OPTS="docker compose up"
 elif [ "$CONFIG" == "BUILD" ]; then
     OPTS="docker compose build"
+    DEVICE=$(Set_device "/dev/null" "$2")
 else
     Help
 fi
