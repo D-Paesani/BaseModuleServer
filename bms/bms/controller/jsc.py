@@ -80,7 +80,7 @@ class jcmd:
 
             cc = self.command.format(ip=ip, args=' '.join([cmd, aa]))
             print('--> JSC --> EXEC:',  cc)
-            resp = subprocess.check_output(cc, shell=True).decode('utf-8')
+            resp = subprocess.check_output(cc, shell=True, timeout=3).decode('utf-8')
 
             pp = {}
             pp['du'] = du

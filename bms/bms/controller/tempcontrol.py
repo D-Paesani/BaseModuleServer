@@ -14,8 +14,11 @@ def read_temp_wwrs(duno=None, ips=None):
             print(ii)
             cc =  f'snmpwalk -v2c -c public {ii} .1.3.6.1.4.1.96.100.7.1.3.1'
             print('--> TEMPCTRL --> EXEC:',  cc)
-            resp = subprocess.check_output(cc, shell=True).decode('utf-8')
-            temps[f'TEMP_WWRS{ww}'] = int(resp.rsplit(' ')[-1])
+            try:
+                resp = subprocess.check_output(cc, shell=True, timeout=3).decode('utf-8')
+                temps[f'TEMP_WWRS{ww}'] = int(resp.rsplit(' ')[-1])
+            except:
+                temps[f'TEMP_WWRS{ww}'] = 1
         return temps
 
     except Exception as ee:
@@ -27,8 +30,11 @@ def read_temp_fpga(duno):
     try: 
         cc = f'/clbtools/clb-client-v1.4.2-7f0365b9/bin/cmdr {uu.getbaseip(duno)} var.get sys.fpga_temp'
         print('--> TEMPFPGA --> EXEC:', cc)
-        resp = subprocess.check_output(cc, shell=True).decode('utf-8')
-        return {'TEMP_FPGA': int(resp.rsplit(' ')[-2][1:],16)/100.0}
+        try:
+            resp = subprocess.check_output(cc, shell=True, timeout=3).decode('utf-8')
+            return {'TEMP_FPGA': int(resp.rsplit(' ')[-2][1:],16)/100.0}
+        except:
+            return {'TEMP_FPGA' : 1}
         
     except Exception as ee:
         print('--> TEMPFPGA --> ERROR:', ee)
@@ -36,8 +42,13 @@ def read_temp_fpga(duno):
 
 
 def read_temp_dul_t1_t2(duno):
-    temp = jsc.commands['sensors_val'].exec(duno, args=None)
+    try:
+        temp = jsc.commands['sensors_val'].exec(duno, args=None)
 
-    return {'TEMP_DUL' : temp['DUL_BOARDTEMP_VALUE'][1]},\
-            {'TEMP_1' : temp['TEMP1_VALUE'][1]},\
-            {'TEMP_2' : temp['TEMP2_VALUE'][1]}
+        return {'TEMP_DUL' : temp['DUL_BOARDTEMP_VALUE'][1]},\
+                {'TEMP_1' : temp['TEMP1_VALUE'][1]},\
+                {'TEMP_2' : temp['TEMP2_VALUE'][1]}
+    except:
+        return {'TEMP_DUL' : 1},\
+                {'TEMP_1' : 1},\
+                {'TEMP_2' : 1}
