@@ -11,7 +11,7 @@ class Tdk():
 
     def con(self):
         try:
-            s = serial.Serial("/dev/ttyUSB9")
+            s = serial.Serial("/dev/ttyUSB0")
             s.baudrate=9600
             return s
         except Exception as e:

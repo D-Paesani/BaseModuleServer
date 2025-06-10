@@ -20,7 +20,7 @@ def initialize_jsc():
         logerrors = True
         cmdlogfile =  f'{BASEDIR}/logs/jsccmd.log'
 
-        cmdformat = 'cd /bpd-software/host/python/console/ && python2 jsendcommand2.py  {ip} {args}'
+        cmdformat = 'cd /bpd-software/host/python/console/ && python3 jsendcommand2.py  {ip} {args}'
         cmdformat = 'python2 %s/jsendcommand_dummy.py {ip} {args}' % (BASEDIR) if usedummy else cmdformat
 
 
@@ -68,6 +68,8 @@ class jcmd:
         self.parser_opt = parser_opt
         self.params = params if type(parser_opt) is not str else [F'{ii}_{parser_opt}' for ii in params]
 
+        if self.cmd == 'SWITCH_CONTROL' or self.cmd == 'RESCUE_ENABLE':
+            self.command = 'cd /bpd-software/host/python/console/ && python3 jsendcommand.py {args}'
     def exec(self, du, args=None):        
         try:
             aa = '' if (self.args is None) or (args is None) else ' '.join([str(args[ii]) for ii in self.args])
