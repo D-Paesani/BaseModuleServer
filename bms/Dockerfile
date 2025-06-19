@@ -42,8 +42,8 @@ ARG GIT_TOKEN
 RUN git clone https://gitlab-ci-token:${GIT_TOKEN}@git.km3net.de/daq/shore-station/cu_tools.git /cu_tools
 
 # RUN git clone https://git.km3net.de/cnicolau/bpd-software.git      /bpd-software 
-#branch fix_jsendcommand2 #py3-debian-onlyconsole
-RUN git clone --branch py3-debian-onlyconsole https://gitlab-ci-token:${GIT_TOKEN}@git.km3net.de/cnicolau/bpd-software.git /bpd-software 
+#branch fix_jsendcommand2 #py3-debian-onlyconsole #patch_python3_jsendcommand
+RUN git clone --branch patch_python3_jsendcommand https://gitlab-ci-token:${GIT_TOKEN}@git.km3net.de/cnicolau/bpd-software.git /bpd-software 
 
 ADD https://sftp.km3net.de/CLB_Builds/${clbclient}.tar.gz /tmp/
 RUN mkdir -p /clbtools && tar -xzf /tmp/${clbclient}.tar.gz -C /clbtools
@@ -67,7 +67,9 @@ RUN sh comp_only.sh NG_BPDCmd
 # RUN ln -s /cu_tools/NG-DUBase_java/remote.jar /bpd-software/host/python/console/remote.jar
 # RUN ln -s /cu_tools/NG-DUBase_java/execute.sh /bpd-software/host/python/console/execute.sh
 
-EXPOSE 5002
+EXPOSE 5001
+
+COPY jsendcommand3.py /bpd-software/host/python/console/jsendcommand3.py
 
 WORKDIR /app
 

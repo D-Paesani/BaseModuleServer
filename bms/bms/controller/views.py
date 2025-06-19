@@ -70,6 +70,7 @@ def f_dumpsensor(duid):
 @login_required
 def f_sensors(): 
     templ = dict(name='sensors.html', prefilldu='0', table='') 
+    templ['SENSOR'] = current_app.config['SENSOR']
     dd, ddt = [], []
     duClipboardDict = {}
     

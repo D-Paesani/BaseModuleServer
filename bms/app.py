@@ -14,5 +14,5 @@ app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 #     print('********'*4, 'JSC Initialized', '********'*4)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5002)
+    app.run(debug=True, port=5001)
     

@@ -1,6 +1,5 @@
 {% extends "layouts/base.html" %}
 {% block content %}
-
       <div class="container">
          <div class="card  p-2 my-5">
                <div class="card card-header bg-primary text-center">
@@ -47,7 +46,7 @@
                                     <a class="dropdown-item" onclick='copyToClipboard({{ table_to_clip | tojson }})'> Copy to Clipboard</a>
                                  </li>
                                  <li>
-                                    <a class="dropdown-item" onclick='copyToClipboardPowertest({{ table_clip_power | tojson }})'> Clipboard PowerTest</a>
+                                    <a class="dropdown-item" onclick='{{SENSOR}}({{ table_clip_power | tojson }})'> Clipboard PowerTest</a>
                                  </li>
                               </ul>
                         </div>

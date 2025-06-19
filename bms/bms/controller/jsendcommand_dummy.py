@@ -156,3 +156,20 @@ elif "VERSION" in aaa:
 #     print("Received packet:")
 #     print("    Response payload:")
 #     print("        ENABLESTATE = DISABLED" )
+
+
+
+
+'''
+for field in command.response_payload:
+    s = '        {} = {} '.format(field.name, rawvalues[field_idx])
+    try:
+        if convertedvals:# and field_idx < len(convertedvals):       
+            if convertedvals[field_idx][0]:
+                s += '({:0.3} {})'.format(convertedvals[field_idx][0], convertedvals[field_idx][1])
+        print(s)
+    except:
+        pass  
+        
+    field_idx += 1
+'''

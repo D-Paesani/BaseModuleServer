@@ -1,11 +1,12 @@
 #!/bin/bash
 
 Help() {
-    echo "USE AS: $0 [DEV|BMTEST|ONSHORE|BUILD] [DEV PATH TO MOUNT (or use default)]"
+    echo "USE AS: $0 [DEV|BMTEST|ONSHORE|BUILD|DOWN] [DEV PATH TO MOUNT (blank to use default)]"
     echo "DEV = DUMMY MODE"
     echo "BMTEST = A PRODUCTION MODE WITH TDK LAMBDA SUPPORT"
     echo "ONSHORE = A PRODUCTION MODE WITHOUT TDK LAMBDA SUPPORT AND TEMPERATURE MON POWER OFF"
     echo "BUILD = RUN A DOCKER COMPOSE BUILD"
+    echo "DOWN = STOP AND REMOVE CONTAINERS"
 
     echo "EXAMPLE: ./dockerstart BMTEST /dev/ttyUSB3"
     echo "OR TO USE DEFAULT DEVICE ./dockerstart DEV"
@@ -27,18 +28,21 @@ OPTS=""
 
 if [ "$CONFIG" == "DEV" ]; then
     DEVICE=$(Set_device "/dev/ttyUSB0" "$2")
-    OPTS="docker compose up"
+    OPTS="docker compose up -d"
 elif [ "$CONFIG" == "BMTEST" ]; then
     DEVICE=$(Set_device "/dev/ttyUSB0" "$2")
-    OPTS="docker compose up"
+    OPTS="docker compose up -d"
 elif [ "$CONFIG" == "ONSHORE" ]; then
     DEVICE=$(Set_device "/dev/null" "$2")
-    OPTS="docker compose up"
+    OPTS="docker compose up -d"
 elif [ "$CONFIG" == "BUILD" ]; then
     OPTS="docker compose build"
     DEVICE=$(Set_device "/dev/null" "$2")
+elif [ "$CONFIG" == "DOWN" ]; then
+    OPTS="docker compose down"
+    DEVICE=0
 else
     Help
 fi
 
-CONFIG=$CONFIG GIT_TOKEN=$PAT DEVICE=$DEVICE $OPTS
+CONFIG=$CONFIG GIT_TOKEN=$PAT DEVICE=$DEVICE $OPTS 

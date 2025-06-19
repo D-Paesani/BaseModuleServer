@@ -9,6 +9,7 @@ class Config(object):
     TEMP_ALARM = 0 #temp limit alarm
     TEMP_OVER_LIMIT = False #a dictionary of last temps with at least one over limit
     NO_CONN = {'status' : False}
+    SENSOR = "copyToClipboardPowertest" #4 columns
 
     @staticmethod
     def init_app(app):
@@ -19,6 +20,7 @@ class DUMMY(Config):
     TDK_LAMBDA = True
     TDK_STATUS = "enabled"
 
+
 class BMTEST(Config):
     USEDUMMY = False
     TDK_LAMBDA = True
@@ -28,6 +30,7 @@ class ONSHORE(Config):
     USEDUMMY = False
     TDK_LAMBDA = False
     TDK_STATUS = "disabled"
+    SENSOR = "copyToClipboardPowertest2" #2 columns for deploy
 
 config = {
     'DEV' : DUMMY,
