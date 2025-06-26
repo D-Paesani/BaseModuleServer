@@ -113,7 +113,31 @@ elif "VERSION" in aaa:
 
     print "Congratulazioni, hai mandato il comando VERSION :)"
     
+elif "ALARM_THRESHOLD_GET 5" in aaa:
+print("""Sending packet:
+    Command code: ALARM_THRESHOLD_GET (raw data: 78)
+    Request payload:
+        ALARM_NUMBER_ANALOG = 5
+Executing command: "./execute.sh NG_BPDCmd 10.0.1.100 78 79 6 05"
+Response:"056978"
+Received packet:
+    Response payload:
+        ALARM_NUMBER_ANALOG = ALARM_SLOW_MON_HYDRO_I 
+        THRESHOLD = 27000 """)
 
+
+"""
+./jsendcommand3.py 10.0.1.100 ALARM_THRESHOLD_SET 5 4000
+Sending packet:
+    Command code: ALARM_THRESHOLD_SET (raw data: 76)
+    Request payload:
+        ALARM_NUMBER_ANALOG = 5
+        THRESHOLD = 4000
+Executing command: "./execute.sh NG_BPDCmd 10.0.1.100 76 77 0 050fa0"
+Response:""
+Received packet:
+    Response payload:
+"""
 # import sys
 
 # aaa = sys.argv[2]

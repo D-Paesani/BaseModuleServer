@@ -121,6 +121,7 @@ commands = dict(
     switch      = jcmd(cmd='SWITCH_CONTROL',            args=['sw', 'state'],   parser=parse_generic,   params=['SWITCHNUM', 'SWITCHSTATE']                 ),
     rescue      = jcmd(cmd='RESCUE_ENABLE',             args=['state'],         parser=parse_generic,   params=['ENABLESTATE']                              ),
     raw         = jcmd(cmd=None,                        args=['cmdstr'],        parser=None,            params=['answ']                                     ),
-    
+    get_threshold = jcmd(cmd='ALARM_THRESHOLD_GET',     args=['sw'],            parser=None,            params=['answ']                                     ),
+    set_threshold = jcmd(cmd='ALARM_THRESHOLD_SET',     args=['sw', 'value'],   parser=None,            params=['answ']                                     ),
 )
 

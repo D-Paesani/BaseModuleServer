@@ -55,6 +55,8 @@ def render_log():
 #                 # time.sleep(1)
 #     return app.response_class(generate(), mimetype='text/plain')
 
+
+
 @cmd_blueprint.route('/dumpsensor/<duid>', methods = ['GET'])
 @login_required
 def f_dumpsensor(duid):
@@ -245,7 +247,52 @@ def f_rescue():
                     
     else:
         return gettemplate(templ, msg='Waiting for user input')
+
+@cmd_blueprint.route('/threshold', methods = ['GET', 'POST'])
+@login_required
+def f_threshold():
+    templ = dict(name='threshold.html', prefilldu='0', answ='', prefillsw='5')
+    if request.method == 'POST': 
+        submit =  request.form.get('submit')
+        templ['answ'] = ''
+        try:
+            du = templ['prefilldu'] = int(request.form.get('du')) 
+        except:
+            return jsonify ({'msg' : 'Error retrieving DU', 'answ' : templ['answ']})
+        
+        if submit == 'GET':
+            try:
+                sw =  templ['prefillsw'] = request.form.get('sw') # string per il comando
+            except:
+                return jsonify ({'msg' : 'Error retrieving SW value', 'answ' : templ['answ']})
+                
+            try: 
+                templ['answ'] = jsc.commands['get_threshold'].exec(du, args=dict(sw=sw))['answ'].replace("\n",'<br>').replace('  ','&nbsp;&nbsp;&nbsp;&nbsp;') #answ contiene la risposta raw di jsend command da mostrare a schermo
+            except Exception as e:
+                return jsonify ({'msg' : 'Error sending command', 'answ' : f"{e} - {templ['answ']}"})
+                                
+            msg = F'Sending command {jsc.commands["get_threshold"].cmd} {sw} to DU{du:03d} with response:'
+        
+        elif submit == 'SET':
+            try:
+                sw =  templ['prefillsw'] = request.form.get('sw') # string per il comando
+                threshold = templ['prefillsw'] = request.form.get('threshold')
+            except:
+                return jsonify ({'msg' : 'Error retrieving SW/Threshold value', 'answ' : templ['answ']})
+            try: 
+                templ['answ'] = jsc.commands['set_threshold'].exec(du, args=dict(sw=sw, value=threshold))['answ'].replace("\n",'<br>').replace('  ','&nbsp;&nbsp;&nbsp;&nbsp;') #answ contiene la risposta raw di jsend command da mostrare a schermo
+            except Exception as e:
+                return jsonify ({'msg' : 'Error sending command', 'answ' : f"{e} - {templ['answ']}"})
+                                
+            msg = F'Sending command {jsc.commands["set_threshold"].cmd} {sw} {threshold} to DU{du:03d} with response:'
+            
+        return jsonify ({'msg' : msg, 'answ' : templ['answ']})
+                
+    else:
+        return gettemplate(templ, msg='Waiting for user input')
+
     
+
 @cmd_blueprint.route('/sendraw', methods = ['GET', 'POST']) 
 @login_required
 def f_sendraw(): 
@@ -415,6 +462,7 @@ def f_peripherals():
 @login_required
 def dashboard():
     templ = dict(name='dashboard.html', prefilldu=current_app.config['DU'])
+    templ['SENSOR'] = current_app.config['SENSOR']
     if request.method == 'POST':
         du = templ['prefilldu'] = request.get_json()['du']
         current_app.config.update({'DU' : du})

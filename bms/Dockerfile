@@ -70,6 +70,7 @@ RUN sh comp_only.sh NG_BPDCmd
 EXPOSE 5001
 
 COPY jsendcommand3.py /bpd-software/host/python/console/jsendcommand3.py
+COPY analogvariables.py /bpd-software/host/python/codegen/analogvariables.py
 
 WORKDIR /app
 

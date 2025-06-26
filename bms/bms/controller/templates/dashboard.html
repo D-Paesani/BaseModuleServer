@@ -108,7 +108,7 @@
                                         </li>
     
                                         <li>
-                                        <a class="dropdown-item" onclick='copyToClipboardPowertest2()'> Clipboard PowerTest</a>
+                                        <a class="dropdown-item" onclick='copyToClipboardPowertest()'> Clipboard PowerTest</a>
                                         </li>
                                     </ul>
                             </div>
@@ -295,21 +295,35 @@ function confirmSubmit(action) {
             tableContainer.appendChild(tableElement);
         }
     }
-    function copyToClipboardPowertest2() {
+    function copyToClipboardPowertest() {
         const table = document.getElementById('sensorsTable');
       
         if (table) {
             let csvContent = ''; // Header del CSV
             const rows = table.querySelectorAll('tbody tr'); 
     
-        
-            for (let i = 0; i < rows.length; i++) { 
-                const row = rows[i];
-                const columns = row.querySelectorAll('td'); 
-                if (columns.length > 0) {
-                    const adc = columns[0].innerText; 
-                    const value = columns[1].innerText.replace('.', ','); 
-                    csvContent += `${adc}\t${value}\n`; 
+            if ({{SENSOR | tojson}} == 'copyToClipboardPowertest2') {
+                for (let i = 0; i < rows.length; i++) { 
+                    const row = rows[i];
+                    const columns = row.querySelectorAll('td'); 
+                    if (columns.length > 0) {
+                        const adc = columns[0].innerText; 
+                        const value = columns[1].innerText.replace('.', ','); 
+                        csvContent += `${adc}\t${value}\n`; 
+                    }
+                }
+            }
+            else if({{SENSOR | tojson}} == 'copyToClipboardPowertest') {
+                for (let i = 0; i < rows.length; i++) { 
+                    const row = rows[i];
+                    const columns = row.querySelectorAll('td'); 
+                    if (columns.length > 0) {
+                        const adc = columns[4].innerText; 
+                        const adc_max = columns[2].innerText; 
+                        const adc_average = columns[0].innerText; 
+                        const value = columns[5].innerText.replace('.', ','); 
+                        csvContent += `${adc}\t${adc_max}\t${adc_average}\t${value}\n`; 
+                    }
                 }
             }
     

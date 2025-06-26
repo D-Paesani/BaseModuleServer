@@ -310,7 +310,7 @@ if __name__ == '__main__':
     # print '    Payload data: {} (raw data: {})'.format(payload_field_values, payload_data)
     print('    Response payload:')
     byte_idx = 0
-    rawvalues = list();
+    rawvalues = list()
     for field in command.response_payload:
         value = -1
         if isinstance(field, PayloadFieldU8):

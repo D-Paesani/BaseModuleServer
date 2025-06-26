@@ -1,0 +1,152 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+
+      <div class="container">
+         <div class="card  p-2 my-5">
+               <div class="card card-header bg-primary text-center">
+                     <div class="card-title  ">
+                           <h1 class="text-white">BASEMODULE SERVER</h1>
+                     </div>
+               </div>
+               <div class="card-body">
+                  <form  id="confirmForm">
+                     <div class="row">
+      
+                        <div class="col-sm-4 text-right">
+                           <h3>DU =</h3>
+                        </div>
+                        <div class="col-sm-3">
+                           <input type="text" name="du" class="form-control" value={{prefilldu}} />
+                        </div>
+                        <div class="col-sm-4 text-left">
+                           (insert target DU)
+                        </div>
+                        
+                     </div>
+      
+                     <div class="row">
+      
+                        <div class="col-sm-4 text-right">
+                           <h3>GET THRESHOLD =</h3>
+                        </div>
+                        <div class="col-sm-3">
+                           <input type="text" name="sw_get" class="form-control" value={{prefillsw}} />
+                        </div>
+                        <div class="col-sm-4 text-left">
+                           (switch number)
+                        </div>
+                        <div>
+                           <button type="button" class="btn btn-primary" onclick="confirmSubmit('GET')">GET</button>
+                        </div>
+                  
+                     </div>
+
+                     <div class="row">
+      
+                        <div class="col-sm-4 text-right">
+                           <h3>SET THRESHOLD =</h3>
+                        </div>
+                        <div class="col-sm-1">
+                           <input type="text" name="sw_set" class="form-control" value={{prefillsw}} />
+                        </div>
+                        <div class="col-sm-2 text-left">
+                           (switch number)
+                        </div>
+                        <div class="col-sm-2">
+                           <input type="text" name="threshold" class="form-control" value='' />
+                        </div>
+                        <div class="col-sm-2 text-left">
+                           (threshold value)
+                        </div>
+                        
+                        <div>
+                           <button type="button" class="btn btn-danger" onclick="confirmSubmit('SET')">SET</button>
+                        </div>
+                  
+                     </div>
+
+
+                     <div class="row d-flex justify-content-center mt-4">
+                        <span class="fw-bold" id="msg">{{msg}}</span>
+                     </div>
+      
+                     <div class="row d-flex justify-content-center mt-4" id="answ">
+                           {{ answ | safe }}
+                     </div>
+                     
+                  </form>
+
+                  
+      
+               </div>
+               <div class="card-footer text-center">
+                     KM3NeT - ARCA 2023<br>
+                     Istituto Nazionale di Fisica Nucleare - Laboratori Nazionali del Sud<br>
+                     <!-- Source at <a href=https://github.com/D-Paesani/km3net/>D-Paesani/km3net</a><br> -->
+               </div>
+         </div>
+      </div>
+      
+
+
+
+<script>
+   function confirmSubmit(action) {
+
+      const duValue = document.querySelector('input[name="du"]').value;
+      
+      const msg = document.getElementById("msg");
+      const answ = document.getElementById("answ");
+      
+    if (action == 'GET') {
+      const swValue = document.querySelector('input[name="sw_get"]').value;
+
+      var formData = new FormData();
+      formData.append('submit', action);
+      formData.append('du', duValue);
+      formData.append('sw', swValue);
+
+      fetch(window.location.href, {
+         method: 'POST',
+         body: formData,
+      }).then(response => response.json())
+      .then(data => {
+            console.log("Server Risposta:", data);
+         msg.innerHTML = data.msg;
+         answ.innerHTML = data.answ;
+         document.querySelector('input[name="sw_set"]').value = swValue;
+         
+      })
+
+      }
+   else if (action == 'SET') {
+      const swValue = document.querySelector('input[name="sw_set"]').value;
+      const thresholdValue = document.querySelector('input[name="threshold"]').value;
+
+      var formData = new FormData();
+      formData.append('submit', action);
+      formData.append('du', duValue);
+      formData.append('sw', swValue);
+      formData.append('threshold', thresholdValue);
+
+      fetch(window.location.href, {
+         method: 'POST',
+         body: formData,
+      }).then(response => response.json())
+      .then(data => {
+        console.log("Server Risposta:", data);
+         msg.innerHTML = data.msg;
+         answ.innerHTML = data.answ;
+         document.querySelector('input[name="sw_get"]').value = swValue;
+         
+      })
+      .catch(error => {
+        console.error("Errore durante il parsing della risposta:", error);
+        // Handle the error here, for example, display an error message to the user
+      });
+      
+        
+   }
+}
+</script>
+{% endblock content %}
