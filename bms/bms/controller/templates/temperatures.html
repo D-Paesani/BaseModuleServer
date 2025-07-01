@@ -80,6 +80,13 @@
         </div>
     </div>
 
+
+    <div class="card-body">
+        <div id="chartAll"></div>
+        <button id="downloadChartAll" type="button" class="btn btn-primary">Download ALL</button>
+    </div>
+
+
     <div class="row col-12 mb-5 mt-4">
         <div class="card col-4 " style="width:100%;">
             <div class="card card-header bg-primary text-center">
@@ -88,7 +95,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <div id="chartDivA" style="width:100%; height:300px; margin:0 auto;"></div>
+                <div id="chartDivWetA" style="width:100%; height:300px; margin:0 auto;"></div>
                 <button id="downloadChartA" type="button" class="btn btn-primary">Download</button>
             </div>
         </div>
@@ -100,7 +107,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <div id="chartDivB" style="width:100%; height:300px; margin:0 auto;"></div>
+                <div id="chartDivWetB" style="width:100%; height:300px; margin:0 auto;"></div>
                 <button id="downloadChartB" type="button" class="btn btn-primary">Download</button>
             </div>
         </div>
@@ -198,8 +205,9 @@
     }
 
 
-
-    function updateCharts() {
+let charts = [];
+function updateCharts() {
+    charts = [];
     fetch('/get-temps')
         .then(response => response.json())
         .then(data => {
@@ -215,11 +223,10 @@
             const t2Temps = data.temp2.map(d => ({x: new Date(d.timestamp).toISOString(), y: d.temperature}));
             const dulTemps = data.dul.map(d => ({x: new Date(d.timestamp).toISOString(), y: d.temperature}));
 
-            const charts = [];
 
             if (wwrsATemps.length > 0) {
                 const lastWwrsA = wwrsATemps[wwrsATemps.length - 1];
-                const chartA = JSC.Chart('chartDivA', {
+                const chartA = JSC.Chart('chartDivWetA', {
                     defaultPoint_marker_visible: false,
                     legend_visible: false,
                     type: 'spline',
@@ -242,12 +249,12 @@
                         position: 'top right'
                     }],
                 });
-                charts.push({ chart: chartA, id: 'downloadChartA' });
+                charts.push({ chart: chartA, id: 'downloadChartA', txtData: wwrsATemps });
             }
 
             if (wwrsBTemps.length > 0) {
                 const lastWwrsB = wwrsBTemps[wwrsBTemps.length - 1];
-                const chartB = JSC.Chart('chartDivB', {
+                const chartB = JSC.Chart('chartDivWetB', {
                     defaultPoint_marker_visible: false,
                     legend_visible: false,
                     type: 'spline',
@@ -270,7 +277,7 @@
                         position: 'top right'
                     }],
                 });
-                charts.push({ chart: chartB, id: 'downloadChartB' });
+                charts.push({ chart: chartB, id: 'downloadChartB', txtData: wwrsBTemps });
             }
 
             if (fpgaTemps.length > 0) {
@@ -298,7 +305,7 @@
                         position: 'top right'
                     }],
                 });
-                charts.push({ chart: chartFPGA, id: 'downloadChartFPGA' });
+                charts.push({ chart: chartFPGA, id: 'downloadChartFPGA', txtData: fpgaTemps });
             }
 
             if (t1Temps.length > 0) {
@@ -326,7 +333,7 @@
                         position: 'top right'
                     }],
                 });
-                charts.push({ chart: chartT1, id: 'downloadChartT1' });
+                charts.push({ chart: chartT1, id: 'downloadChartT1', txtData: t1Temps });
             }
 
             if (t2Temps.length > 0) {
@@ -354,7 +361,7 @@
                         position: 'top right'
                     }],
                 });
-                charts.push({ chart: chartT2, id: 'downloadChartT2' });
+                charts.push({ chart: chartT2, id: 'downloadChartT2', txtData: t2Temps });
             }
 
             if (dulTemps.length > 0) {
@@ -382,12 +389,29 @@
                         position: 'top right'
                     }],
                 });
-                charts.push({ chart: chartDUL, id: 'downloadChartDUL' });
+                charts.push({ chart: chartDUL, id: 'downloadChartDUL', txtData : dulTemps });
             }
 
-            charts.forEach(({ chart, id }) => {
+            charts.forEach(({ chart, txtData, id }) => {
                 document.getElementById(id).addEventListener('click', () => {
-                    chart.exportImage('png');
+                    //console.log(chart);
+                    const chartDivId = chart.currentOptions.targetElement;
+                    const chartEl = document.getElementById(chartDivId);
+                    if (chartEl) {
+                        html2canvas(chartEl).then(canvas => {
+                            const link = document.createElement('a');
+                            link.href = canvas.toDataURL('image/png');
+                            link.download = `${chartDivId}.png`;
+                            link.click();
+
+                            const textData = generateTXT(txtData);
+                            const blob = new Blob([textData]);
+                            const linkTxt = document.createElement('a');
+                            linkTxt.href = URL.createObjectURL(blob);
+                            linkTxt.download = `${chartDivId}_data.txt`;
+                            linkTxt.click();
+                        });
+                    }
                 });
             });
         })
@@ -398,6 +422,38 @@
             status.classList.add('text-warning', 'border-warning');
         });
 }
+function generateTXT(data) {
+    let lines = [];
+    data.forEach(point => {
+        lines.push(`${point.x}\t${point.y}`);
+    });
+    return lines.join('\n');
+}
+
+document.getElementById('downloadChartAll').addEventListener('click', () => {
+    charts.forEach(({ chart, txtData, id }, index) => {
+        setTimeout(() => {
+            const chartDivId = chart.currentOptions.targetElement;
+            const chartEl = document.getElementById(chartDivId);
+            if (chartEl) {
+                html2canvas(chartEl).then(canvas => {
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL('image/png');
+                    link.download = `${chartDivId}.png`;
+                    link.click();
+
+                    const textData = generateTXT(txtData);
+                    const blob = new Blob([textData]);
+                    const linkTxt = document.createElement('a');
+                    linkTxt.href = URL.createObjectURL(blob);
+                    linkTxt.download = `${chartDivId}_data.txt`;
+                    linkTxt.click();
+                });
+            }
+        }, index * 500); // 0.5 secondi tra un download e l'altro
+    });
+});
+
     function stopReading() {
         fetch('/stop_reading')
             .then(response => response.json())

@@ -14,9 +14,19 @@
 
 		<link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="/static/css/custom.css">
-
+    <script src="/static/js/html2canvas.min.js"></script>
     <!--<script src="https://code.jscharting.com/2.9.0/jscharting.js"></script>-->
     <script src="/static/js/jscharting.js"></script>
+
+    <style>
+      .tooltip-inner {
+          max-width: 500px !important;
+          width: auto;
+          white-space: pre-wrap;
+          text-align: left;
+      }
+  </style>
+
   </head>
   <body>
 		
@@ -210,4 +220,9 @@ setInterval(updateMonitoringStatus, 2000);
   </div>
 </div>
 
+<script>
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip();
+  });
+</script>
 </html>

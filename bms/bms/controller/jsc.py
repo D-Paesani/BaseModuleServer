@@ -111,6 +111,7 @@ peripheral_dict_BPD = {
 sens_pars_BPS =   ['5V_I', 'LBL_I', 'DU_I', 'DU_IRTN', 'BPS_V', 'HYDRO_I', 'THEATSINK', 'TBOARD',]
 sens_pars_BPD =   ['DUL_BOARDTEMP','TEMP2','TEMP1','VEOC_RTN_I','VEOC_FWR_I','HYDRO_I','INPUT_V','LBL_I','GLRA_I','GLRB_I','PWB_I',]
 sensor_index =    ['ADC', 'VALUE', 'UNIT']
+sensor_reset =    [24] #reset all sensor averages
 
 commands = dict(
         
@@ -123,5 +124,6 @@ commands = dict(
     raw         = jcmd(cmd=None,                        args=['cmdstr'],        parser=None,            params=['answ']                                     ),
     get_threshold = jcmd(cmd='ALARM_THRESHOLD_GET',     args=['sw'],            parser=None,            params=['answ']                                     ),
     set_threshold = jcmd(cmd='ALARM_THRESHOLD_SET',     args=['sw', 'value'],   parser=None,            params=['answ']                                     ),
+    reset_maxvalue = jcmd(cmd='SENSOR_MAXVALUE_RESET',  args=['value'],         parser=None,            params=['answ']                                     ),
 )
 

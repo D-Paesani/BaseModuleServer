@@ -16,6 +16,7 @@ from bms.web_manager import db
 from datetime import datetime
 import concurrent.futures
 from bms.controller import cmd_lambda
+from bms.web_manager.commands_help import *
 
 
 #from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
@@ -71,7 +72,7 @@ def f_dumpsensor(duid):
 @cmd_blueprint.route('/sensors', methods = ['GET', 'POST'])
 @login_required
 def f_sensors(): 
-    templ = dict(name='sensors.html', prefilldu='0', table='') 
+    templ = dict(name='sensors.html', prefilldu=current_app.config['DU'], table='') 
     templ['SENSOR'] = current_app.config['SENSOR']
     dd, ddt = [], []
     duClipboardDict = {}
@@ -81,6 +82,8 @@ def f_sensors():
         
         try:
             du, templ['prefilldu'] = uu.parsestrlist(request.form.get('du'), typ=int)
+            if len(du) == 1:
+                current_app.config.update({'DU' : du[0]})
         except:
             return gettemplate(templ, msg='Error retrieving DU list') 
         
@@ -156,7 +159,7 @@ def f_sensors():
 @cmd_blueprint.route('/swcontrol', methods = ['GET', 'POST'])
 @login_required
 def f_swcontrol(): 
-    templ = dict(name='swcontrol.html', table='', datajson='', prefilldu='0', prefillsws=1, prefillstate=1) 
+    templ = dict(name='swcontrol.html', table='', datajson='', prefilldu=current_app.config['DU'], prefillsws=1, prefillstate=1) 
     dd = pd.DataFrame()
     state = 2
     
@@ -164,6 +167,7 @@ def f_swcontrol():
         
         try:
             du = templ['prefilldu'] = int(request.form.get('du'))
+            current_app.config.update({'DU' : du})
         except:
             return jsonify({'msg' : 'Error retrieving DU',
                             'table' : ''})
@@ -216,7 +220,7 @@ def f_swcontrol():
 @cmd_blueprint.route('/rescue', methods = ['GET', 'POST'])
 @login_required
 def f_rescue(): 
-    templ = dict(name='rescue.html', table='', datajson='', prefilldu='0', prefillstate=1) 
+    templ = dict(name='rescue.html', table='', datajson='', prefilldu=current_app.config['DU'], prefillstate=1) 
     dd = pd.DataFrame()
     state = 2
      
@@ -224,6 +228,7 @@ def f_rescue():
         
         try:
             du = templ['prefilldu'] = int(request.form.get('du'))
+            current_app.config.update({'DU' : du})
         except:
             return gettemplate(templ, msg='Error retrieving DU') 
             
@@ -248,15 +253,20 @@ def f_rescue():
     else:
         return gettemplate(templ, msg='Waiting for user input')
 
-@cmd_blueprint.route('/threshold', methods = ['GET', 'POST'])
+@cmd_blueprint.route('/utilities', methods = ['GET', 'POST'])
 @login_required
 def f_threshold():
-    templ = dict(name='threshold.html', prefilldu='0', answ='', prefillsw='5')
+    templ = dict(name='utilities.html', prefilldu=current_app.config['DU'], answ='', prefillsw='5', prefillreset='24', 
+        help_reset_maxvalues=help_reset_maxvalues,
+        help_alarm_threshold_set=help_alarm_threshold_set,
+        help_alarm_threshold_get=help_alarm_threshold_get)
+        
     if request.method == 'POST': 
         submit =  request.form.get('submit')
         templ['answ'] = ''
         try:
             du = templ['prefilldu'] = int(request.form.get('du')) 
+            current_app.config.update({'DU' : du})
         except:
             return jsonify ({'msg' : 'Error retrieving DU', 'answ' : templ['answ']})
         
@@ -285,6 +295,18 @@ def f_threshold():
                 return jsonify ({'msg' : 'Error sending command', 'answ' : f"{e} - {templ['answ']}"})
                                 
             msg = F'Sending command {jsc.commands["set_threshold"].cmd} {sw} {threshold} to DU{du:03d} with response:'
+        
+        elif submit == 'RESET':
+            try:
+                reset_maxvalue =  templ['prefillreset'] = request.form.get('reset_maxvalue') # string per il comando
+            except:
+                return jsonify ({'msg' : 'Error retrieving reset value', 'answ' : templ['answ']})
+            try: 
+                templ['answ'] = jsc.commands['reset_maxvalue'].exec(du, args=dict(value=reset_maxvalue))['answ'].replace("\n",'<br>').replace('  ','&nbsp;&nbsp;&nbsp;&nbsp;') #answ contiene la risposta raw di jsend command da mostrare a schermo
+            except Exception as e:
+                return jsonify ({'msg' : 'Error sending command', 'answ' : f"{e} - {templ['answ']}"})
+                                
+            msg = F'Sending command {jsc.commands["reset_maxvalue"].cmd} {reset_maxvalue} to DU{du:03d} with response:'
             
         return jsonify ({'msg' : msg, 'answ' : templ['answ']})
                 
@@ -296,7 +318,7 @@ def f_threshold():
 @cmd_blueprint.route('/sendraw', methods = ['GET', 'POST']) 
 @login_required
 def f_sendraw(): 
-    templ = dict(name='sendraw.html', prefilldu='0', prefillcmd='VERSION', answ='') 
+    templ = dict(name='sendraw.html', prefilldu=current_app.config['DU'], prefillcmd='VERSION', answ='') 
      
     if request.method == 'POST':
          
@@ -305,6 +327,7 @@ def f_sendraw():
         
         try:
             du = templ['prefilldu'] = int(request.form.get('du')) 
+            current_app.config.update({'DU' : du})
         except:
             return jsonify ({'msg' : 'Error retrieving DU', 'answ' : templ['answ']})
             return gettemplate(templ, msg='Error retrieving DU') 
@@ -379,7 +402,7 @@ def generate_xlsx():
 @cmd_blueprint.route('/peripherals', methods=['GET', 'POST'])
 @login_required
 def f_peripherals():
-    templ = dict(name='peripherals.html', prefilldu='0', du='', peri_status=None)
+    templ = dict(name='peripherals.html', prefilldu=current_app.config['DU'], du='', peri_status=None)
 
     if request.method == 'GET':
         
@@ -461,11 +484,16 @@ def f_peripherals():
 @cmd_blueprint.route('/dashboard', methods=['GET', 'POST'])
 @login_required
 def dashboard():
-    templ = dict(name='dashboard.html', prefilldu=current_app.config['DU'])
+    templ = dict(name='dashboard.html', prefilldu=current_app.config['DU'], prefillsw='5', prefillreset='24', 
+        help_reset_maxvalues=help_reset_maxvalues,
+        help_alarm_threshold_set=help_alarm_threshold_set,
+        help_alarm_threshold_get=help_alarm_threshold_get)
+
     templ['SENSOR'] = current_app.config['SENSOR']
     if request.method == 'POST':
         du = templ['prefilldu'] = request.get_json()['du']
         current_app.config.update({'DU' : du})
+        return jsonify({'response':True})
     return gettemplate(templ)
 
 @cmd_blueprint.route('/monitoring_status', methods=['GET'])

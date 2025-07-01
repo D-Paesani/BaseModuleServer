@@ -123,50 +123,159 @@
 <!-- END ROW-->
     </div>
 
+
+   <!--########################################## UTILS MODULE -->
+   <div class="row justify-content-center">
+    <div class="container">
+        <div class="card  p-2 my-5">
+              <div class="card card-header bg-primary text-center">
+                    <div class="card-title  ">
+                          <h1 class="text-white">THRESHOLD & RESET UTILITIES</h1>
+                    </div>
+              </div>
+              <div class="card-body">
+                 <form  id="confirmForm">
+                    <div class="row">
+     
+                       <div class="col-sm-4 text-right">
+                          <h3>DU =</h3>
+                       </div>
+                       <div class="col-sm-3">
+                          <input type="text" name="du" class="form-control" value={{prefilldu}} />
+                       </div>
+                       <div class="col-sm-4 text-left">
+                          (insert target DU)
+                       </div>
+                       
+                    </div>
+                    <hr>
+                    <div class="row">
+     
+                       <div class="col-sm-4 text-right">
+                          <h3>GET THRESHOLD =</h3>
+                       </div>
+                       <div class="col-sm-3">
+                          <input type="text" name="sw_get" class="form-control" value={{prefillsw}} />
+                       </div>
+                       <div class="col-sm-4 text-left">
+                          <span data-toggle="tooltip" data-placement="right" title="{{help_alarm_threshold_get}}">(switch number)<i class="fa fa-hand-paper-o" aria-hidden="true"></i>
+                          </span>
+                       </div>
+                       <div>
+                          <button type="button" class="btn btn-primary" onclick="utilsSubmit('GET')">GET</button>
+                       </div>
+                 
+                    </div>
+
+                    <div class="row">
+     
+                       <div class="col-sm-4 text-right">
+                          <h3>SET THRESHOLD =</h3>
+                       </div>
+                       <div class="col-sm-1">
+                          <input type="text" name="sw_set" class="form-control" value={{prefillsw}} />
+                       </div>
+                       <div class="col-sm-2 text-left">
+                          <span data-toggle="tooltip" data-placement="right" title="{{help_alarm_threshold_set}}">(switch number)<i class="fa fa-hand-paper-o" aria-hidden="true"></i>
+                          </span>
+                       </div>
+                       <div class="col-sm-2">
+                          <input type="text" name="threshold" class="form-control" value='' />
+                       </div>
+                       <div class="col-sm-2 text-left">
+                          (threshold value)
+                       </div>
+                       
+                       <div>
+                          <button type="button" class="btn btn-danger" onclick="utilsSubmit('SET')">SET</button>
+                       </div>
+                 
+                    </div>
+                    <hr>
+                    <div class="row">
+     
+                       <div class="col-sm-5 text-right">
+                          <h3>RESET SENSOR MAXVALUES =</h3>
+                       </div>
+                       <div class="col-sm-1">
+                          <input type="text" name="val_reset" class="form-control" value={{prefillreset}} />
+                       </div>
+                       <div class="col-sm-5 text-left">
+                          <span data-toggle="tooltip" data-placement="right" title="{{help_reset_maxvalues}}">(reset number)<i class="fa fa-hand-paper-o" aria-hidden="true"></i>
+                          </span>
+                       </div>
+                       <div>
+                          <button type="button" class="btn btn-danger" onclick="utilsSubmit('RESET')">RESET</button>
+                       </div>
+                 
+                    </div>
+
+
+                    <div class="row d-flex justify-content-center mt-4">
+                       <span class="fw-bold" id="msg_utils">{{msg}}</span>
+                    </div>
+     
+                    <div class="row d-flex justify-content-center mt-4" id="answ_utils">
+                          {{ answ | safe }}
+                    </div>
+                    
+                 </form>
+              </div>
+        </div>
+     </div>
+    
+</div>
+
+
 <!--########################################## SENDROW MODULE -->
     <div class="row justify-content-center">
-        <div class="card  p-2 my-5">
-            <div class="card card-header bg-primary text-center">
-                  <div class="card-title  ">
-                        <h1 class="text-white">SENDRAW MODULE</h1>
-                  </div>
+        <div class="col-6 justify-content-center">
+            <div class="card  p-2 my-5">
+                <div class="card card-header bg-primary text-center">
+                    <div class="card-title  ">
+                            <h1 class="text-white">SENDRAW MODULE</h1>
+                    </div>
+                </div>
+                <div class="card-body">
+                <form  id="confirmForm">
+                    <div class="row">    
+                        
+                    </div>
+    
+                    <div class="row">
+    
+                        <div class="col-sm-4 text-right">
+                            <h3>CMD =</h3>
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" name="cmd" class="form-control" value='VERSION' />
+                        </div>
+                        <div class="col-sm-4 text-left">
+                            (enter the command)
+                        </div>
+                
+                    </div>
+                    <div class="row d-flex justify-content-center mt-4">
+
+                        <button type="button" class="btn btn-danger mr-4" data-toggle="modal" data-target="#confirmModal">SEND</button>
+                        <button type="button" class="btn btn-primary" onclick="confirmSubmit('PING')">PING</button>
+
+                    </div>
+                    <div class="row d-flex justify-content-center mt-4">
+                        <span class="fw-bold" id="msg"></span>
+                    </div>
+    
+                    <div class="row d-flex justify-content-center mt-4" id="answ">
+                    </div>
+                    
+                </form>
+                </div>  
             </div>
-            <div class="card-body">
-               <form  id="confirmForm">
-                  <div class="row">    
-                     
-                  </div>
-   
-                  <div class="row">
-   
-                     <div class="col-sm-4 text-right">
-                        <h3>CMD =</h3>
-                     </div>
-                     <div class="col-sm-3">
-                        <input type="text" name="cmd" class="form-control" value='VERSION' />
-                     </div>
-                     <div class="col-sm-4 text-left">
-                        (enter the command)
-                     </div>
-               
-                  </div>
-                  <div class="row d-flex justify-content-center mt-4">
-
-                     <button type="button" class="btn btn-danger mr-4" data-toggle="modal" data-target="#confirmModal">SEND</button>
-                     <button type="button" class="btn btn-primary" onclick="confirmSubmit('PING')">PING</button>
-
-                  </div>
-                  <div class="row d-flex justify-content-center mt-4">
-                     <span class="fw-bold" id="msg"></span>
-                  </div>
-   
-                  <div class="row d-flex justify-content-center mt-4" id="answ">
-                  </div>
-                  
-               </form>
-            </div>  
-      </div>
+        </div>
    </div>
+
+
+
 <div class="it-example-modal">
 <div class="modal" tabindex="-1" role="dialog" id="confirmModal">
     <div class="modal-dialog" role="document">
@@ -193,16 +302,25 @@
         if (event) {
             event.preventDefault();
         }
+        const spinnerModal = new bootstrap.Modal(document.getElementById('spinner-modal'), { backdrop: 'static', keyboard: false });
+        spinnerModal.show();
         fetch('/dashboard', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({du : document.querySelector('input[name="du"]').value })
         })
-        periphFunc();
-        setTimeout(() => {
-            sensorsFunc();
-        }, 1000);
-        
+        .then(response => response.json())
+        .then(data => {
+            return periphFunc();
+        })
+
+        .then(() => { 
+            setTimeout(() => {
+                sensorsFunc();
+                spinnerModal.hide();
+            }, 1000);
+            
+        })
     }
 const dashboard = true;
 let tableClipPower = 'e';
@@ -445,8 +563,90 @@ function periphFunc() {
     })
 }
 
+/*
 
-</script>
+////////////////////////////////////////////////////////////////////////////
 
 
+
+/*
+    UTILS MODULE FRAME
+*/
+
+function utilsSubmit(action) {
+
+    const duValue = document.querySelector('input[name="du"]').value;
+    
+    const msg = document.getElementById("msg_utils");
+    const answ = document.getElementById("answ_utils");
+       
+    if (action == 'GET') {
+       const swValue = document.querySelector('input[name="sw_get"]').value;
+ 
+       var formData = new FormData();
+       formData.append('submit', action);
+       formData.append('du', duValue);
+       formData.append('sw', swValue);
+ 
+       fetch('/utilities', {
+          method: 'POST',
+          body: formData,
+       }).then(response => response.json())
+       .then(data => {
+             console.log("Server Risposta:", data);
+          msg.innerHTML = data.msg;
+          answ.innerHTML = data.answ;
+          document.querySelector('input[name="sw_set"]').value = swValue;
+       })
+       }
+ 
+    else if (action == 'RESET') {
+          const resetValue = document.querySelector('input[name="val_reset"]').value;
+    
+          var formData = new FormData();
+          formData.append('submit', action);
+          formData.append('du', duValue);
+          formData.append('reset_maxvalue', resetValue);
+    
+          fetch('/utilities', {
+             method: 'POST',
+             body: formData,
+          }).then(response => response.json())
+          .then(data => {
+                console.log("Server Risposta:", data);
+             msg.innerHTML = data.msg;
+             answ.innerHTML = data.answ;       
+          })
+          }
+ 
+    else if (action == 'SET') {
+       const swValue = document.querySelector('input[name="sw_set"]').value;
+       const thresholdValue = document.querySelector('input[name="threshold"]').value;
+ 
+       var formData = new FormData();
+       formData.append('submit', action);
+       formData.append('du', duValue);
+       formData.append('sw', swValue);
+       formData.append('threshold', thresholdValue);
+ 
+       fetch('/utilities', {
+          method: 'POST',
+          body: formData,
+       }).then(response => response.json())
+       .then(data => {
+         console.log("Server Risposta:", data);
+          msg.innerHTML = data.msg;
+          answ.innerHTML = data.answ;
+          document.querySelector('input[name="sw_get"]').value = swValue;
+          
+       })
+       .catch(error => {
+         console.error("Errore durante il parsing della risposta:", error);
+         // Handle the error here, for example, display an error message to the user
+       });
+       
+         
+    }
+ }
+ </script>
 {% endblock %}

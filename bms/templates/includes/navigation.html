@@ -133,6 +133,7 @@
         if (data.response == 'OK') {
           lambda_status.innerHTML = 'Lambda Status: <i class="fa fa-circle text-success">ON';
           lambda_turn.innerHTML = "<button onclick=\"lambda_turn_off()\" class=\"badge badge-danger\">TURN OFF</button>";
+          lambda_dvc();
         }
         else {
           alert('Lambda response error');
@@ -146,6 +147,7 @@
         if (data.response == 'OK') {
           lambda_status.innerHTML = 'Lambda Status: <i class="fa fa-circle text-danger">OFF';
           lambda_turn.innerHTML = "<button onclick=\"lambda_turn_on()\" class=\"badge badge-success\">TURN ON</button>";
+          lambda_dvc();
         }
         else {
           alert('Lambda response error');
