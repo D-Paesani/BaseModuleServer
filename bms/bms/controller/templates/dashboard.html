@@ -30,7 +30,7 @@
                          
                       </div>
                       <div class="row d-flex justify-content-center mt-4">
-                         <input type = "submit" value = "READ" name = "submit" onclick="periphFunc()" class="btn btn-primary">
+                         <input type = "submit" value = "READ" name = "submit" onclick="periphFunc(event)" class="btn btn-primary">
                       </div>
                    </form>
                    <div class="row d-flex justify-content-center fw-bold mt-4">
@@ -306,11 +306,11 @@
         })
         .then(response => response.json())
         .then(() => {
-            return periphFunc();
+            return periphFunc(event);
         })
 
         .then(() => { 
-            sensorsFunc();
+            sensorsFunc(event);
         })
     }
 const dashboard = true;
@@ -368,7 +368,10 @@ function confirmSubmit(action) {
 /*
     SENSORS MODULE FRAME
 */
-    function sensorsFunc() {
+    function sensorsFunc(event) {
+        if (event) {
+            event.preventDefault();
+        }
         const duValue = document.querySelector('input[name="du"]').value;
         const formData = new FormData();
 
@@ -456,18 +459,21 @@ function confirmSubmit(action) {
 /*
     PERIPHERALS MODULE FRAME
 */
-function periphFunc() {
+function periphFunc(event) {
+    if (event) {
+        event.preventDefault();
+    }
     const duValue = document.querySelector('input[name="du"]').value;
 
-    const spinnerModal = new bootstrap.Modal(document.getElementById('spinner-modal'), { backdrop: 'static', keyboard: false });
-    spinnerModal.show();
+    const spinnerModal2 = new bootstrap.Modal(document.getElementById('spinner-modal'), { backdrop: 'static', keyboard: false });
+    spinnerModal2.show();
 
     fetch(`/peripherals?du=${duValue}&isDash=${dashboard}`, {
         method: 'GET'
     })
     .then(response => response.json())
     .then(data => {
-        //console.log(data);
+        console.log(data);
         const peripherals = data.peripherals.peri_status; 
         const tableBody = document.getElementById('peripheralsTableBody');
         tableBody.innerHTML = ''; 
@@ -527,7 +533,7 @@ function periphFunc() {
                 tableBody.appendChild(row); // Aggiungi la riga alla tabella
             }
         }
-        spinnerModal.hide();
+        spinnerModal2.hide();
 
         const toggleVeoc = document.querySelectorAll(".toggles");
         toggleVeoc.forEach((toggleButton) => {
@@ -553,7 +559,7 @@ function periphFunc() {
                 .then(response => response.json())
                 .then(data => {
                     //console.log(data);
-                    periphFunc(); 
+                    periphFunc(event); 
                 })
             });  
         });
