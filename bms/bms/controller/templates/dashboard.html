@@ -299,6 +299,22 @@
 
 <script>
     function readAll() {
+        const syntheticEvent = new Event('click', { bubbles: true });
+    
+        fetch('/dashboard', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ du: document.querySelector('input[name="du"]').value })
+        })
+        .then(response => response.json())
+        setTimeout(() => {
+            periphFunc(syntheticEvent);
+        }, 3000);
+        sensorsFunc(syntheticEvent);
+    }
+    
+/*
+    function readAll() {
         fetch('/dashboard', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -312,7 +328,7 @@
         .then(() => { 
             sensorsFunc(event);
         })
-    }
+    }*/
 const dashboard = true;
 let tableClipPower = 'e';
 
@@ -560,7 +576,7 @@ function periphFunc(event) {
                 .then(data => {
                     //console.log(data);
                     periphFunc(event); 
-                })
+                });
             });  
         });
     })
