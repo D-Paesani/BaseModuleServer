@@ -299,17 +299,13 @@
 
 <script>
     function readAll() {
-        if (event) {
-            event.preventDefault();
-        }
-
         fetch('/dashboard', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({du : document.querySelector('input[name="du"]').value })
         })
         .then(response => response.json())
-        .then(data => {
+        .then(() => {
             return periphFunc();
         })
 
@@ -360,7 +356,7 @@ function confirmSubmit(action) {
             body: formData,
         }).then(response => response.json())
         .then(data => {
-            console.log(data);
+            //console.log(data);
             msg.innerHTML = data.msg;
             answ.innerHTML = data.answ; 
         })    
@@ -373,10 +369,6 @@ function confirmSubmit(action) {
     SENSORS MODULE FRAME
 */
     function sensorsFunc() {
-        if (event) {
-            event.preventDefault();
-        }
-
         const duValue = document.querySelector('input[name="du"]').value;
         const formData = new FormData();
 
@@ -392,7 +384,7 @@ function confirmSubmit(action) {
             })
         .then(response => response.json())
         .then(data => {
-            console.log(data);
+            //console.log(data);
             updateTable(data.sensors.table);
             tableClipPower = data.sensors.table_clip_power;
             spinnerModal.hide();
@@ -465,10 +457,6 @@ function confirmSubmit(action) {
     PERIPHERALS MODULE FRAME
 */
 function periphFunc() {
-    if (event) {
-        event.preventDefault();
-    }
-
     const duValue = document.querySelector('input[name="du"]').value;
 
     const spinnerModal = new bootstrap.Modal(document.getElementById('spinner-modal'), { backdrop: 'static', keyboard: false });
@@ -479,7 +467,7 @@ function periphFunc() {
     })
     .then(response => response.json())
     .then(data => {
-        console.log(data);
+        //console.log(data);
         const peripherals = data.peripherals.peri_status; 
         const tableBody = document.getElementById('peripheralsTableBody');
         tableBody.innerHTML = ''; 
@@ -564,7 +552,7 @@ function periphFunc() {
                 })
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data);
+                    //console.log(data);
                     periphFunc(); 
                 })
             });  
