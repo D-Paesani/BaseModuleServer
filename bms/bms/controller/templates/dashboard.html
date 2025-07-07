@@ -515,9 +515,9 @@ function periphFunc() {
                 offButton.name = ph;
                 offButton.setAttribute('data-name', ph);
                 if (ph == 'rescue') {
-                    onButton.className = 'fa fa-power-off fa-2x text-success toggles';
+                    offButton.className = 'fa fa-power-off fa-2x text-success toggles';
                 } else {
-                    onButton.className = 'fa fa-power-off fa-2x text-danger toggles';
+                    offButton.className = 'fa fa-power-off fa-2x text-danger toggles';
                 }
                 offButton.setAttribute('value', '0');
                 offCell.appendChild(offButton);
