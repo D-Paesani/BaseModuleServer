@@ -441,7 +441,7 @@ def f_peripherals():
             to_send[thiscommand] = {}
             sw_status = resp.get('ENABLESTATE').replace('DISABLED','OFF').replace('ENABLED','ON')
             # to_send[thiscommand]['resp'] = resp           
-            to_send[thiscommand]['SW'] = {'sw_status' : int('ON' in sw_status)}
+            to_send[thiscommand]['SW'] = {'sw_status' : int('OFF' in sw_status)}
             to_send[thiscommand]['SW'].update({'sw_display' : F'AUTORESCUE is {sw_status}'}) 
 
         except Exception as ee:
