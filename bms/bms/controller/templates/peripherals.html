@@ -42,9 +42,13 @@
                            {% for ph in peri_status %}
                            <tr>
                               <td class="fw-bold text-primary h5 text-right align-middle">{{ ph }}</td>
-                              <td class="text-center align-middle"><i id="{{ph}}" name="{{ph}}" class="fa fa-power-off fa-2x text-success toggles" value='1'></i></td>
-                              <td class="align-middle"><i id="{{ph}}" name="{{ph}}" class="fa fa-power-off fa-2x text-danger toggles" value='0'></i></td>
-                              
+                              {% if {{ ph }} == 'Rescue' %}
+                                 <td class="text-center align-middle"><i id="{{ph}}" name="{{ph}}" class="fa fa-power-off fa-2x text-danger toggles" value='1'></i></td>
+                                 <td class="align-middle"><i id="{{ph}}" name="{{ph}}" class="fa fa-power-off fa-2x text-success toggles" value='0'></i></td>
+                              {% else %}
+                                 <td class="text-center align-middle"><i id="{{ph}}" name="{{ph}}" class="fa fa-power-off fa-2x text-success toggles" value='1'></i></td>
+                                 <td class="align-middle"><i id="{{ph}}" name="{{ph}}" class="fa fa-power-off fa-2x text-danger toggles" value='0'></i></td>
+                              {% endif %}
                               <td class="align-middle">
                               {% for swname, sw in peri_status[ph].items() %}
 
