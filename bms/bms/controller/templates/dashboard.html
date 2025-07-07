@@ -499,7 +499,11 @@ function periphFunc() {
                 onButton.id = ph;
                 onButton.name = ph;
                 onButton.setAttribute('data-name', ph);
-                onButton.className = 'fa fa-power-off fa-2x text-success toggles';
+                if (ph == 'rescue') {
+                    onButton.className = 'fa fa-power-off fa-2x text-danger toggles';
+                } else {
+                    onButton.className = 'fa fa-power-off fa-2x text-success toggles';
+                }
                 onButton.setAttribute('value', '1');
                 onCell.appendChild(onButton);
                 row.appendChild(onCell);
@@ -510,7 +514,11 @@ function periphFunc() {
                 offButton.id = ph;
                 offButton.name = ph;
                 offButton.setAttribute('data-name', ph);
-                offButton.className = 'fa fa-power-off fa-2x text-danger toggles';
+                if (ph == 'rescue') {
+                    onButton.className = 'fa fa-power-off fa-2x text-success toggles';
+                } else {
+                    onButton.className = 'fa fa-power-off fa-2x text-danger toggles';
+                }
                 offButton.setAttribute('value', '0');
                 offCell.appendChild(offButton);
                 row.appendChild(offCell);
