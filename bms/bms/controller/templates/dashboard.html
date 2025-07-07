@@ -302,8 +302,7 @@
         if (event) {
             event.preventDefault();
         }
-        const spinnerModal = new bootstrap.Modal(document.getElementById('spinner-modal'), { backdrop: 'static', keyboard: false });
-        spinnerModal.show();
+
         fetch('/dashboard', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -315,11 +314,7 @@
         })
 
         .then(() => { 
-            setTimeout(() => {
-                sensorsFunc();
-                spinnerModal.hide();
-            }, 1000);
-            
+            sensorsFunc();
         })
     }
 const dashboard = true;
@@ -388,6 +383,9 @@ function confirmSubmit(action) {
         formData.append('du', duValue);
         formData.append('isDash', dashboard);
 
+        const spinnerModal = new bootstrap.Modal(document.getElementById('spinner-modal'), { backdrop: 'static', keyboard: false });
+        spinnerModal.show();
+
         fetch('/sensors', {
             method: 'POST',
             body: formData
@@ -397,6 +395,7 @@ function confirmSubmit(action) {
             console.log(data);
             updateTable(data.sensors.table);
             tableClipPower = data.sensors.table_clip_power;
+            spinnerModal.hide();
         })
     }
     function updateTable(tableData) {
@@ -472,6 +471,9 @@ function periphFunc() {
 
     const duValue = document.querySelector('input[name="du"]').value;
 
+    const spinnerModal = new bootstrap.Modal(document.getElementById('spinner-modal'), { backdrop: 'static', keyboard: false });
+    spinnerModal.show();
+
     fetch(`/peripherals?du=${duValue}&isDash=${dashboard}`, {
         method: 'GET'
     })
@@ -537,6 +539,8 @@ function periphFunc() {
                 tableBody.appendChild(row); // Aggiungi la riga alla tabella
             }
         }
+        spinnerModal.hide();
+
         const toggleVeoc = document.querySelectorAll(".toggles");
         toggleVeoc.forEach((toggleButton) => {
             toggleButton.addEventListener("click", () => {
@@ -551,8 +555,6 @@ function periphFunc() {
                 requestBody['val'] = value;
                 requestBody['du'] = duValue;
 
-                const spinnerModal = new bootstrap.Modal(document.getElementById('spinner-modal'), { backdrop: 'static', keyboard: false });
-                spinnerModal.show();
                 fetch('/peripherals', {
                 method: 'POST',
                 headers: {
@@ -562,7 +564,6 @@ function periphFunc() {
                 })
                 .then(response => response.json())
                 .then(data => {
-                    spinnerModal.hide();
                     console.log(data);
                     periphFunc(); 
                 })

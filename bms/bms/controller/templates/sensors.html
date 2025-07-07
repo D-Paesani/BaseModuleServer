@@ -8,7 +8,7 @@
                      </div>
                </div>
                <div class="card-body">
-                  <form action = "{{ url_for('cmd.f_sensors') }}" method = "POST">
+                  <form id = "duForm" action = "{{ url_for('cmd.f_sensors') }}" method = "POST">
                      <div class="row">
       
                         <div class="col-sm-4 text-right">
@@ -194,4 +194,11 @@ function copyToClipboardPowertest2(table) {
       document.body.removeChild(tempElement);
    }
 </script>
+
+<script>
+   document.getElementById('duForm').addEventListener('submit', function () {
+       const spinnerModal = new bootstrap.Modal(document.getElementById('spinner-modal'), { backdrop: 'static', keyboard: false });
+       spinnerModal.show();
+   });
+   </script>
 {% endblock content %}
