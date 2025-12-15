@@ -27,15 +27,15 @@ OPTS=""
 
 if [ "$CONFIG" == "DEV" ]; then
     DEVICE=$(Set_device "/dev/ttyUSB0" "$2")
-    OPTS="docker compose up"
+    OPTS="docker-compose up"
 elif [ "$CONFIG" == "BMTEST" ]; then
     DEVICE=$(Set_device "/dev/ttyUSB0" "$2")
-    OPTS="docker compose up"
+    OPTS="docker-compose up"
 elif [ "$CONFIG" == "ONSHORE" ]; then
     DEVICE=$(Set_device "/dev/null" "$2")
-    OPTS="docker compose up"
+    OPTS="docker-compose up"
 elif [ "$CONFIG" == "BUILD" ]; then
-    OPTS="docker compose build"
+    OPTS="docker-compose build"
     DEVICE=$(Set_device "/dev/null" "$2")
 else
     Help

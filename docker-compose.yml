@@ -9,7 +9,7 @@ services:
     image: bms_image
     restart: always
     expose:
-      - "5002"
+      - "5001"
     environment:
       - FLASK_CONFIG=${CONFIG}
       - FLASK_DEVICE=${DEVICE}
