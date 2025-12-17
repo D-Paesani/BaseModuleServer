@@ -449,7 +449,7 @@ function confirmSubmit(action) {
                         const adc = columns[4].innerText; 
                         const adc_max = columns[2].innerText; 
                         const adc_average = columns[0].innerText; 
-                        const value = columns[5].innerText.replace('.', ','); 
+                        const value = columns[5].innerText; //.replace('.', ','); 
                         csvContent += `${adc}\t${adc_max}\t${adc_average}\t${value}\n`; 
                     }
                 }
