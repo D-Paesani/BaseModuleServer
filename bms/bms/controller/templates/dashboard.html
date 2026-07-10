@@ -306,7 +306,12 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ du: document.querySelector('input[name="du"]').value })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Errore server: ${response}`);
+            }
+            return response.json();
+        })
         setTimeout(() => {
             periphFunc(syntheticEvent);
         }, 3000);
@@ -355,7 +360,13 @@ function confirmSubmit(action) {
         fetch('/sendraw', {
             method: 'POST',
             body: formData,
-        }).then(response => response.json())
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Errore server: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             console.log("Server Risposta:", data);
             msg.innerHTML = data.msg;
@@ -370,7 +381,13 @@ function confirmSubmit(action) {
         fetch('/sendraw', {
             method: 'POST',
             body: formData,
-        }).then(response => response.json())
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Errore server: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             //console.log(data);
             msg.innerHTML = data.msg;
@@ -401,7 +418,13 @@ function confirmSubmit(action) {
             method: 'POST',
             body: formData
             })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                spinnerModal.hide();
+                throw new Error(`Errore server: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             //console.log(data);
             updateTable(data.sensors.table);
@@ -487,9 +510,15 @@ function periphFunc(event) {
     fetch(`/peripherals?du=${duValue}&isDash=${dashboard}`, {
         method: 'GET'
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            spinnerModal2.hide();
+            throw new Error(`Errore server: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
-        console.log(data);
+        console.log('pheri ', data);
         const peripherals = data.peripherals.peri_status; 
         const tableBody = document.getElementById('peripheralsTableBody');
         tableBody.innerHTML = ''; 

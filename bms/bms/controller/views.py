@@ -150,7 +150,10 @@ def f_sensors():
             except Exception as e:
                 msg=F'Error reading DU {ii}'
                 logger.error(f"Sensors: Error {msg} - {e}", exc_info=True)
-                return gettemplate(templ, msg=msg)
+                if isDash:
+                    return jsonify ({'sensors' : {'table' : msg,
+                                          'table_clip_power' : ''}})
+                return gettemplate(templ, msg=msg), 500
         #print(duClipPower.to_dict())
         templ['table_clip_power'] = duClipPower.to_dict()
         templ['table_to_clip'] = duClipboardDict
@@ -469,8 +472,11 @@ def f_peripherals():
             to_send[thiscommand]['SW'].update({'sw_display' : F'AUTORESCUE is {sw_status}'}) 
 
         except Exception as e:
-            logger.error(f"Peripherals: Error retrieving status du={du} - {e}", exc_info=True)
-            return gettemplate(templ, msg='Error retrieving status')
+            msg='Error retrieving status'
+            logger.error(f"Peripherals: {msg} du={du} - {e}", exc_info=True)
+            if isDash:
+                return jsonify ({'peripherals' : msg}), 500
+            return gettemplate(templ, msg=msg)
         
         templ['du'] = du
         templ['prefilldu'] = du

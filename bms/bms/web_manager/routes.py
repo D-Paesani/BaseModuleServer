@@ -70,5 +70,9 @@ def page_not_found(error):
     return render_template('404.html', error=error)
 
 @routes_blueprint.app_errorhandler(403)
-def page_not_found(error):
+def page_not_auth(error):
+    return render_template('403.html', error=error)
+
+@routes_blueprint.app_errorhandler(500)
+def page_not_505(error):
     return render_template('403.html', error=error)

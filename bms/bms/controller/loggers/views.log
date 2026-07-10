@@ -1,0 +1,177 @@
+[ERROR] 2026-07-10 07:07:57,326 - views.py:261 - views - Rescue: Error du=0 - Error reading - "None of [Index(['ENABLESTATE'], dtype='object')] are in the [columns]"
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 257, in f_rescue
+    dd = dd[jsc.commands['rescue'].params]
+  File "/usr/lib/python3.9/site-packages/pandas/core/frame.py", line 4096, in __getitem__
+    indexer = self.columns._get_indexer_strict(key, "columns")[1]
+  File "/usr/lib/python3.9/site-packages/pandas/core/indexes/base.py", line 6200, in _get_indexer_strict
+    self._raise_if_missing(keyarr, indexer, axis_name)
+  File "/usr/lib/python3.9/site-packages/pandas/core/indexes/base.py", line 6249, in _raise_if_missing
+    raise KeyError(f"None of [{key}] are in the [{axis_name}]")
+KeyError: "None of [Index(['ENABLESTATE'], dtype='object')] are in the [columns]"
+[ERROR] 2026-07-10 07:08:14,139 - views.py:472 - views - Peripherals: Error retrieving status du=0 - 'NoneType' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 455, in f_peripherals
+    sw_name =                           resp.get('SWITCHNUM').replace('SWITCH_','')
+AttributeError: 'NoneType' object has no attribute 'get'
+[ERROR] 2026-07-10 07:08:20,196 - views.py:152 - views - Sensors: Error Error reading DU 0 - 'NoneType' object is not iterable
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 109, in f_sensors
+    for icmd in ['sensors_avg', 'sensors_max', 'sensors_val']: resp.update(jsc.commands[icmd].exec(ii, args=None))
+TypeError: 'NoneType' object is not iterable
+[ERROR] 2026-07-10 07:12:01,326 - views.py:472 - views - Peripherals: Error retrieving status du=0 - 'NoneType' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 455, in f_peripherals
+    sw_name =                           resp.get('SWITCHNUM').replace('SWITCH_','')
+AttributeError: 'NoneType' object has no attribute 'get'
+[ERROR] 2026-07-10 07:12:07,367 - views.py:152 - views - Sensors: Error Error reading DU 0 - 'NoneType' object is not iterable
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 109, in f_sensors
+    for icmd in ['sensors_avg', 'sensors_max', 'sensors_val']: resp.update(jsc.commands[icmd].exec(ii, args=None))
+TypeError: 'NoneType' object is not iterable
+[ERROR] 2026-07-10 07:13:45,748 - views.py:472 - views - Peripherals: Error retrieving status du=0 - 'NoneType' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 455, in f_peripherals
+    sw_name =                           resp.get('SWITCHNUM').replace('SWITCH_','')
+AttributeError: 'NoneType' object has no attribute 'get'
+[ERROR] 2026-07-10 07:13:51,785 - views.py:152 - views - Sensors: Error Error reading DU 0 - 'NoneType' object is not iterable
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 109, in f_sensors
+    for icmd in ['sensors_avg', 'sensors_max', 'sensors_val']: resp.update(jsc.commands[icmd].exec(ii, args=None))
+TypeError: 'NoneType' object is not iterable
+[ERROR] 2026-07-10 07:14:14,695 - views.py:472 - views - Peripherals: Error retrieving status du=0 - 'NoneType' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 455, in f_peripherals
+    sw_name =                           resp.get('SWITCHNUM').replace('SWITCH_','')
+AttributeError: 'NoneType' object has no attribute 'get'
+[ERROR] 2026-07-10 07:14:20,740 - views.py:152 - views - Sensors: Error Error reading DU 0 - 'NoneType' object is not iterable
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 109, in f_sensors
+    for icmd in ['sensors_avg', 'sensors_max', 'sensors_val']: resp.update(jsc.commands[icmd].exec(ii, args=None))
+TypeError: 'NoneType' object is not iterable
+[ERROR] 2026-07-10 07:14:53,075 - views.py:472 - views - Peripherals: Error retrieving status du=0 - 'NoneType' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 455, in f_peripherals
+    sw_name =                           resp.get('SWITCHNUM').replace('SWITCH_','')
+AttributeError: 'NoneType' object has no attribute 'get'
+[ERROR] 2026-07-10 07:14:59,115 - views.py:152 - views - Sensors: Error Error reading DU 0 - 'NoneType' object is not iterable
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 109, in f_sensors
+    for icmd in ['sensors_avg', 'sensors_max', 'sensors_val']: resp.update(jsc.commands[icmd].exec(ii, args=None))
+TypeError: 'NoneType' object is not iterable
+[ERROR] 2026-07-10 07:23:49,324 - views.py:472 - views - Peripherals: Error retrieving status du=0 - 'NoneType' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 455, in f_peripherals
+    sw_name =                           resp.get('SWITCHNUM').replace('SWITCH_','')
+AttributeError: 'NoneType' object has no attribute 'get'
+[ERROR] 2026-07-10 07:23:55,368 - views.py:152 - views - Sensors: Error Error reading DU 0 - 'NoneType' object is not iterable
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 109, in f_sensors
+    for icmd in ['sensors_avg', 'sensors_max', 'sensors_val']: resp.update(jsc.commands[icmd].exec(ii, args=None))
+TypeError: 'NoneType' object is not iterable
+[ERROR] 2026-07-10 07:24:49,969 - views.py:472 - views - Peripherals: Error retrieving status du=0 - 'NoneType' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 455, in f_peripherals
+    sw_name =                           resp.get('SWITCHNUM').replace('SWITCH_','')
+AttributeError: 'NoneType' object has no attribute 'get'
+[ERROR] 2026-07-10 07:24:56,016 - views.py:152 - views - Sensors: Error Error reading DU 0 - 'NoneType' object is not iterable
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 109, in f_sensors
+    for icmd in ['sensors_avg', 'sensors_max', 'sensors_val']: resp.update(jsc.commands[icmd].exec(ii, args=None))
+TypeError: 'NoneType' object is not iterable
+[ERROR] 2026-07-10 07:45:22,503 - views.py:472 - views - Peripherals: Error retrieving status du=0 - 'NoneType' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 455, in f_peripherals
+    sw_name =                           resp.get('SWITCHNUM').replace('SWITCH_','')
+AttributeError: 'NoneType' object has no attribute 'get'
+[ERROR] 2026-07-10 07:45:27,685 - views.py:152 - views - Sensors: Error Error reading DU 0 - 'NoneType' object is not iterable
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 109, in f_sensors
+    for icmd in ['sensors_avg', 'sensors_max', 'sensors_val']: resp.update(jsc.commands[icmd].exec(ii, args=None))
+TypeError: 'NoneType' object is not iterable
+[ERROR] 2026-07-10 07:46:29,501 - views.py:472 - views - Peripherals: Error retrieving status du=0 - 'NoneType' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 455, in f_peripherals
+    sw_name =                           resp.get('SWITCHNUM').replace('SWITCH_','')
+AttributeError: 'NoneType' object has no attribute 'get'
+[ERROR] 2026-07-10 07:46:35,540 - views.py:152 - views - Sensors: Error Error reading DU 0 - 'NoneType' object is not iterable
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 109, in f_sensors
+    for icmd in ['sensors_avg', 'sensors_max', 'sensors_val']: resp.update(jsc.commands[icmd].exec(ii, args=None))
+TypeError: 'NoneType' object is not iterable
+[ERROR] 2026-07-10 07:49:34,425 - views.py:472 - views - Peripherals: Error retrieving status du=0 - 'NoneType' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 455, in f_peripherals
+    sw_name =                           resp.get('SWITCHNUM').replace('SWITCH_','')
+AttributeError: 'NoneType' object has no attribute 'get'
+[ERROR] 2026-07-10 07:49:40,462 - views.py:152 - views - Sensors: Error Error reading DU 0 - 'NoneType' object is not iterable
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 109, in f_sensors
+    for icmd in ['sensors_avg', 'sensors_max', 'sensors_val']: resp.update(jsc.commands[icmd].exec(ii, args=None))
+TypeError: 'NoneType' object is not iterable
+[ERROR] 2026-07-10 07:52:24,886 - views.py:152 - views - Sensors: Error Error reading DU 0 - 'NoneType' object is not iterable
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 109, in f_sensors
+    for icmd in ['sensors_avg', 'sensors_max', 'sensors_val']: resp.update(jsc.commands[icmd].exec(ii, args=None))
+TypeError: 'NoneType' object is not iterable
+[ERROR] 2026-07-10 07:54:03,882 - views.py:475 - views - Peripherals: Error retrieving status du=0 - 'NoneType' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 458, in f_peripherals
+    sw_name =                           resp.get('SWITCHNUM').replace('SWITCH_','')
+AttributeError: 'NoneType' object has no attribute 'get'
+[ERROR] 2026-07-10 07:54:09,936 - views.py:152 - views - Sensors: Error Error reading DU 0 - 'NoneType' object is not iterable
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 109, in f_sensors
+    for icmd in ['sensors_avg', 'sensors_max', 'sensors_val']: resp.update(jsc.commands[icmd].exec(ii, args=None))
+TypeError: 'NoneType' object is not iterable
+[ERROR] 2026-07-10 07:54:43,851 - views.py:152 - views - Sensors: Error Error reading DU 0 - 'NoneType' object is not iterable
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 109, in f_sensors
+    for icmd in ['sensors_avg', 'sensors_max', 'sensors_val']: resp.update(jsc.commands[icmd].exec(ii, args=None))
+TypeError: 'NoneType' object is not iterable
+[ERROR] 2026-07-10 07:55:29,746 - views.py:152 - views - Sensors: Error Error reading DU 0 - 'NoneType' object is not iterable
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 109, in f_sensors
+    for icmd in ['sensors_avg', 'sensors_max', 'sensors_val']: resp.update(jsc.commands[icmd].exec(ii, args=None))
+TypeError: 'NoneType' object is not iterable
+[ERROR] 2026-07-10 07:56:56,739 - views.py:476 - views - Peripherals: Error retrieving status du=0 - 'NoneType' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 458, in f_peripherals
+    sw_name =                           resp.get('SWITCHNUM').replace('SWITCH_','')
+AttributeError: 'NoneType' object has no attribute 'get'
+[ERROR] 2026-07-10 07:57:53,032 - views.py:476 - views - Peripherals: Error retrieving status du=0 - 'NoneType' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 458, in f_peripherals
+    sw_name =                           resp.get('SWITCHNUM').replace('SWITCH_','')
+AttributeError: 'NoneType' object has no attribute 'get'
+[ERROR] 2026-07-10 07:59:24,240 - views.py:476 - views - Peripherals: Error retrieving status du=0 - 'NoneType' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 458, in f_peripherals
+    sw_name =                           resp.get('SWITCHNUM').replace('SWITCH_','')
+AttributeError: 'NoneType' object has no attribute 'get'
+[ERROR] 2026-07-10 08:01:11,000 - views.py:476 - views - Peripherals: Error retrieving status du=0 - 'NoneType' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 458, in f_peripherals
+    sw_name =                           resp.get('SWITCHNUM').replace('SWITCH_','')
+AttributeError: 'NoneType' object has no attribute 'get'
+[ERROR] 2026-07-10 08:02:42,290 - views.py:476 - views - Peripherals: Error retrieving status du=0 - 'NoneType' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 458, in f_peripherals
+    sw_name =                           resp.get('SWITCHNUM').replace('SWITCH_','')
+AttributeError: 'NoneType' object has no attribute 'get'
+[ERROR] 2026-07-10 08:02:54,413 - views.py:476 - views - Peripherals: Error retrieving status du=0 - 'NoneType' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 458, in f_peripherals
+    sw_name =                           resp.get('SWITCHNUM').replace('SWITCH_','')
+AttributeError: 'NoneType' object has no attribute 'get'
+[ERROR] 2026-07-10 08:03:00,465 - views.py:152 - views - Sensors: Error Error reading DU 0 - 'NoneType' object is not iterable
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 109, in f_sensors
+    for icmd in ['sensors_avg', 'sensors_max', 'sensors_val']: resp.update(jsc.commands[icmd].exec(ii, args=None))
+TypeError: 'NoneType' object is not iterable
+[ERROR] 2026-07-10 08:04:18,071 - views.py:444 - views - Peripherals: Error Waiting for user input #error input#
+[ERROR] 2026-07-10 08:04:22,177 - views.py:476 - views - Peripherals: Error retrieving status du=0 - 'NoneType' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/app/bms/controller/views.py", line 458, in f_peripherals
+    sw_name =                           resp.get('SWITCHNUM').replace('SWITCH_','')
+AttributeError: 'NoneType' object has no attribute 'get'
