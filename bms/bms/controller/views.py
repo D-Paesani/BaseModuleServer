@@ -17,7 +17,11 @@ from datetime import datetime
 import concurrent.futures
 from bms.controller import cmd_lambda
 from bms.web_manager.commands_help import *
+from . import BASEDIR
+from bms.logger.logger import Logger
 
+
+logger = Logger("views", log_file=f"{BASEDIR}/loggers/views.log")
 
 #from flask_breadcrumbs import Breadcrumbs, register_breadcrumb
 
@@ -84,8 +88,10 @@ def f_sensors():
             du, templ['prefilldu'] = uu.parsestrlist(request.form.get('du'), typ=int)
             if len(du) == 1:
                 current_app.config.update({'DU' : du[0]})
-        except:
-            return gettemplate(templ, msg='Error retrieving DU list') 
+        except Exception as e:
+            msg='Error retrieving DU list'
+            logger.error(f"Sensors: Error {msg} - {e}", exc_info=True)
+            return gettemplate(templ, msg=msg) 
         
         for ii in du:
             try: 
@@ -142,16 +148,19 @@ def f_sensors():
                 
                 dd.append(ddtemp_pivot)
             except Exception as e:
-                return gettemplate(templ, msg=F'Error reading DU {ii} {e}')
-        print(duClipPower.to_dict())
+                msg=F'Error reading DU {ii}'
+                logger.error(f"Sensors: Error {msg} - {e}", exc_info=True)
+                return gettemplate(templ, msg=msg)
+        #print(duClipPower.to_dict())
         templ['table_clip_power'] = duClipPower.to_dict()
         templ['table_to_clip'] = duClipboardDict
         templ['table'] = {f'DU{ddt[i]:03d}': tab.to_html(classes='table table-striped', index=True) for i, tab in enumerate(dd)}
 
         if isDash:
-            print('dashboard request')
+            logger.info(f"Sensors on Dash: du={du} - {templ}")
             return jsonify ({'sensors' : {'table' : templ['table'],
                                           'table_clip_power' : templ['table_clip_power']}})
+        logger.info(f"Sensors: du={du} - {templ}")
         return gettemplate(templ, msg=F'Reading sensors on DU={du} with response:')    
     else:
         return gettemplate(templ, msg=F'Waiting for user input')
@@ -168,15 +177,15 @@ def f_swcontrol():
         try:
             du = templ['prefilldu'] = int(request.form.get('du'))
             current_app.config.update({'DU' : du})
-        except:
+        except Exception as e:
+            logger.error(f"SWcontrol: Error retrieving DU - {e}", exc_info=True)
             return jsonify({'msg' : 'Error retrieving DU',
                             'table' : ''})
-            return gettemplate(templ, msg='Error retrieving DU') 
         try:
             sws, templ['prefillsws'] = uu.parsestrlist(request.form.get('sws'), typ=int)
-        except:
+        except Exception as e:
+            logger.error(f"SWcontrol: Error retrieving SW du={du} - {e}", exc_info=True)
             return jsonify({'msg' : 'Error retrieving SW', 'table' : ''})
-            return gettemplate(templ, msg='Error retrieving SW')
         
         submit = request.form.get('submit')
         
@@ -186,10 +195,10 @@ def f_swcontrol():
         # if data.get('submit') == 'WRITE':
             try:
                 state =  templ['prefillstate'] = int(request.form.get('state'))
-            except:
+            except Exception as e:
+                logger.error(f"SWcontrol: Error retrieving STATE value du={du} - {e}", exc_info=True)
                 return jsonify({'msg' : 'Error retrieving STATE value',
                             'table' : ''})
-                return gettemplate(templ, msg='Error retrieving STATE value')
             
         for ii in sws:
             try: 
@@ -207,12 +216,13 @@ def f_swcontrol():
                 templ['table'] = dd.to_html(index=False)
                 
             except Exception as e:
-                return ({'msg' : F'Error {("writing to" if state<2 else "reading").lower()} SW {ii} ', 'table' : ''})
-                return gettemplate(templ, msg=F'Error {("writing to" if state<2 else "reading").lower()} SW {ii} ')  
+                msg = F'Error {("writing to" if state<2 else "reading").lower()} SW {ii} '
+                logger.error(f"SWcontrol: Error du={du} - {msg} - {e}", exc_info=True)
+                return ({'msg' : msg, 'table' : ''})
                          
         msg = F'{"Writing to" if state<2 else "Reading"} DU{du:03d} switch{"es" if len(sws) > 1 else ""} {sws} {F"to STATE={state}" if state<2 else ""} with response:'
+        logger.info(f"SWcontrol: du={du} - {msg} - {templ}")
         return jsonify ({'msg' : msg, 'table' : templ['table']})
-        return gettemplate(templ, msg)
                     
     else:
          return gettemplate(templ, msg='Waiting for user input')
@@ -229,13 +239,15 @@ def f_rescue():
         try:
             du = templ['prefilldu'] = int(request.form.get('du'))
             current_app.config.update({'DU' : du})
-        except:
+        except Exception as e:
+            logger.error(f'Rescue: Error retrieving DU - {e}', exc_info=True)
             return gettemplate(templ, msg='Error retrieving DU') 
             
         if request.form['submit'] == 'WRITE':
             try:
                 state =  templ['prefillstate'] = int(request.form.get('state'))
-            except:
+            except Exception as e:
+                logger.error(f'Rescue: Error retrieving STATE value du={du} - {e}', exc_info=True)
                 return gettemplate(templ, msg='Error retrieving STATE value')
             
         try: 
@@ -244,10 +256,13 @@ def f_rescue():
             dd = pd.concat([dd, pd.DataFrame(resp, index=[''])])
             dd = dd[jsc.commands['rescue'].params]
             templ['table'] = dd.to_html(index=False)
-        except:
-            return gettemplate(templ, msg=F'Error {("writing" if state<2 else "reading").lower()}') 
+        except Exception as e:
+            msg=F'Error {("writing" if state<2 else "reading").lower()}'
+            logger.error(f"Rescue: Error du={du} - {msg} - {e}", exc_info=True)
+            return gettemplate(templ, msg=msg) 
                                
         msg = F'{"Writing" if state<2 else "Reading"} DU{du:03d} rescue enable {F"to STATE={state}" if state<2 else ""} with response:'
+        logger.info(f"Rescue: {msg} - {templ}")
         return gettemplate(templ, msg)
                     
     else:
@@ -267,18 +282,21 @@ def f_threshold():
         try:
             du = templ['prefilldu'] = int(request.form.get('du')) 
             current_app.config.update({'DU' : du})
-        except:
+        except Exception as e:
+            logger.error(f"Utilities: Error retrieving DU {e}")
             return jsonify ({'msg' : 'Error retrieving DU', 'answ' : templ['answ']})
         
         if submit == 'GET':
             try:
                 sw =  templ['prefillsw'] = request.form.get('sw') # string per il comando
-            except:
+            except Exception as e:
+                logger.error(f"Utilities: Error retrieving SW value du={du} - {e}")
                 return jsonify ({'msg' : 'Error retrieving SW value', 'answ' : templ['answ']})
                 
             try: 
                 templ['answ'] = jsc.commands['get_threshold'].exec(du, args=dict(sw=sw))['answ'].replace("\n",'<br>').replace('  ','&nbsp;&nbsp;&nbsp;&nbsp;') #answ contiene la risposta raw di jsend command da mostrare a schermo
             except Exception as e:
+                logger.error(f"Utilities: Error sending command get_threshold du={du} - {e}")
                 return jsonify ({'msg' : 'Error sending command', 'answ' : f"{e} - {templ['answ']}"})
                                 
             msg = F'Sending command {jsc.commands["get_threshold"].cmd} {sw} to DU{du:03d} with response:'
@@ -287,11 +305,13 @@ def f_threshold():
             try:
                 sw =  templ['prefillsw'] = request.form.get('sw') # string per il comando
                 threshold = templ['prefillsw'] = request.form.get('threshold')
-            except:
+            except Exception as e:
+                logger.error(f"Utilities: Error retrieving SW/Threshold value du={du} - {e}")
                 return jsonify ({'msg' : 'Error retrieving SW/Threshold value', 'answ' : templ['answ']})
             try: 
                 templ['answ'] = jsc.commands['set_threshold'].exec(du, args=dict(sw=sw, value=threshold))['answ'].replace("\n",'<br>').replace('  ','&nbsp;&nbsp;&nbsp;&nbsp;') #answ contiene la risposta raw di jsend command da mostrare a schermo
             except Exception as e:
+                logger.error(f"Utilities: Error sending command set_threshold du={du} - {e}")
                 return jsonify ({'msg' : 'Error sending command', 'answ' : f"{e} - {templ['answ']}"})
                                 
             msg = F'Sending command {jsc.commands["set_threshold"].cmd} {sw} {threshold} to DU{du:03d} with response:'
@@ -299,15 +319,17 @@ def f_threshold():
         elif submit == 'RESET':
             try:
                 reset_maxvalue =  templ['prefillreset'] = request.form.get('reset_maxvalue') # string per il comando
-            except:
+            except Exception as e:
+                logger.error(f"Utilities: Error retrieving reset value du={du} - {e}")
                 return jsonify ({'msg' : 'Error retrieving reset value', 'answ' : templ['answ']})
             try: 
                 templ['answ'] = jsc.commands['reset_maxvalue'].exec(du, args=dict(value=reset_maxvalue))['answ'].replace("\n",'<br>').replace('  ','&nbsp;&nbsp;&nbsp;&nbsp;') #answ contiene la risposta raw di jsend command da mostrare a schermo
             except Exception as e:
+                logger.error(f"Utilities: Error sending command reset_maxvalue du={du} - {e}")
                 return jsonify ({'msg' : 'Error sending command', 'answ' : f"{e} - {templ['answ']}"})
                                 
             msg = F'Sending command {jsc.commands["reset_maxvalue"].cmd} {reset_maxvalue} to DU{du:03d} with response:'
-            
+        logger.info(f"Utilities: {msg} - {templ}")
         return jsonify ({'msg' : msg, 'answ' : templ['answ']})
                 
     else:
@@ -328,23 +350,23 @@ def f_sendraw():
         try:
             du = templ['prefilldu'] = int(request.form.get('du')) 
             current_app.config.update({'DU' : du})
-        except:
+        except Exception as e:
+            logger.error(f"Sendraw: Error retrieving DU {e}", exc_info=True)
             return jsonify ({'msg' : 'Error retrieving DU', 'answ' : templ['answ']})
-            return gettemplate(templ, msg='Error retrieving DU') 
             
         if submit == 'SEND':
            
             try:
                 cmd =  templ['prefillcmd'] = request.form.get('cmd') # string per il comando
-            except:
+            except Exception as e:
+                logger.error(f"Sendraw: Error retrieving CMD value du={du} - {e}", exc_info=True)
                 return jsonify ({'msg' : 'Error retrieving CMD value', 'answ' : templ['answ']})
-                return gettemplate(templ, msg='Error retrieving CMD value')
                 
             try: 
                 templ['answ'] = jsc.commands['raw'].exec(du, args=dict(cmdstr=cmd))['answ'].replace("\n",'<br>').replace('  ','&nbsp;&nbsp;&nbsp;&nbsp;') #answ contiene la risposta raw di jsend command da mostrare a schermo
-            except:
+            except Exception as e:
+                logger.error(f"Sendraw: Error sending command du={du} - {e}", exc_info=True)
                 return jsonify ({'msg' : 'Error sending command', 'answ' : templ['answ']})
-                return gettemplate(templ, msg=F'Error sending command') 
                                 
             msg = F'Sending command [{cmd}] to DU{du:03d} with response:'
         
@@ -352,7 +374,7 @@ def f_sendraw():
         
             pingd = uu.isDuAlive(du)
             msg = f'Pinging DU{du:03d} at [{uu.getbaseip(du)}] : {"ALIVE" if pingd else "UNREACHABLE"}'
-        
+        logger.info(f"Sendraw: {msg} - {templ}")
         return jsonify ({'msg' : msg, 'answ' : templ['answ']})
                 
     else:
@@ -414,8 +436,10 @@ def f_peripherals():
             
             try:
                 du = request.args['du']
-            except:
-                return gettemplate(templ, msg='Waiting for user input #error input#')
+            except Exception as e:
+                msg='Waiting for user input #error input#'
+                logger.error(f"Peripherals: Error {msg}")
+                return gettemplate(templ, msg=msg)
             
             to_send = {} 
                     
@@ -444,38 +468,41 @@ def f_peripherals():
             to_send[thiscommand]['SW'] = {'sw_status' : int('OFF' in sw_status)}
             to_send[thiscommand]['SW'].update({'sw_display' : F'AUTORESCUE is {sw_status}'}) 
 
-        except Exception as ee:
+        except Exception as e:
+            logger.error(f"Peripherals: Error retrieving status du={du} - {e}", exc_info=True)
             return gettemplate(templ, msg='Error retrieving status')
-            return gettemplate(templ, msg=F'Error retrieving status: {ee}')
         
         templ['du'] = du
         templ['prefilldu'] = du
         templ['peri_status'] = to_send
 
         if isDash:
-            print('dash periph request')
+            logger.info(f"Peripherals on Dash: {templ}")
             return jsonify ({'peripherals' : templ})
-        # return jsonify(templ) #@mirko per diagnostica
+        logger.info(f"Peripherals: {templ}")
         return gettemplate(templ, msg='Requesting status')
         
     if request.method == 'POST':
         
         req = request.json
         du, periph2operate, status2write = int(req['du']), req['periph'], int(req['val'])
-        print('################# ', du, periph2operate, status2write)
 
         if periph2operate in jsc.peripheral_dict_BPD:     
             for ii in jsc.peripheral_dict_BPD[periph2operate]: 
                 try:
                     resp = jsc.commands['switch'].exec(du, args=dict(sw=ii, state=status2write))
-                except Exception as ee:
-                    return jsonify({'status' : f'Error in operating rescue enable: {ee}', 'response':False})
+                    logger.info(f"Peripherals: switch command on du={du} sw={ii} state={status2write}")
+                except Exception as e:
+                    logger.error(f"Peripherals: Error in operating rescue enable du={du} - {e}", exc_info=True)
+                    return jsonify({'status' : f'Error in operating rescue enable: {e}', 'response':False})
                     
         elif periph2operate == 'rescue':
             try:
                 resp = jsc.commands['rescue'].exec(du, args=dict(state=status2write))
-            except Exception as ee:
-                return jsonify({'status' : f'Error in operating rescue enable: {ee}', 'response':False})
+                logger.info(f"Peripherals: rescue command on du={du} state={status2write}")
+            except Exception as e:
+                logger.error(f"Peripherals: Error in operating rescue enable du={du} - {e}", exc_info=True)
+                return jsonify({'status' : f'Error in operating rescue enable: {e}', 'response':False})
         else:
             pass # for future use
 

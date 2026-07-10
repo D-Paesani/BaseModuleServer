@@ -1,0 +1,8 @@
+[INFO] 2026-07-09 13:24:41,360 - cmd_lambda.py:66 - tdk_lambda - Lambda dvc: ['/app/bms/tdk_lambda.py', 'dvc'] - ["[Errno 2] could not open port /dev/ttyUSB0: [Errno 2] No such file or directory: '/dev/ttyUSB0'"]
+[INFO] 2026-07-09 13:24:42,642 - cmd_lambda.py:66 - tdk_lambda - Lambda dvc: ['/app/bms/tdk_lambda.py', 'dvc'] - ["[Errno 2] could not open port /dev/ttyUSB0: [Errno 2] No such file or directory: '/dev/ttyUSB0'"]
+[INFO] 2026-07-09 13:24:47,573 - cmd_lambda.py:66 - tdk_lambda - Lambda dvc: ['/app/bms/tdk_lambda.py', 'dvc'] - ["[Errno 2] could not open port /dev/ttyUSB0: [Errno 2] No such file or directory: '/dev/ttyUSB0'"]
+[ERROR] 2026-07-09 13:25:11,933 - cmd_lambda.py:31 - tdk_lambda - Lambda status: ['/app/bms/tdk_lambda.py', 'status'] - list index out of range
+Traceback (most recent call last):
+  File "/app/bms/controller/cmd_lambda.py", line 28, in lambda_status
+    output = subprocess.check_output(command, universal_newlines=True).split('=>')[1].strip()
+IndexError: list index out of range

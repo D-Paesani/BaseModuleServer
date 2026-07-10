@@ -1,9 +1,11 @@
 import subprocess, re
 from flask import jsonify, Blueprint
 from flask_login import login_required
+from . import BASEDIR
+from bms.logger.logger import Logger
 
 tdk_blueprint = Blueprint('tdk', __name__)
-
+logger = Logger("tdk_lambda", log_file=f"{BASEDIR}/loggers/tdk_lambda.log")
 
 def remove_ansi_escape_sequences(text):
     ansi_escape = re.compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]')
@@ -21,42 +23,50 @@ def to_json(text):
 @tdk_blueprint.route('/lambda_status')
 @login_required
 def lambda_status():
-    output = ''
     command = ['/app/bms/tdk_lambda.py', 'status']
-    print(command)
     try:
         output = subprocess.check_output(command, universal_newlines=True).split('=>')[1].strip()
+        logger.info(f"Lambda status: {command} - {output}")
     except Exception as e:
-        print(str(e))
-    print(output) #OFF | #ON
+        logger.error(f"Lambda status: {command} - {e}", exc_info=True)
+        return jsonify ({'response' : 'error'})
     return jsonify ({'response' : output})
 
 @tdk_blueprint.route('/lambda_on')
 @login_required
 def lambda_on():
     command = ['/app/bms/tdk_lambda.py', 'power_on']
-    print(command)
-    output = subprocess.check_output(command, universal_newlines=True).split('=>')[1].strip()
-    print(output) #OK
+    try:
+        output = subprocess.check_output(command, universal_newlines=True).split('=>')[1].strip()
+        logger.info(f"Lambda power: {command} - {output}")
+    except Exception as e:
+        logger.error(f"Lambda power: {command} - {e}", exc_info=True)
+        return jsonify ({'response' : 'error'})
     return jsonify ({'response' : output})
 
 @tdk_blueprint.route('/lambda_off')
 @login_required
 def lambda_off():
     command = ['/app/bms/tdk_lambda.py', 'power_off']
-    print(command)
-    output = subprocess.check_output(command, universal_newlines=True).split('=>')[1].strip()
-    print(output) #OK
+    try:
+        output = subprocess.check_output(command, universal_newlines=True).split('=>')[1].strip()
+        logger.info(f"Lambda power: {command} - {output}")
+    except Exception as e:
+        logger.error(f"Lambda power: {command} - {e}", exc_info=True)
+        return jsonify ({'response' : 'error'})
     return jsonify ({'response' : output})
 
 @tdk_blueprint.route('/lambda_dvc')
 @login_required
 def lambda_dvc():
     command = ['/app/bms/tdk_lambda.py', 'dvc']
-    print(command)
-    output = subprocess.check_output(command, universal_newlines=True).strip()
-    output = remove_ansi_escape_sequences(output).split('\n')
-    print(output)
+    try:
+        output = subprocess.check_output(command, universal_newlines=True).strip()
+        output = remove_ansi_escape_sequences(output).split('\n')
+        logger.info(f"Lambda dvc: {command} - {output}")
+    except Exception as e:
+        logger.error(f"Lambda dvc: {command} - {e}", exc_info=True)
+        return jsonify ({'response' : 'error'})
     #output dummy
     # output= ["Measured Voltage 363.12              ",
     # "Programmed Voltage 363.04              ",

@@ -12,7 +12,7 @@ ln -s /cu_tools/NG-DUBase_java/NG_BPDCmd.class /bpd-software/host/python/console
 ln -s /cu_tools/NG-DUBase_java/remote.jar /bpd-software/host/python/console/remote.jar
 ln -s /cu_tools/NG-DUBase_java/execute.sh /bpd-software/host/python/console/execute.sh
 
-source google_export.sh
+#source google_export.sh
 
 #pip3 install -r requirements.txt
 
