@@ -1,3 +1,5 @@
 bms/google_export.sh
 bms/bms/keycloak/cfg.cfg
 PAT
+*__pycache__*
+*.log
